@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #5ddb8a;
+
+  --background: #f5f8fc;
+  --card: #fdfefe;
+  --surface-2: #f7fafc;
+  --sidebar: rgba(253, 254, 254, 0.96);
+
+  --input: #f3f7fb;
+  --input-readonly: #f0f5fa;
+  --input-hover: #eef4fa;
+  --input-active: #f8fbff;
+
+  --search-surface: #f6f9fc;
+  --search-surface-hover: #f2f7fb;
+  --search-surface-focus: #f9fbff;
+  --search-border: rgba(15, 23, 42, 0.09);
+  --search-border-hover: rgba(15, 23, 42, 0.14);
+  --search-border-focus: rgba(93, 219, 138, 0.42);
+  --search-text: #10203a;
+  --search-placeholder: #6b7f98;
+  --search-icon: #7a8ea8;
+
+  --modal-overlay: rgba(15, 23, 42, 0.22);
+  --modal-panel: #fdfefe;
+  --modal-panel-border: rgba(15, 23, 42, 0.1);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --border-primary: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --border-active: rgba(93, 219, 138, 0.45);
+
+  --sidebar-hover: rgba(15, 23, 42, 0.03);
+  --sidebar-active: rgba(93, 219, 138, 0.12);
+
+  --sidebar-footer: rgba(15, 23, 42, 0.03);
+}
+
+.dark {
+  --background: #061126;
+  --card: #0b1a31;
+  --surface-2: #0f2038;
+  --sidebar: rgba(11, 26, 49, 0.96);
+
+  --input: #12243f;
+  --input-readonly: #0f2038;
+  --input-hover: #152a47;
+  --input-active: #182f4f;
+
+  --search-surface: #10233e;
+  --search-surface-hover: #132947;
+  --search-surface-focus: #163052;
+  --search-border: rgba(203, 213, 225, 0.16);
+  --search-border-hover: rgba(203, 213, 225, 0.24);
+  --search-border-focus: rgba(93, 219, 138, 0.52);
+  --search-text: #ebf3ff;
+  --search-placeholder: #9cafc5;
+  --search-icon: #9bb0c8;
+
+  --modal-overlay: rgba(6, 17, 38, 0.4);
+  --modal-panel: #0b1a31;
+  --modal-panel-border: rgba(203, 213, 225, 0.2);
+
+  --text-primary: #eaf1fb;
+  --text-secondary: #b6c2d3;
+  --text-muted: #8ea0b8;
+
+  --border-primary: rgba(203, 213, 225, 0.14);
+  --border-strong: rgba(203, 213, 225, 0.22);
+  --border-active: rgba(93, 219, 138, 0.5);
+
+  --sidebar-hover: rgba(255, 255, 255, 0.03);
+  --sidebar-active: rgba(93, 219, 138, 0.14);
+
+  --sidebar-footer: rgba(255, 255, 255, 0.03);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  color-scheme: dark light;
+}
+
+body {
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+/* ROOT SYNCHRONIZED THEME TRANSITION */
+
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out,
+    color 160ms ease-out,
+    fill 160ms ease-out,
+    stroke 160ms ease-out !important;
+}
