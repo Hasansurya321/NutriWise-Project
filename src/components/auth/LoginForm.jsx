@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { loginDummy } from '../../services/auth';
+import { authService } from '../../services';
 
 export default function LoginForm({ onSwitchToRegister }) {
   const navigate = useNavigate();
@@ -20,14 +20,15 @@ export default function LoginForm({ onSwitchToRegister }) {
 
     setError('');
 
-    const success = loginDummy(email, password);
+    // Use mock auth service (internally initializes mock data)
+    const success = authService.loginDummy(email, password);
 
     if (!success) {
       setError('Email atau password salah.');
       return;
     }
 
-    navigate('/', { replace: true });
+    navigate('/dashboard', { replace: true });
   }
 
   return (

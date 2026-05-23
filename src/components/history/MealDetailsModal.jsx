@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
+import { getIconByName } from '../../utils/iconRegistry';
+
 export function MealDetailsModal({ meal, open, onClose }) {
   const scrollYRef = useRef(0);
 
@@ -245,34 +247,38 @@ export function MealDetailsModal({ meal, open, onClose }) {
                   </h3>
 
                   <div className="mt-3 space-y-3">
-                    {meal.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="
+                    {meal.items.map((item) => {
+                      const Icon = getIconByName(item.iconName, 'Apple');
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="
                         flex items-center justify-between
                         rounded-2xl
                         border border-borderPrimary
                         bg-background/40
                         p-4
                       "
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="text-2xl">{item.icon}</div>
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-card text-primary">{Icon ? <Icon className="h-5 w-5" /> : null}</div>
 
-                          <div>
-                            <p className="font-medium text-textPrimary">{item.name}</p>
+                            <div>
+                              <p className="font-medium text-textPrimary">{item.name}</p>
 
-                            <p className="text-sm text-textSecondary">{item.calories} kcal</p>
+                              <p className="text-sm text-textSecondary">{item.calories} kcal</p>
+                            </div>
+                          </div>
+
+                          <div className="text-right text-sm text-textSecondary">
+                            <p>P {item.protein}g</p>
+                            <p>C {item.carbs}g</p>
+                            <p>F {item.fats}g</p>
                           </div>
                         </div>
-
-                        <div className="text-right text-sm text-textSecondary">
-                          <p>P {item.protein}g</p>
-                          <p>C {item.carbs}g</p>
-                          <p>F {item.fats}g</p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>

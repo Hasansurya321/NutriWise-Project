@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 
 import DashboardLayout from '../layouts/DashboardLayout';
 import ProtectedRoute from './ProtectedRoute';
@@ -16,27 +16,43 @@ export const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: (
-      <ProtectedRoute>
-        <DashboardLayout />
-      </ProtectedRoute>
-    ),
+    element: <DashboardLayout />,
     children: [
       {
         index: true,
-        element: <DashboardPage />,
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: 'dashboard',
+        element: (
+          <ProtectedRoute unauthenticated="render">
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'history',
-        element: <HistoryPage />,
+        element: (
+          <ProtectedRoute>
+            <HistoryPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'profile',
-        element: <ProfilePage />,
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'insights',
-        element: <InsightsPage />,
+        element: (
+          <ProtectedRoute>
+            <InsightsPage />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

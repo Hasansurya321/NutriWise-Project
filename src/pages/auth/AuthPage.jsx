@@ -1,15 +1,17 @@
 import { useState } from 'react';
 
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 
 import AuthSplitLayout from '../../components/auth/AuthSplitLayout';
-import { isAuthenticated } from '../../services/auth';
+import { authService } from '../../services';
 
 export default function AuthPage() {
-  const [mode, setMode] = useState('login');
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
+  const [mode, setMode] = useState(initialMode);
 
-  if (isAuthenticated()) {
-    return <Navigate to="/" replace />;
+  if (authService.isAuthenticated()) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (

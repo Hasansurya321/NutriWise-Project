@@ -1,9 +1,13 @@
 import { Navigate } from 'react-router-dom';
 
-import { isAuthenticated } from '../services/auth';
+import { authService } from '../services';
 
-export default function ProtectedRoute({ children }) {
-  if (!isAuthenticated()) {
+export default function ProtectedRoute({ children, unauthenticated = 'redirect' }) {
+  if (!authService.isAuthenticated()) {
+    if (unauthenticated === 'render') {
+      return children;
+    }
+
     return <Navigate to="/auth" replace />;
   }
 

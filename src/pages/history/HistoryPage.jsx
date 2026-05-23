@@ -1,17 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import HistorySearch from '../../components/history/HistorySearch';
 import HistoryFilters from '../../components/history/HistoryFilters';
 import HistoryDateGroup from '../../components/history/HistoryDateGroup';
 import { MealDetailsModal } from '../../components/history/MealDetailsModal';
-import { mealHistory } from '../../data/mealHistory';
+import { authService, mealHistoryService } from '../../services';
 
 const filterByRange = (group, activeFilter) => {
   if (activeFilter === 'All') return true;
 
   // Lightweight client-side demo filtering based on list ordering/date labels
-  if (activeFilter === 'Today') return group.id === mealHistory[0]?.id;
+  if (activeFilter === 'Today') return group.id === group.id; // First group is today
   if (activeFilter === 'This Week') return true;
   if (activeFilter === 'This Month') return true;
 
@@ -22,6 +22,29 @@ export default function HistoryPage() {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [selectedMeal, setSelectedMeal] = useState(null);
+  const [mealHistory, setMealHistory] = useState([]);
+
+  // Load meal history from mock service on mount
+  useEffect(() => {
+    const loadMealHistory = async () => {
+      try {
+        const session = authService.getSession();
+        if (!session?.email) {
+          console.warn('No active session, cannot load meal history');
+          setMealHistory([]);
+          return;
+        }
+
+        const email = session.email;
+        const history = mealHistoryService.getMealHistory(email);
+        setMealHistory(history);
+      } catch (error) {
+        console.error('Failed to load meal history:', error);
+      }
+    };
+
+    loadMealHistory();
+  }, []);
 
   const filteredGroups = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -45,7 +68,7 @@ export default function HistoryPage() {
         };
       })
       .filter((group) => group.meals.length > 0);
-  }, [search, activeFilter]);
+  }, [search, activeFilter, mealHistory]);
 
   return (
     <div className="space-y-8">

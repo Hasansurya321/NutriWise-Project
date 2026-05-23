@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileSummaryCard from '../../components/profile/ProfileSummaryCard';
@@ -8,32 +8,47 @@ import PersonalInfoTab from '../../components/profile/PersonalInfoTab';
 import HealthDataTab from '../../components/profile/HealthDataTab';
 import NutritionGoalsTab from '../../components/profile/NutritionGoalsTab';
 
-import { profileData } from '../../data/profileData';
+import { authService, profileService } from '../../services';
 
 export default function ProfilePage() {
-  const [savedProfile, setSavedProfile] = useState(profileData);
-
-  const [draftProfile, setDraftProfile] = useState(profileData);
-
+  const [savedProfile, setSavedProfile] = useState(null);
+  const [draftProfile, setDraftProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-
   const [activeTab, setActiveTab] = useState('Personal Info');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load profile from mock service on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const session = authService.getSession();
+
+        if (!session?.email) {
+          console.warn('No active session, cannot load profile');
+          setSavedProfile(null);
+          setDraftProfile(null);
+          return;
+        }
+
+        const email = session.email;
+        const profile = profileService.getProfile(email);
+
+        setSavedProfile(profile);
+        setDraftProfile(profile);
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   /*
     ========================================
     SYSTEM-CONTROLLED IDENTITY FIELDS
     ========================================
-
-    Berlaku untuk:
-    - dummy account
-    - real account
-    - database account
-    - production environment
-
-    Identity fields dikunci untuk menjaga:
-    - data consistency
-    - nutrition analytics integrity
-    - stable user identity mapping
   */
 
   const identityLockedFields = {
@@ -56,15 +71,17 @@ export default function ProfilePage() {
   };
 
   const handleSave = () => {
+    const session = authService.getSession();
+
+    if (session?.email) {
+      profileService.updateProfile(session.email, draftProfile);
+    }
+
     setSavedProfile(draftProfile);
     setIsEditing(false);
   };
 
   const updateSectionField = (section, field, value) => {
-    /*
-      Prevent editing locked identity fields
-    */
-
     if (section === 'profile' && identityLockedFields[field]) {
       return;
     }
@@ -74,11 +91,14 @@ export default function ProfilePage() {
 
       [section]: {
         ...prev[section],
-
         [field]: value,
       },
     }));
   };
+
+  if (isLoading || !displayProfile) {
+    return <div className="py-8 text-center text-textSecondary">Loading profile...</div>;
+  }
 
   return (
     <div>

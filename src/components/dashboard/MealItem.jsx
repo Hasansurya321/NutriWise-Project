@@ -1,10 +1,13 @@
 import { ChevronRight } from 'lucide-react';
 
+import { getIconByName } from '../../utils/iconRegistry';
 import { Button } from '../ui/button';
 import { ConfidenceBadge } from './ConfidenceBadge';
 import { MealMetadata } from './MealMetadata';
 
-export function MealItem({ name, calories, confidence, timestamp, image, icon: Icon }) {
+export function MealItem({ name, calories, confidence, timestamp, image, iconName }) {
+  const Icon = getIconByName(iconName, 'Apple');
+
   return (
     <article
       className="

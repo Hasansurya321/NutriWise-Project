@@ -1,4 +1,8 @@
+import { getIconByName } from '../../utils/iconRegistry';
+
 export default function FoodItemRow({ item }) {
+  const Icon = getIconByName(item.iconName, 'Apple');
+
   return (
     <div
       className="
@@ -24,7 +28,7 @@ export default function FoodItemRow({ item }) {
             text-xl
           "
         >
-          {item.icon}
+          {Icon ? <Icon className="h-5 w-5" /> : null}
         </div>
 
         <div className="min-w-0">

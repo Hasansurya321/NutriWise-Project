@@ -1,5 +1,3 @@
-import { Flame, Droplets, Drumstick, Salad, Sparkles, BrainCircuit, Apple, Wheat, EggFried, CheckCircle2, AlertTriangle, CircleAlert, Soup, Sandwich } from 'lucide-react';
-
 export const statsCards = [
   {
     title: 'Calories',
@@ -7,7 +5,7 @@ export const statsCards = [
     target: '2000 kcal',
     progress: 72.5,
     meta: '72.5% of daily goal',
-    icon: Flame,
+    iconName: 'Flame',
     color: 'green',
   },
   {
@@ -16,7 +14,7 @@ export const statsCards = [
     target: '140g',
     progress: 68.6,
     meta: 'Protein intake is on track',
-    icon: Drumstick,
+    iconName: 'Drumstick',
     color: 'blue',
   },
   {
@@ -25,7 +23,7 @@ export const statsCards = [
     target: '260g',
     progress: 70,
     meta: 'Balanced carbohydrate intake',
-    icon: Wheat,
+    iconName: 'Wheat',
     color: 'orange',
   },
   {
@@ -34,7 +32,7 @@ export const statsCards = [
     target: '80g',
     progress: 77.5,
     meta: 'Within healthy range',
-    icon: EggFried,
+    iconName: 'EggFried',
     color: 'warning',
   },
 ];
@@ -54,7 +52,7 @@ export const aiAssistantInsights = [
     title: 'Great progress today',
     message: 'Calories are within a healthy range and meal timing looks consistent.',
     meta: 'Keep this routine for the next meal window.',
-    icon: CheckCircle2,
+    iconName: 'CheckCircle2',
   },
   {
     id: 'ai-warning-1',
@@ -62,7 +60,7 @@ export const aiAssistantInsights = [
     title: 'Protein intake is below target',
     message: 'Add a lean protein snack or increase portion size at dinner to close the gap.',
     meta: 'Focus area: post-lunch and dinner balance.',
-    icon: AlertTriangle,
+    iconName: 'AlertTriangle',
   },
   {
     id: 'ai-info-1',
@@ -70,7 +68,7 @@ export const aiAssistantInsights = [
     title: 'Hydration trend is stable',
     message: 'Water intake is consistent across the day, which supports recovery and focus.',
     meta: 'Hydration goal is on track.',
-    icon: Sparkles,
+    iconName: 'Sparkles',
   },
   {
     id: 'ai-danger-1',
@@ -78,7 +76,7 @@ export const aiAssistantInsights = [
     title: 'Late-night snacking spike detected',
     message: 'Try moving your last snack earlier to avoid extra calories before sleep.',
     meta: 'This pattern is worth monitoring tomorrow.',
-    icon: CircleAlert,
+    iconName: 'CircleAlert',
   },
 ];
 
@@ -141,7 +139,7 @@ export const recentMeals = [
     calories: 420,
     confidence: 96,
     timestamp: '12 mins ago',
-    icon: Apple,
+    iconName: 'Apple',
   },
   {
     id: 2,
@@ -149,7 +147,7 @@ export const recentMeals = [
     calories: 560,
     confidence: 92,
     timestamp: '45 mins ago',
-    icon: Salad,
+    iconName: 'Salad',
   },
   {
     id: 3,
@@ -157,7 +155,7 @@ export const recentMeals = [
     calories: 320,
     confidence: 78,
     timestamp: '2 hours ago',
-    icon: Soup,
+    iconName: 'Soup',
   },
   {
     id: 4,
@@ -165,7 +163,7 @@ export const recentMeals = [
     calories: 480,
     confidence: 67,
     timestamp: '3 hours ago',
-    icon: Sandwich,
+    iconName: 'Sandwich',
   },
 ];
 
@@ -183,7 +181,7 @@ export const kpiCards = [
     progress: 88,
     change: '+12%',
     direction: 'up',
-    icon: Flame,
+    iconName: 'Flame',
   },
   {
     title: 'Protein',
@@ -192,7 +190,7 @@ export const kpiCards = [
     progress: 84,
     change: '+8%',
     direction: 'up',
-    icon: Drumstick,
+    iconName: 'Drumstick',
   },
   {
     title: 'Hydration',
@@ -201,7 +199,7 @@ export const kpiCards = [
     progress: 70,
     change: '+4%',
     direction: 'up',
-    icon: Droplets,
+    iconName: 'Droplets',
   },
   {
     title: 'Fiber',
@@ -210,7 +208,7 @@ export const kpiCards = [
     progress: 80,
     change: '-2%',
     direction: 'down',
-    icon: Salad,
+    iconName: 'Salad',
   },
 ];
 
@@ -228,11 +226,11 @@ export const featureHighlights = [
   {
     title: 'Nutrition guidance',
     description: 'AI checks meals against daily targets.',
-    icon: BrainCircuit,
+    iconName: 'BrainCircuit',
   },
   {
     title: 'Smart tracking',
     description: 'Calories, protein, water, and fiber in one view.',
-    icon: Sparkles,
+    iconName: 'Sparkles',
   },
 ];

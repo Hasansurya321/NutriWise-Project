@@ -4,14 +4,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { NavLink, useNavigate } from 'react-router-dom';
 
-import { logoutDummy } from '../../services/auth';
+import { authService } from '../../services';
 
 export function UserDropdown({ open }) {
   const navigate = useNavigate();
 
   function handleLogout() {
-    logoutDummy();
-    navigate('/auth', { replace: true });
+    // Logout clears session only - all mock data persists for re-login
+    authService.logoutDummy();
+    navigate('/dashboard', { replace: true });
   }
 
   return (

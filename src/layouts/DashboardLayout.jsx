@@ -6,8 +6,12 @@ import { Navbar } from '../components/dashboard/Navbar';
 
 import { Sidebar } from '../components/dashboard/Sidebar';
 
+import { useAuthSession } from '../hooks/useAuthSession';
+
 export default function DashboardLayout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const session = useAuthSession();
+  const isAuthenticated = Boolean(session);
 
   useEffect(() => {
     if (!mobileSidebarOpen) {
@@ -40,7 +44,7 @@ export default function DashboardLayout() {
           lg:pl-[270px]
         "
       >
-        <Navbar onMenuClick={() => setMobileSidebarOpen(true)} />
+        <Navbar isAuthenticated={isAuthenticated} onMenuClick={() => setMobileSidebarOpen(true)} />
 
         <main
           className="

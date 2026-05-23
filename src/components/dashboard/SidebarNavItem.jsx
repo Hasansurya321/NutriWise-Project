@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import { cn } from '../../utils/cn';
+import { getIconByName } from '../../utils/iconRegistry';
 
 export function SidebarNavItem({ item, collapsed = false, onClick }) {
-  const Icon = item.icon;
+  const Icon = getIconByName(item.iconName, 'LayoutDashboard');
 
   return (
     <NavLink
@@ -17,7 +18,7 @@ export function SidebarNavItem({ item, collapsed = false, onClick }) {
         )
       }
     >
-      <Icon className="h-5 w-5 shrink-0" />
+      {Icon ? <Icon className="h-5 w-5 shrink-0" /> : null}
       <span className={cn('truncate', collapsed && 'hidden')}>{item.name}</span>
     </NavLink>
   );

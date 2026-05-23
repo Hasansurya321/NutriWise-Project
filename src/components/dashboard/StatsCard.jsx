@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 
 import { cn } from '../../utils/cn';
+import { getIconByName } from '../../utils/iconRegistry';
 import { Card } from '../ui/card';
 
 const accentStyles = {
@@ -22,10 +23,21 @@ const accentStyles = {
   },
 };
 
-export function StatsCard({ title, value, target, progress = 0, meta, icon: Icon, color = 'green', className }) {
+export function StatsCard({
+  title,
+  value,
+  target,
+  progress = 0,
+  meta,
+  iconName,
+  color = 'green',
+  className,
+}) {
   const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
 
   const theme = accentStyles[color] || accentStyles.green;
+
+  const ResolvedIcon = getIconByName(iconName, 'Flame');
 
   return (
     <motion.div
@@ -62,7 +74,7 @@ export function StatsCard({ title, value, target, progress = 0, meta, icon: Icon
                 theme.icon,
               )}
             >
-              <Icon className="h-5 w-5" />
+              {ResolvedIcon ? <ResolvedIcon className="h-5 w-5" /> : null}
             </div>
           </header>
 

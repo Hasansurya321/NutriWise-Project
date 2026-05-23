@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
@@ -14,7 +16,9 @@ import { AiPanel } from '../../components/dashboard/AiPanel';
 import { SectionHeader } from '../../components/dashboard/SectionHeader';
 import { UploadSection } from '../../components/dashboard/UploadSection';
 
-import { featureHighlights, macroDistributionData, macroSummary, recentMeals, statsCards, weeklyCalorieTrendData, weeklyTrendSummary } from '../../data/dashboard';
+import { authService, nutritionService } from '../../services';
+import { useAuthSession } from '../../hooks/useAuthSession';
+import { getIconByName } from '../../utils/iconRegistry';
 
 const fadeUp = {
   hidden: {
@@ -27,7 +31,81 @@ const fadeUp = {
   },
 };
 
+// Static feature highlights (not user-scoped)
+const featureHighlights = [
+  {
+    title: 'Nutrition guidance',
+    description: 'AI checks meals against daily targets.',
+    iconName: 'BrainCircuit',
+  },
+  {
+    title: 'Smart tracking',
+    description: 'Calories, protein, water, and fiber in one view.',
+    iconName: 'Sparkles',
+  },
+];
+
+const macroSummary = {
+  title: 'Macro distribution',
+  subtitle: 'Daily macronutrient balance overview',
+};
+
+const weeklyTrendSummary = {
+  title: 'Weekly calorie trend',
+  subtitle: 'Track calorie fluctuations throughout the week',
+};
+
 export default function DashboardPage() {
+  const session = useAuthSession();
+  const isAuthenticated = Boolean(session?.email);
+  const [statsCards, setStatsCards] = useState([]);
+  const [recentMeals, setRecentMeals] = useState([]);
+  const [macroDistributionData, setMacroDistributionData] = useState([]);
+  const [weeklyCalorieTrendData, setWeeklyCalorieTrendData] = useState([]);
+  const [aiInsights, setAiInsights] = useState([]);
+  const [healthNotification, setHealthNotification] = useState(null);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const activeSession = authService.getSession();
+
+        if (!activeSession?.email) {
+          console.warn('No active session, cannot load dashboard data');
+          setStatsCards([]);
+          setRecentMeals([]);
+          setMacroDistributionData([]);
+          setWeeklyCalorieTrendData([]);
+          setAiInsights([]);
+          setHealthNotification(null);
+          return;
+        }
+
+        const email = activeSession.email;
+
+        const [stats, meals, macros, trend, insights, notification] = await Promise.all([
+          Promise.resolve(nutritionService.getDashboardStats(email)),
+          Promise.resolve(nutritionService.getRecentMeals(email)),
+          Promise.resolve(nutritionService.getMacroDistribution(email)),
+          Promise.resolve(nutritionService.getWeeklyTrend(email)),
+          Promise.resolve(nutritionService.getAiInsights(email)),
+          Promise.resolve(nutritionService.getHealthNotification(email)),
+        ]);
+
+        setStatsCards(stats || []);
+        setRecentMeals(meals || []);
+        setMacroDistributionData(macros || []);
+        setWeeklyCalorieTrendData(trend || []);
+        setAiInsights(insights || []);
+        setHealthNotification(notification || null);
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      }
+    };
+
+    loadDashboardData();
+  }, [session?.email]);
+
   return (
     <motion.div
       initial="hidden"
@@ -38,7 +116,11 @@ export default function DashboardPage() {
       className="space-y-6 sm:space-y-8"
     >
       <motion.div variants={fadeUp}>
-        <DashboardHeader username="Hasan" description="Here's your nutrition summary for today. Track your meals, monitor macro balance, and review your nutrition insights in one unified dashboard." />
+        {isAuthenticated ? (
+          <DashboardHeader username="Hasan" description="Here's your nutrition summary for today. Track your meals, monitor macro balance, and review your nutrition insights in one unified dashboard." />
+        ) : (
+          <DashboardHeader title="Sign in to view your dashboard" description="Your dashboard session is inactive. Mock sandbox data may still exist internally, but it will not be shown until you authenticate again." />
+        )}
       </motion.div>
 
       <motion.section
@@ -49,13 +131,13 @@ export default function DashboardPage() {
           xl:grid-cols-4
         "
       >
-        {statsCards.map((item) => (
+        {(statsCards || []).map((item) => (
           <StatsCard key={item.title} {...item} />
         ))}
       </motion.section>
 
       <motion.div variants={fadeUp}>
-        <HeroSection />
+        <HeroSection isAuthenticated={isAuthenticated} />
       </motion.div>
 
       <motion.section
@@ -66,12 +148,18 @@ export default function DashboardPage() {
           xl:grid-cols-12
         "
       >
-        <div className="xl:col-span-8">
-          <UploadSection />
-        </div>
+        {isAuthenticated ? (
+          <div className="xl:col-span-8">
+            <UploadSection />
+          </div>
+        ) : (
+          <div className="xl:col-span-8">
+            <AuthRequiredPanel />
+          </div>
+        )}
 
         <div className="xl:col-span-4">
-          <AiPanel />
+          <AiPanel aiInsights={aiInsights} healthNotification={healthNotification} />
         </div>
       </motion.section>
 
@@ -106,8 +194,8 @@ export default function DashboardPage() {
           </div>
 
           <CardContent className="space-y-3">
-            {featureHighlights.map((item) => {
-              const Icon = item.icon;
+            {(featureHighlights || []).map((item) => {
+              const Icon = getIconByName(item.iconName, 'Sparkles');
 
               return (
                 <div
@@ -127,7 +215,7 @@ export default function DashboardPage() {
                       bg-primary/10 p-3 text-primary
                     "
                   >
-                    <Icon className="h-5 w-5" />
+                    {Icon ? <Icon className="h-5 w-5" /> : null}
                   </div>
 
                   <div className="space-y-1">
@@ -145,7 +233,43 @@ export default function DashboardPage() {
   );
 }
 
-function HeroSection() {
+function HeroSection({ isAuthenticated }) {
+  if (!isAuthenticated) {
+    return (
+      <section
+        className="
+          rounded-2xl border border-borderCard
+          bg-card p-5 shadow-card
+          sm:p-6
+        "
+      >
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-3">
+            <Badge variant="primary" className="w-fit">
+              Logged out
+            </Badge>
+
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold tracking-tight text-textPrimary sm:text-3xl">Authentication required</h2>
+
+              <p className="max-w-2xl text-sm leading-6 text-textSecondary sm:text-base">Sign in through the auth gateway to load the demo sandbox. Direct dashboard navigation will never restore a session automatically.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button asChild variant="primary">
+              <Link to="/auth">Login</Link>
+            </Button>
+
+            <Button asChild variant="secondary">
+              <Link to="/auth?mode=register">Register</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
       className="
@@ -193,5 +317,30 @@ function HeroSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+function AuthRequiredPanel() {
+  return (
+    <Card className="h-full">
+      <CardContent className="flex min-h-[320px] flex-col items-center justify-center gap-4 text-center">
+        <Badge variant="primary">Session inactive</Badge>
+
+        <div className="space-y-2">
+          <h3 className="text-2xl font-semibold text-textPrimary">No active dashboard session</h3>
+          <p className="mx-auto max-w-xl text-sm leading-6 text-textSecondary">Protected dashboard actions are disabled while logged out. Persistent mock data stays isolated and will not be read until you explicitly log in.</p>
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button asChild variant="primary">
+            <Link to="/auth">Login</Link>
+          </Button>
+
+          <Button asChild variant="secondary">
+            <Link to="/auth?mode=register">Register</Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

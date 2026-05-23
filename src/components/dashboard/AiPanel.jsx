@@ -1,14 +1,20 @@
-import { Activity, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
+import { Activity, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { aiAssistantInsights, healthStatusNotification } from '../../data/dashboard';
 import { InsightCard } from './InsightCard';
 import { getInsightVariant } from './ai-insight-variants';
 import { cn } from '../../utils/cn';
 
-export function AiPanel() {
-  const health = healthStatusNotification;
-  const healthConfig = getInsightVariant(health.variant);
+export function AiPanel({ aiInsights = [], healthNotification = null }) {
+  const health = healthNotification || {
+    variant: 'default',
+    title: 'No health notification',
+    label: 'Info',
+    message: '',
+    meta: '',
+  };
+
+  const healthConfig = getInsightVariant(health?.variant ?? 'default');
 
   return (
     <Card className="h-full">
@@ -35,6 +41,7 @@ export function AiPanel() {
             <div className="min-w-0 flex-1 space-y-1">
               <div className="flex items-start justify-between gap-3">
                 <h4 className="text-sm font-semibold text-textPrimary">{health.title}</h4>
+
                 <Badge variant={healthConfig.badge}>{health.label}</Badge>
               </div>
 
@@ -46,9 +53,18 @@ export function AiPanel() {
         </section>
 
         <div className="flex flex-col gap-3">
-          {aiAssistantInsights.map((insight) => (
-            <InsightCard key={insight.id} variant={insight.variant} title={insight.title} message={insight.message} meta={insight.meta} icon={insight.icon} />
-          ))}
+          {(aiInsights || []).map((insight) => {
+            const safeInsight = insight || {
+              id: crypto.randomUUID(),
+              variant: 'default',
+              title: 'No insights available',
+              message: '',
+              meta: '',
+              iconName: null,
+            };
+
+            return <InsightCard key={safeInsight.id} variant={safeInsight.variant} title={safeInsight.title} message={safeInsight.message} meta={safeInsight.meta} iconName={safeInsight.iconName} />;
+          })}
         </div>
       </CardContent>
     </Card>

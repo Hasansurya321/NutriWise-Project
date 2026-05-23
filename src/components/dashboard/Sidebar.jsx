@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 
 import { navigation } from '../../data/navigation';
 import { cn } from '../../utils/cn';
+import { getIconByName } from '../../utils/iconRegistry';
 import { Button } from '../ui/button';
 
 export function Sidebar({ mobileOpen, onClose }) {
@@ -99,7 +100,7 @@ export function Sidebar({ mobileOpen, onClose }) {
         >
           <div className="flex flex-col gap-2">
             {navigation.map((item) => {
-              const Icon = item.icon;
+              const Icon = getIconByName(item.iconName, 'LayoutDashboard');
 
               return (
                 <NavLink
@@ -165,7 +166,7 @@ export function Sidebar({ mobileOpen, onClose }) {
                               `,
                         )}
                       >
-                        <Icon className="h-5 w-5" />
+                        {Icon ? <Icon className="h-5 w-5" /> : null}
                       </div>
 
                       <span>{item.label}</span>

@@ -3,7 +3,7 @@ import { Menu } from 'lucide-react';
 import { NavbarActions } from './NavbarActions';
 import { SearchInput } from './SearchInput';
 
-export function Navbar({ onMenuClick }) {
+export function Navbar({ isAuthenticated = false, onMenuClick }) {
   return (
     <header
       className="
@@ -38,7 +38,7 @@ export function Navbar({ onMenuClick }) {
           <SearchInput />
         </div>
 
-        <NavbarActions />
+        <NavbarActions isAuthenticated={isAuthenticated} />
       </div>
     </header>
   );

@@ -1,21 +1,19 @@
-import { History, LayoutDashboard, LineChart } from 'lucide-react';
-
 export const navigation = [
   {
     label: 'Dashboard',
-    href: '/',
-    icon: LayoutDashboard,
+    href: '/dashboard',
+    iconName: 'LayoutDashboard',
   },
 
   {
     label: 'History',
     href: '/history',
-    icon: History,
+    iconName: 'History',
   },
 
   {
     label: 'Analytic',
     href: '/insights',
-    icon: LineChart,
+    iconName: 'LineChart',
   },
 ];
