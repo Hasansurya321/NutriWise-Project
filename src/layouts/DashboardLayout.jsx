@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react';
 
 import { Outlet } from 'react-router-dom';
 
-import { Navbar } from '../components/dashboard/Navbar';
+import { Navbar } from '../components/navbar/Navbar';
+import { Sidebar } from '../components/sidebar/Sidebar';
+import { cn } from '../utils/cn';
 
-import { Sidebar } from '../components/dashboard/Sidebar';
 
 import { useAuthSession } from '../hooks/useAuthSession';
 
 export default function DashboardLayout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const session = useAuthSession();
   const isAuthenticated = Boolean(session);
 
@@ -30,21 +32,30 @@ export default function DashboardLayout() {
   return (
     <div
       className="
-        relative min-h-screen
-        overflow-hidden bg-background
+        relative min-h-screen 
+        bg-background
         text-textPrimary
       "
     >
-      <Sidebar mobileOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
+      <Sidebar
+        mobileOpen={mobileSidebarOpen}
+        onClose={() => setMobileSidebarOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapsed={() => setCollapsed(!collapsed)}
+      />
 
       <div
-        className="
-          flex min-h-screen flex-col
-          transition-all duration-300
-          lg:pl-[270px]
-        "
+        className={cn(
+          "flex min-h-screen flex-col transition-all duration-300",
+          collapsed ? "lg:pl-[88px]" : "lg:pl-[270px]"
+        )}
       >
-        <Navbar isAuthenticated={isAuthenticated} onMenuClick={() => setMobileSidebarOpen(true)} />
+        <Navbar
+          isAuthenticated={isAuthenticated}
+          onMenuClick={() => setMobileSidebarOpen(true)}
+          collapsed={collapsed}
+          onToggleCollapsed={() => setCollapsed(!collapsed)}
+        />
 
         <main
           className="

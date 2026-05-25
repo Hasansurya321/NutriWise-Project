@@ -8,6 +8,7 @@ import DashboardPage from '../pages/dashboard/DashboardPage';
 import HistoryPage from '../pages/history/HistoryPage';
 import ProfilePage from '../pages/profile/ProfilePage';
 import InsightsPage from '../pages/insights/InsightsPage';
+import PredictPage from '../pages/predict/PredictPage';
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +44,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'predict',
+        element: (
+          <ProtectedRoute>
+            <PredictPage />
           </ProtectedRoute>
         ),
       },

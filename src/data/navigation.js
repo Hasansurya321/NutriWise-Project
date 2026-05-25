@@ -10,6 +10,11 @@ export const navigation = [
     href: '/history',
     iconName: 'History',
   },
+  {
+    label: 'Predict',
+    href: '/predict',
+    iconName: 'Scan',
+  },
 
   {
     label: 'Analytic',
