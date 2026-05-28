@@ -21,13 +21,13 @@ export function NavbarActions({ isAuthenticated = false }) {
       ) : (
         <div className="flex items-center gap-2">
           <Link to={'/auth?mode=login'}>
-            <Button variant="ghost">
+            <Button variant="outline" className="font-semibold">
               Login
             </Button>
           </Link>
 
           <Link to={'/auth?mode=register'}>
-            <Button variant="primary">
+            <Button>
               Register
             </Button>
           </Link>

@@ -1,3 +1,5 @@
+import { Button } from "../ui/button";
+
 export default function AuthOverlayPanel({ mode, setMode }) {
   const isLogin = mode === 'login';
 
@@ -45,24 +47,14 @@ export default function AuthOverlayPanel({ mode, setMode }) {
           Masuk kembali untuk melanjutkan perjalanan nutrisi dan kesehatanmu bersama NutriWise.
         </p>
 
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={() => setMode('register')}
-          className="
-            pointer-events-auto
-            mt-10
-            rounded-full
-            border border-white/20
-            px-10 py-4
-            text-sm font-semibold
-            tracking-wide
-            transition-all duration-300
-            hover:bg-white
-            hover:text-[#081225]
-          "
+          className="pointer-events-auto rounded-full px-10 mt-10"
         >
           Register
-        </button>
+        </Button>
       </div>
 
       {/* REGISTER OVERLAY */}
@@ -85,7 +77,7 @@ export default function AuthOverlayPanel({ mode, setMode }) {
             tracking-tight
           "
         >
-          Welcome Back
+          Ayo gabung sekarang!
         </h2>
 
         <p
@@ -99,24 +91,15 @@ export default function AuthOverlayPanel({ mode, setMode }) {
           Tetap terhubung dengan NutriWise dan lanjutkan progress nutrisimu.
         </p>
 
-        <button
+
+
+        <Button
           type="button"
           onClick={() => setMode('login')}
-          className="
-            pointer-events-auto
-            mt-10
-            rounded-full
-            border border-white/20
-            px-10 py-4
-            text-sm font-semibold
-            tracking-wide
-            transition-all duration-300
-            hover:bg-white
-            hover:text-[#081225]
-          "
-        >
+          variant="outline"
+          className="pointer-events-auto mt-6 rounded-full px-10 font-bold ">
           Login
-        </button>
+        </Button>
       </div>
     </div>
   );

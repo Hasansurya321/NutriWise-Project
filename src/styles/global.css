@@ -3,7 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --primary: #5ddb8a;
+  --primary: oklch(79.955% 0.16338 152.236);
+  --primary-foreground: #ffffff;
+
+  --foreground: #000000;
 
   --background: #f5f8fc;
   --card: #fdfefe;
@@ -44,6 +47,10 @@
 }
 
 .dark {
+  --primary: rgb(92, 219, 136);
+  --primary-foreground: rgb(255, 255, 255);
+
+  --foreground: rgb(255, 255, 255);
   --background: #061126;
   --card: #0b1a31;
   --surface-2: #0f2038;

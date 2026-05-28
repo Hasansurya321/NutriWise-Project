@@ -1,3 +1,5 @@
+import { ThemeToggleButton } from '../theme/ThemeToggleButton';
+import { Button } from '../ui/button';
 import AuthBrandHeader from './AuthBrandHeader';
 import AuthOverlayPanel from './AuthOverlayPanel';
 
@@ -22,7 +24,7 @@ export default function AuthSplitLayout({ mode, setMode }) {
           overflow-hidden
           rounded-[36px]
           border border-black/10
-          bg-white
+          bg-background
           shadow-[0_30px_90px_rgba(15,23,42,0.12)]
         "
       >
@@ -34,43 +36,35 @@ export default function AuthSplitLayout({ mode, setMode }) {
             lg:block
           "
         >
-          {/* LOGIN FORM */}
           <div
             className={`
-              absolute left-0 top-0
-              flex h-full w-1/2
-              flex-col
-              px-12 py-14
-              transition-all
-              duration-[1000ms]
-              ease-[cubic-bezier(0.22,1,0.36,1)]
-              ${isLogin ? 'z-10 translate-x-0 opacity-100' : '-translate-x-12 opacity-0'}
-            `}
+        absolute top-0
+        flex h-full w-1/2
+        flex-col
+        px-12 py-14
+        transition-all
+        duration-[1000ms]
+        ease-[cubic-bezier(0.22,1,0.36,1)]
+        /* DINAMIS: Geser posisi kontainer utama kiri/kanan berdasarkan mode */
+        ${isLogin ? 'left-0 translate-x-0' : 'left-full -translate-x-full'}
+      `}
           >
-            <AuthBrandHeader title="NutriWise" subtitle="Masuk untuk mulai memantau nutrisi harianmu." />
-
-            <div className="mt-8">
-              <LoginForm onSwitchToRegister={() => setMode('register')} />
+            <div className="relative">
+              <AuthBrandHeader
+                title="NutriWise"
+                subtitle={isLogin ? "Masuk untuk mulai memantau nutrisi harianmu." : "Buat akun untuk memulai pengalaman tracking nutrisi cerdas."}
+              />
+              <Button className="absolute top-0 right-0" variant="ghost" size="icon">
+                <ThemeToggleButton />
+              </Button>
             </div>
-          </div>
 
-          {/* REGISTER FORM */}
-          <div
-            className={`
-              absolute right-0 top-0
-              flex h-full w-1/2
-              flex-col
-              px-12 py-14
-              transition-all
-              duration-[1000ms]
-              ease-[cubic-bezier(0.22,1,0.36,1)]
-              ${isLogin ? 'translate-x-12 opacity-0' : 'z-10 translate-x-0 opacity-100'}
-            `}
-          >
-            <AuthBrandHeader title="NutriWise" subtitle="Buat akun untuk memulai pengalaman tracking nutrisi cerdas." />
-
-            <div className="mt-8">
-              <RegisterForm onSwitchToLogin={() => setMode('login')} />
+            <div className="mt-8 transition-opacity duration-500">
+              {isLogin ? (
+                <LoginForm onSwitchToRegister={() => setMode('register')} />
+              ) : (
+                <RegisterForm onSwitchToLogin={() => setMode('login')} />
+              )}
             </div>
           </div>
 
@@ -81,7 +75,7 @@ export default function AuthSplitLayout({ mode, setMode }) {
               z-20
               h-full w-1/2
               overflow-hidden
-              bg-[#081225]
+              bg-primary
               pointer-events-none
               transition-transform
               duration-[1200ms]
@@ -95,7 +89,7 @@ export default function AuthSplitLayout({ mode, setMode }) {
 
         {/* MOBILE */}
         <div className="lg:hidden">
-          <div className="bg-[#081225]">
+          <div className="bg-foreground">
             <AuthOverlayPanel mode={mode} setMode={setMode} />
           </div>
 

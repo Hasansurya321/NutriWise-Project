@@ -3,6 +3,8 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { authService } from '../../services';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 export default function LoginForm({ onSwitchToRegister }) {
   const navigate = useNavigate();
@@ -54,31 +56,15 @@ export default function LoginForm({ onSwitchToRegister }) {
           className="
             mb-2 block
             text-sm font-semibold
-            text-[#081225]
+            text-foreground
           "
         >
           Email Address
         </label>
-
-        <input
-          type="email"
+        <Input type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="john@example.com"
-          className="
-            h-14 w-full
-            rounded-2xl
-            border border-black/10
-            bg-[#f4f7fb]
-            px-5
-            text-sm text-[#081225]
-            outline-none
-            transition-all duration-300
-            placeholder:text-slate-400
-            focus:border-[#081225]
-            focus:bg-white
-          "
-        />
+          placeholder="john@example.com" />
       </div>
 
       {/* PASSWORD */}
@@ -87,95 +73,56 @@ export default function LoginForm({ onSwitchToRegister }) {
           className="
             mb-2 block
             text-sm font-semibold
-            text-[#081225]
+            text-foreground
           "
         >
           Password
         </label>
 
         <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+          <Input value={password} type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
-            className="
-              h-14 w-full
-              rounded-2xl
-              border border-black/10
-              bg-[#f4f7fb]
-              px-5 pr-14
-              text-sm text-[#081225]
-              outline-none
-              transition-all duration-300
-              placeholder:text-slate-400
-              focus:border-[#081225]
-              focus:bg-white
-            "
+            onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button
+
+          <Button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="
-              absolute right-4 top-1/2
-              -translate-y-1/2
-              text-slate-400
-              transition-colors duration-200
-              hover:text-[#081225]
-            "
+            size='icon'
+            variant='ghost'
+            className="absolute right-4 top-1/2
+              -translate-y-1/2 transition-colors"
           >
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-          </button>
+
+          </Button>
         </div>
 
         <div className="mt-3 flex justify-end">
-          <button
-            type="button"
-            className="
-              text-sm
-              text-slate-500
-              transition-colors duration-200
-              hover:text-[#081225]
-            "
-          >
+          <Button variant='ghost' type="button">
             Lupa password?
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* SUBMIT */}
-      <button
-        type="submit"
-        className="
-          h-14 w-full
-          rounded-2xl
-          bg-[#081225]
-          text-sm font-semibold
-          text-white
-          transition-all duration-300
-          hover:opacity-90
-        "
-      >
+      <Button type="submit" className="w-full">
         Sign In
-      </button>
+      </Button>
 
       {/* SWITCH */}
       <div className="text-center">
         <p className="text-sm text-slate-500">
           Belum punya akun?{' '}
-          <button
+          <Button
             type="button"
             onClick={onSwitchToRegister}
-            className="
-              font-semibold
-              text-[#081225]
-              transition-opacity duration-200
-              hover:opacity-70
-            "
-          >
+            variant='ghost'
+            className="font-bold"
+            >
             Buat disini
-          </button>
+          </Button>
         </p>
       </div>
     </form>

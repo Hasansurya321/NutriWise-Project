@@ -10,6 +10,7 @@ export default function AuthCard({ mode, setMode }) {
         w-full max-w-md
         rounded-[36px]
         border border-black/5
+        h-full
         bg-white
         shadow-[0_12px_40px_rgba(15,23,42,0.08)]
       "

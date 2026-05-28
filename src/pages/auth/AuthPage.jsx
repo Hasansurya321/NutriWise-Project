@@ -29,8 +29,8 @@ export default function AuthPage() {
         "
         aria-hidden="true"
       >
-        <div className="h-full w-1/2 bg-[#081225]" />
-        <div className="h-full w-1/2 bg-white" />
+        <div className="h-full w-1/2 bg-primary" />
+        <div className="h-full w-1/2 bg-background" />
 
         <div
           className="
