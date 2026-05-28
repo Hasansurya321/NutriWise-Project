@@ -4,8 +4,9 @@ export default function AuthToggle({ mode, setMode }) {
       className="
         grid grid-cols-2
         rounded-2xl
-        bg-slate-100
+        bg-surface2
         p-1
+        border border-borderPrimary
       "
     >
       <button
@@ -15,7 +16,7 @@ export default function AuthToggle({ mode, setMode }) {
           px-4 py-3
           text-sm font-medium
           transition-colors duration-500
-          ${mode === 'login' ? 'bg-[#081225] text-white' : 'text-slate-500 hover:text-slate-700'}
+          ${mode === 'login' ? 'bg-primary text-primary-foreground' : 'text-textMuted hover:text-textPrimary hover:bg-input'}
         `}
       >
         Login
@@ -28,7 +29,7 @@ export default function AuthToggle({ mode, setMode }) {
           px-4 py-3
           text-sm font-medium
           transition-colors duration-500
-          ${mode === 'register' ? 'bg-[#081225] text-white' : 'text-slate-500 hover:text-slate-700'}
+          ${mode === 'register' ? 'bg-primary text-primary-foreground' : 'text-textMuted hover:text-textPrimary hover:bg-input'}
         `}
       >
         Register

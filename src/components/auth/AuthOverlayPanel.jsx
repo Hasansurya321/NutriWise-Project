@@ -97,7 +97,7 @@ export default function AuthOverlayPanel({ mode, setMode }) {
           type="button"
           onClick={() => setMode('login')}
           variant="outline"
-          className="pointer-events-auto mt-6 rounded-full px-10 font-bold ">
+          className="pointer-events-auto mt-10 rounded-full px-10 font-bold ">
           Login
         </Button>
       </div>

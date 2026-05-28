@@ -1,32 +1,33 @@
 import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { authService } from '../../services';
+import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
 export default function LoginForm({ onSwitchToRegister }) {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const [email, setEmail] = useState('hasansuryadharma@example.com');
-
-  const [password, setPassword] = useState('Password123!');
-
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     setError('');
+    setIsSubmitting(true);
 
-    // Use mock auth service (internally initializes mock data)
-    const success = authService.loginDummy(email, password);
+    const result = await login(email, password);
 
-    if (!success) {
-      setError('Email atau password salah.');
+    setIsSubmitting(false);
+
+    if (!result.success) {
+      setError(result.message || 'Email atau password salah.');
       return;
     }
 
@@ -38,12 +39,11 @@ export default function LoginForm({ onSwitchToRegister }) {
       {error && (
         <div
           className="
-            rounded-2xl
-            border border-red-200
-            bg-red-50
-            px-4 py-3
-            text-sm
-            text-red-700
+            mb-6 rounded-2xl
+            border border-destructive/30
+            bg-destructive/10
+            px-4 py-3 text-sm
+            text-destructive
           "
         >
           {error}
@@ -64,7 +64,9 @@ export default function LoginForm({ onSwitchToRegister }) {
         <Input type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="john@example.com" />
+          placeholder="john@example.com"
+          required
+        />
       </div>
 
       {/* PASSWORD */}
@@ -83,8 +85,8 @@ export default function LoginForm({ onSwitchToRegister }) {
           <Input value={password} type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
-
 
           <Button
             type="button"
@@ -107,20 +109,22 @@ export default function LoginForm({ onSwitchToRegister }) {
       </div>
 
       {/* SUBMIT */}
-      <Button type="submit" className="w-full">
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
         Sign In
       </Button>
 
       {/* SWITCH */}
       <div className="text-center">
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-textMuted">
           Belum punya akun?{' '}
           <Button
             type="button"
             onClick={onSwitchToRegister}
             variant='ghost'
             className="font-bold"
-            >
+            disabled={isSubmitting}
+          >
             Buat disini
           </Button>
         </p>

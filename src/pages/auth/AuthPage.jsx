@@ -1,16 +1,21 @@
 import { useState } from 'react';
-
 import { Navigate, useSearchParams } from 'react-router-dom';
 
 import AuthSplitLayout from '../../components/auth/AuthSplitLayout';
-import { authService } from '../../services';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
   const [mode, setMode] = useState(initialMode);
+  
+  const { isAuthenticated, isLoading } = useAuth();
 
-  if (authService.isAuthenticated()) {
+  if (isLoading) {
+    return <div className="flex h-screen w-full items-center justify-center text-textSecondary">Memeriksa sesi...</div>;
+  }
+
+  if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 

@@ -4,22 +4,25 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { NavLink, useNavigate } from 'react-router-dom';
 
-import { authService } from '../../services';
+import { useAuth } from '../../context/AuthContext';
+import { Button } from '../ui/button';
 
 export function UserDropdown({ open }) {
+
+  const { logout } = useAuth();
+
   const navigate = useNavigate();
 
   function handleLogout() {
-    // Logout clears session only - all mock data persists for re-login
-    authService.logoutDummy();
-    navigate('/dashboard', { replace: true });
+    logout();
+    navigate('/auth');
   }
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0, y: 12, scale: 0.98 }}
+          initial={{ opacity: 0, y: 12, scale: 0.18 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 12, scale: 0.98 }}
           transition={{
@@ -33,48 +36,49 @@ export function UserDropdown({ open }) {
             overflow-hidden
             rounded-3xl
             border border-white/10
-            bg-[#081225]/95
+            bg-sidebar
             p-2
             shadow-[0_20px_60px_rgba(0,0,0,0.35)]
             backdrop-blur-2xl
           "
         >
           {/* PROFILE */}
-          <NavLink
-            to="/profile"
-            className="
-              flex items-center
+          <Button
+            type="button"
+            variant='ghost'
+            className="w-full"
+            size="lg"
+          >
+            <NavLink
+              to="/profile"
+              className="
+                flex items-center
               gap-3
               rounded-2xl
-              px-4 py-3
+              px-4 py-3 
+              w-full
               text-sm font-medium
-              text-white
+              text-textPrimary
               transition-all duration-200
               hover:bg-white/5
             "
-          >
-            <User className="h-4 w-4" />
-            Profile
-          </NavLink>
+            >
+              <User className="h-4 w-4" />
+              Profile
+            </NavLink>
+          </Button>
 
           {/* LOGOUT */}
-          <button
+          <Button
             type="button"
+            variant="destructive"
             onClick={handleLogout}
-            className="
-              flex w-full items-center
-              gap-3
-              rounded-2xl
-              px-4 py-3
-              text-sm font-medium
-              text-red-400
-              transition-all duration-200
-              hover:bg-red-500/10
-            "
+            size='lg'
+            className="w-full mt-6"
           >
             <LogOut className="h-4 w-4" />
             Logout
-          </button>
+          </Button>
         </motion.div>
       )}
     </AnimatePresence>

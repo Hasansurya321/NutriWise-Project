@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 
 import { NotificationButton } from '../dashboard/NotificationButton';
 
-import { ThemeToggleButton } from '../dashboard/ThemeToggleButton';
+import { ThemeToggleButton } from '../theme/ThemeToggleButton';
 
-import { UserProfile } from '../dashboard/UserProfile';
+import { UserProfile } from './UserProfile';
 import { Button } from '../ui/button';
 
 export function NavbarActions({ isAuthenticated = false }) {

@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva } from "class-variance-authority"
-import {cn} from '../../utils/cn'
+import { cn } from '../../utils/cn'
 import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
@@ -16,7 +16,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+          "bg-red-500 text-white hover:bg-red-600 focus-visible:border-red-600 focus-visible:ring-red-600/40 transition-colors",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -61,34 +61,3 @@ function Button({
 }
 
 export { Button, buttonVariants }
-
-
-// import React from 'react';
-// import { cn } from '../../utils/cn';
-
-// const base =
-//   'inline-flex items-center font-bold justify-center gap-2 rounded-xl text-sm  transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:pointer-events-none disabled:opacity-50 duration-300';
-
-// const variants = {
-//   primary: 'bg-primary text-background shadow-glow hover:bg-primary/70',
-//   secondary: 'bg-white/5 text-textPrimary hover:bg-white/10 border border-borderCard',
-//   ghost: 'bg-transparent text-textSecondary hover:bg-white/5 hover:text-textPrimary',
-//   outline: 'border border-primary bg-transparent text-primary hover:text-background hover:bg-primary',
-// };
-
-// const sizes = {
-//   default: 'h-11 px-4 py-2',
-//   sm: 'h-9 px-3',
-//   lg: 'h-12 px-6',
-//   icon: 'h-10 w-10',
-// };
-
-// const Button = React.forwardRef(({ className, variant = 'primary', size = 'default', asChild = false, ...props }, ref) => {
-//   const Comp = asChild ? 'span' : 'button';
-
-//   return <Comp ref={ref} className={cn(base, variants[variant], sizes[size], className)} {...props} />;
-// });
-
-// Button.displayName = 'Button';
-
-// export { Button };

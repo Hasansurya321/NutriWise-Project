@@ -4,16 +4,15 @@ import { Outlet } from 'react-router-dom';
 
 import { Navbar } from '../components/navbar/Navbar';
 import { Sidebar } from '../components/sidebar/Sidebar';
+import { MobileNav } from '../components/navbar/MobileNav';
 import { cn } from '../utils/cn';
 
-
-import { useAuthSession } from '../hooks/useAuthSession';
+import { useAuth } from '../context/AuthContext';
 
 export default function DashboardLayout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const session = useAuthSession();
-  const isAuthenticated = Boolean(session);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (!mobileSidebarOpen) {
@@ -60,8 +59,9 @@ export default function DashboardLayout() {
         <main
           className="
             flex-1 overflow-x-hidden
-            px-4 pb-6 pt-4
-            sm:px-6 sm:pb-8 sm:pt-6
+            px-4 pb-24 pt-4
+            sm:px-6 sm:pb-24 sm:pt-6
+            lg:pb-8
             xl:px-8
           "
         >
@@ -75,6 +75,8 @@ export default function DashboardLayout() {
           </div>
         </main>
       </div>
+
+      <MobileNav />
     </div>
   );
 }

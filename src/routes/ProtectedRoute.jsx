@@ -1,9 +1,14 @@
 import { Navigate } from 'react-router-dom';
-
-import { authService } from '../services';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute({ children, unauthenticated = 'redirect' }) {
-  if (!authService.isAuthenticated()) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div className="flex h-screen w-full items-center justify-center text-textSecondary">Memeriksa sesi...</div>;
+  }
+
+  if (!isAuthenticated) {
     if (unauthenticated === 'render') {
       return children;
     }

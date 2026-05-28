@@ -8,54 +8,68 @@ import PersonalInfoTab from '../../components/profile/PersonalInfoTab';
 import HealthDataTab from '../../components/profile/HealthDataTab';
 import NutritionGoalsTab from '../../components/profile/NutritionGoalsTab';
 
-import { authService, profileService } from '../../services';
+import { profileAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ProfilePage() {
+  const { user, setUser } = useAuth();
+
   const [savedProfile, setSavedProfile] = useState(null);
   const [draftProfile, setDraftProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('Personal Info');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load profile from mock service on mount
+  // Load profile from Context
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const session = authService.getSession();
-
-        if (!session?.email) {
-          console.warn('No active session, cannot load profile');
-          setSavedProfile(null);
-          setDraftProfile(null);
-          return;
-        }
-
-        const email = session.email;
-        const profile = profileService.getProfile(email);
-
-        setSavedProfile(profile);
-        setDraftProfile(profile);
-      } catch (error) {
-        console.error('Failed to load profile:', error);
-      } finally {
+    try {
+      if (!user) {
+        setSavedProfile(null);
+        setDraftProfile(null);
         setIsLoading(false);
+        return;
       }
-    };
 
-    loadProfile();
-  }, []);
+      const profileData = user;
+      console.log(profileData)
 
-  /*
-    ========================================
-    SYSTEM-CONTROLLED IDENTITY FIELDS
-    ========================================
-  */
+      const structuredData = {
+        profile: {
+          fullName: profileData.fullname || 'User Name',
+          email: profileData.email || 'user@example.com',
+          age: profileData.age || 0,
+          gender: profileData.gender || 'Unspecified',
+          initials: (profileData.fullname || 'UN').substring(0, 2).toUpperCase(),
+          memberSince: profileData.createdAt ? new Date(profileData.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : new Date().getFullYear(),
+          totalScans: profileData.totalScans || 0,
+          healthScore: profileData.healthScore || 0,
+        },
+        healthData: {
+          height: profileData.height || 0,
+          weight: profileData.weight || 0,
+          activityLevel: profileData.activityLevel || 'Moderate'
+        },
+        nutritionGoals: {
+          calories: profileData.calorieTarget || 0,
+          protein: profileData.proteinTarget || 0,
+          carbs: profileData.carbohydrateTarget || 0,
+          fats: profileData.fatTarget || 0,
+          macroDistribution: profileData.macroDistribution || []
+        }
+      };
+
+      setSavedProfile(structuredData);
+      setDraftProfile(structuredData);
+    } catch (error) {
+      console.error('Failed to load profile from context:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
 
   const identityLockedFields = {
     fullName: true,
     email: true,
-    age: true,
-    gender: true,
   };
 
   const displayProfile = isEditing ? draftProfile : savedProfile;
@@ -70,15 +84,52 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
-  const handleSave = () => {
-    const session = authService.getSession();
+  const handleSave = async () => {
+    try {
+      const payload = {
+        age: Number(draftProfile.profile.age),
+        gender: draftProfile.profile.gender,
+        height: Number(draftProfile.healthData.height),
+        weight: Number(draftProfile.healthData.weight),
+        calorieTarget: Number(draftProfile.nutritionGoals.calories),
+        proteinTarget: Number(draftProfile.nutritionGoals.protein),
+        carbohydrateTarget: Number(draftProfile.nutritionGoals.carbs),
+        fatTarget: Number(draftProfile.nutritionGoals.fats),
+      };
 
-    if (session?.email) {
-      profileService.updateProfile(session.email, draftProfile);
+      const response = await profileAPI.updateProfile(payload);
+
+      const updatedData = response?.data?.profile || response?.data || response;
+
+      const structuredData = {
+        ...draftProfile,
+        profile: {
+          ...draftProfile.profile,
+          age: updatedData.age || draftProfile.profile.age,
+          gender: updatedData.gender || draftProfile.profile.gender,
+        },
+        healthData: {
+          ...draftProfile.healthData,
+          height: updatedData.height || draftProfile.healthData.height,
+          weight: updatedData.weight || draftProfile.healthData.weight,
+        },
+        nutritionGoals: {
+          ...draftProfile.nutritionGoals,
+          calories: updatedData.calorieTarget || draftProfile.nutritionGoals.calories,
+          protein: updatedData.proteinTarget || draftProfile.nutritionGoals.protein,
+          carbs: updatedData.carbohydrateTarget || draftProfile.nutritionGoals.carbs,
+          fats: updatedData.fatTarget || draftProfile.nutritionGoals.fats,
+        }
+      };
+
+      setSavedProfile(structuredData);
+      setUser(updatedData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      setSavedProfile(draftProfile);
+      setIsEditing(false);
     }
-
-    setSavedProfile(draftProfile);
-    setIsEditing(false);
   };
 
   const updateSectionField = (section, field, value) => {

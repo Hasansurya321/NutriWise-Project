@@ -26,7 +26,7 @@ export default function HistorySearch({ value, onChange }) {
         className="
           h-14 w-full
           rounded-3xl
-          border border-searchBorder
+          border border-borderPrimary
           bg-searchSurface
           pl-12 pr-4
           text-sm text-searchText

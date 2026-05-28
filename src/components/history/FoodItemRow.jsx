@@ -1,7 +1,7 @@
 import { getIconByName } from '../../utils/iconRegistry';
 
 export default function FoodItemRow({ item }) {
-  const Icon = getIconByName(item.iconName, 'Apple');
+  const Icon = getIconByName(item.name, 'Apple');
 
   return (
     <div
@@ -28,7 +28,9 @@ export default function FoodItemRow({ item }) {
             text-xl
           "
         >
-          {Icon ? <Icon className="h-5 w-5" /> : null}
+          {
+            item.img_url ? <img src={item.img_url} alt={item.name} className="h-full w-full object-cover rounded-2xl" /> : <Icon className="h-5 w-5" />
+          }
         </div>
 
         <div className="min-w-0">

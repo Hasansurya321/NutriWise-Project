@@ -1,115 +1,37 @@
-import { useEffect, useRef, useState } from 'react';
-
+import { useRef } from 'react';
 import { AlertCircle, CheckCircle2, FileImage, ImagePlus, Loader2, ScanLine, UploadCloud, X } from 'lucide-react';
-
 import { Button } from '../ui/button';
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-
 import { cn } from '../../utils/cn';
+import { useImagePredict } from '../../hooks/useImagePredict';
 
 const MAX_FILE_SIZE_MB = 10;
 
 function formatFileSize(bytes) {
   if (!bytes && bytes !== 0) return '-';
-
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function isImageFile(file) {
-  return Boolean(file?.type?.startsWith('image/'));
-}
-
-export function UploadSection() {
+export function UploadSection({
+  status,
+  file,
+  previewUrl,
+  error,
+  dragCounterRef,
+  validateAndSetFile,
+  handleReset,
+  handleScan,
+  resetDragState,
+}) {
   const inputRef = useRef(null);
 
-  const dragCounterRef = useRef(0);
-
-  const uploadTimerRef = useRef(null);
-
-  const scanTimerRef = useRef(null);
-
-  const [status, setStatus] = useState('idle');
-
-  const [file, setFile] = useState(null);
-
-  const [previewUrl, setPreviewUrl] = useState('');
-
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (!file || !isImageFile(file)) {
-      setPreviewUrl('');
-      return undefined;
+  const handleLocalReset = () => {
+    handleReset();
+    if (inputRef.current) {
+      inputRef.current.value = '';
     }
-
-    const objectUrl = URL.createObjectURL(file);
-
-    setPreviewUrl(objectUrl);
-
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [file]);
-
-  useEffect(() => {
-    return () => {
-      if (uploadTimerRef.current) {
-        window.clearTimeout(uploadTimerRef.current);
-      }
-
-      if (scanTimerRef.current) {
-        window.clearTimeout(scanTimerRef.current);
-      }
-    };
-  }, []);
-
-  const resetDragState = () => {
-    dragCounterRef.current = 0;
-  };
-
-  const validateAndSetFile = (nextFile) => {
-    if (!nextFile) return;
-
-    const fileSizeMb = nextFile.size / (1024 * 1024);
-
-    if (!nextFile.type.startsWith('image/')) {
-      setError('Only image files are supported for quick food scan.');
-
-      setStatus('error');
-
-      return;
-    }
-
-    if (fileSizeMb > MAX_FILE_SIZE_MB) {
-      setError(`File size must be below ${MAX_FILE_SIZE_MB} MB.`);
-
-      setStatus('error');
-
-      return;
-    }
-
-    setError('');
-
-    setStatus('uploading');
-
-    setFile(nextFile);
-
-    if (uploadTimerRef.current) {
-      window.clearTimeout(uploadTimerRef.current);
-    }
-
-    uploadTimerRef.current = window.setTimeout(() => {
-      setStatus('idle');
-    }, 700);
   };
 
   const handleFiles = (fileList) => {
@@ -182,49 +104,18 @@ export function UploadSection() {
     }
   };
 
-  const handleScan = () => {
-    if (!file || status === 'processing' || status === 'uploading') {
-      return;
-    }
+  // Reused handler helpers
 
-    setError('');
-
-    setStatus('processing');
-
-    if (scanTimerRef.current) {
-      window.clearTimeout(scanTimerRef.current);
-    }
-
-    scanTimerRef.current = window.setTimeout(() => {
-      setStatus('success');
-    }, 1400);
-  };
-
-  const handleReset = () => {
-    setFile(null);
-
-    setPreviewUrl('');
-
-    setError('');
-
-    setStatus('idle');
-
-    resetDragState();
-
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
-  };
 
   const showActiveDrag = status === 'dragging';
 
   const showBusy = status === 'uploading' || status === 'processing';
 
   return (
-    <Card className="h-full">
+    <Card className="h-full relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-400"></div>
       <CardHeader>
         <CardTitle>Quick Food Scan</CardTitle>
-
         <CardDescription>Upload or capture your meal to let AI analyze calories, protein, carbs, and fats in one workflow.</CardDescription>
       </CardHeader>
 
@@ -433,7 +324,7 @@ export function UploadSection() {
                   onClick={(event) => {
                     event.stopPropagation();
 
-                    handleReset();
+                    handleLocalReset();
                   }}
                 >
                   <X className="h-4 w-4" />

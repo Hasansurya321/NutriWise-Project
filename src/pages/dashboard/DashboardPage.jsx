@@ -14,11 +14,14 @@ import { WeeklyTrendChart } from '../../components/dashboard/WeeklyTrendChart';
 import { RecentMealsSection } from '../../components/dashboard/RecentMealsSection';
 import { AiPanel } from '../../components/dashboard/AiPanel';
 import { SectionHeader } from '../../components/dashboard/SectionHeader';
-import { UploadSection } from '../../components/dashboard/UploadSection';
+import { UploadSection } from '../../components/predict/UploadSection';
+import PredictionResult from '../../components/predict/PredictionResult';
 
-import { authService, nutritionService } from '../../services';
-import { useAuthSession } from '../../hooks/useAuthSession';
+import { nutritionService } from '../../services';
+import { predictAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { getIconByName } from '../../utils/iconRegistry';
+import { useImagePredict } from '../../hooks/useImagePredict';
 
 const fadeUp = {
   hidden: {
@@ -31,7 +34,6 @@ const fadeUp = {
   },
 };
 
-// Static feature highlights (not user-scoped)
 const featureHighlights = [
   {
     title: 'Nutrition guidance',
@@ -56,8 +58,7 @@ const weeklyTrendSummary = {
 };
 
 export default function DashboardPage() {
-  const session = useAuthSession();
-  const isAuthenticated = Boolean(session?.email);
+  const { user, isAuthenticated } = useAuth();
   const [statsCards, setStatsCards] = useState([]);
   const [recentMeals, setRecentMeals] = useState([]);
   const [macroDistributionData, setMacroDistributionData] = useState([]);
@@ -65,12 +66,14 @@ export default function DashboardPage() {
   const [aiInsights, setAiInsights] = useState([]);
   const [healthNotification, setHealthNotification] = useState(null);
 
+
+  const predictHook = useImagePredict();
+  const { predictionResult, handleReset } = predictHook;
+
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const activeSession = authService.getSession();
-
-        if (!activeSession?.email) {
+        if (!user?.email) {
           console.warn('No active session, cannot load dashboard data');
           setStatsCards([]);
           setRecentMeals([]);
@@ -81,19 +84,31 @@ export default function DashboardPage() {
           return;
         }
 
-        const email = activeSession.email;
+        const email = user.email;
 
-        const [stats, meals, macros, trend, insights, notification] = await Promise.all([
+        const [stats, predictLogsRes, macros, trend, insights, notification] = await Promise.all([
           Promise.resolve(nutritionService.getDashboardStats(email)),
-          Promise.resolve(nutritionService.getRecentMeals(email)),
+          predictAPI.getPredictLogs().catch(() => ({ data: [] })),
           Promise.resolve(nutritionService.getMacroDistribution(email)),
           Promise.resolve(nutritionService.getWeeklyTrend(email)),
           Promise.resolve(nutritionService.getAiInsights(email)),
           Promise.resolve(nutritionService.getHealthNotification(email)),
         ]);
 
+        const rawLogs = predictLogsRes?.data?.predictLogs || [];
+        const flatMeals = rawLogs.slice(0, 3).map(log => ({
+          id: log.id,
+          timestamp: new Date(log.created_at || log.createdAt || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+          name: log.food_name || log.name || 'Predicted Meal',
+          type: 'Scanned Food',
+          calories: Math.round(log.calorie || log.calories || 0),
+          confidence: log.confident_score || 0,
+          image: log.image_url || log.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
+          iconName: 'Apple'
+        }));
+
         setStatsCards(stats || []);
-        setRecentMeals(meals || []);
+        setRecentMeals(flatMeals || []);
         setMacroDistributionData(macros || []);
         setWeeklyCalorieTrendData(trend || []);
         setAiInsights(insights || []);
@@ -104,7 +119,7 @@ export default function DashboardPage() {
     };
 
     loadDashboardData();
-  }, [session?.email]);
+  }, [user?.email]);
 
   return (
     <motion.div
@@ -117,7 +132,7 @@ export default function DashboardPage() {
     >
       <motion.div variants={fadeUp}>
         {isAuthenticated ? (
-          <DashboardHeader username="Hasan" description="Here's your nutrition summary for today. Track your meals, monitor macro balance, and review your nutrition insights in one unified dashboard." />
+          <DashboardHeader username={user?.user?.fullname || user?.fullname || 'User'} description="Here's your nutrition summary for today. Track your meals, monitor macro balance, and review your nutrition insights in one unified dashboard." />
         ) : (
           <DashboardHeader title="Sign in to view your dashboard" description="Your dashboard session is inactive. Mock sandbox data may still exist internally, but it will not be shown until you authenticate again." />
         )}
@@ -134,6 +149,8 @@ export default function DashboardPage() {
         {(statsCards || []).map((item) => (
           <StatsCard key={item.title} {...item} />
         ))}
+
+
       </motion.section>
 
       <motion.div variants={fadeUp}>
@@ -150,7 +167,13 @@ export default function DashboardPage() {
       >
         {isAuthenticated ? (
           <div className="xl:col-span-8">
-            <UploadSection />
+            <div className='grid grid-cols-1'>
+              <UploadSection {...predictHook} />
+              {predictionResult && (
+                <PredictionResult predictionResult={predictionResult} />
+              )}
+
+            </div>
           </div>
         ) : (
           <div className="xl:col-span-8">

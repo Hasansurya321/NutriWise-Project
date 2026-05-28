@@ -33,8 +33,8 @@ export default function HistoryFilters({ activeFilter, onFilterChange }) {
                 className="
                   absolute inset-0
                   rounded-full
-                  bg-emerald-500/20
-                  border border-emerald-500/30
+                  bg-primary/20
+                  border border-primary/30
                 "
                 transition={{
                   type: 'spring',
@@ -47,7 +47,7 @@ export default function HistoryFilters({ activeFilter, onFilterChange }) {
             <span
               className={`
                 relative z-10
-                ${isActive ? 'text-emerald-400' : 'text-textSecondary'}
+                ${isActive ? 'text-primary' : 'text-textSecondary'}
               `}
             >
               {filter}

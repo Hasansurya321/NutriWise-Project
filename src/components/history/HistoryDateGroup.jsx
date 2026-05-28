@@ -10,7 +10,7 @@ export default function HistoryDateGroup({ group, onViewDetails }) {
           flex items-center gap-3
         "
       >
-        <CalendarDays size={20} className="text-emerald-400" />
+        <CalendarDays size={20} className="text-primary" />
 
         <h2
           className="

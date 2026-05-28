@@ -1,11 +1,17 @@
 import { ChevronDown } from 'lucide-react';
 
 import { useDropdown } from '../../hooks/useDropdown';
-
 import { UserDropdown } from './UserDropdown';
+import { useAuth } from '../../context/AuthContext';
 
 export function UserProfile() {
   const { open, setOpen, ref } = useDropdown();
+  const { user } = useAuth();
+
+  const currentUser = user?.user || user;
+  const name = currentUser?.fullname || currentUser?.fullName || 'User Name';
+  const email = currentUser?.email || 'user@example.com';
+  const initials = name.substring(0, 2).toUpperCase();
 
   return (
     <div className="relative" ref={ref}>
@@ -29,13 +35,13 @@ export function UserProfile() {
             font-semibold
           "
         >
-          HS
+          {initials}
         </div>
 
         <div className="hidden text-left sm:block">
-          <p className="text-sm font-semibold text-textPrimary">Hasan Suryadharma</p>
+          <p className="text-sm font-semibold text-textPrimary">{name}</p>
 
-          <p className="text-xs text-textMuted">hasansuryadharma@example.com</p>
+          <p className="text-xs text-textMuted">{email}</p>
         </div>
 
         <ChevronDown

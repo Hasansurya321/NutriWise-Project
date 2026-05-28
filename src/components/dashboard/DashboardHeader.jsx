@@ -1,6 +1,6 @@
 import { cn } from '../../utils/cn';
 
-export function DashboardHeader({ username = 'Hasan', title, description, className }) {
+export function DashboardHeader({ username, title, description, className }) {
   const resolvedTitle = title || `Welcome back, ${username}!`;
 
   return (

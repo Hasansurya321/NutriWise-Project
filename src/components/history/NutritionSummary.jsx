@@ -14,7 +14,7 @@ export default function NutritionSummary({ macros }) {
     },
     {
       label: 'Fats',
-      value: `${macros.fats}g`,
+      value: `${macros.fat}g`,
       icon: Droplets,
     },
   ];

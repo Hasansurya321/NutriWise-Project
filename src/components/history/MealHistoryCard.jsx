@@ -21,7 +21,7 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
         p-6
         shadow-lg
         transition-all duration-300
-        hover:border-emerald-500/20
+        hover:border-primary/20
         hover:shadow-2xl
       "
     >
@@ -32,10 +32,10 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
             <span
               className="
                 rounded-full
-                bg-emerald-500/20
+                bg-primary/20
                 px-3 py-1
                 text-xs font-medium
-                text-emerald-400
+                text-primary
               "
             >
               {meal.type}
@@ -66,7 +66,7 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
           <div
             className="
               text-3xl font-semibold
-              text-emerald-400
+              text-primary
             "
           >
             {meal.totalCalories}
@@ -106,7 +106,7 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
           bg-background/30
           px-4 py-3
           text-sm font-medium
-          text-emerald-400
+          text-primary
           transition-colors duration-200
           hover:bg-background/50
         "
