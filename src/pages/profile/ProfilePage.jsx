@@ -20,52 +20,46 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('Personal Info');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load profile from Context
   useEffect(() => {
-    try {
-      if (!user) {
-        setSavedProfile(null);
-        setDraftProfile(null);
-        setIsLoading(false);
-        return;
-      }
-
-      const profileData = user;
-      console.log(profileData)
-
-      const structuredData = {
-        profile: {
-          fullName: profileData.fullname || 'User Name',
-          email: profileData.email || 'user@example.com',
-          age: profileData.age || 0,
-          gender: profileData.gender || 'Unspecified',
-          initials: (profileData.fullname || 'UN').substring(0, 2).toUpperCase(),
-          memberSince: profileData.createdAt ? new Date(profileData.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : new Date().getFullYear(),
-          totalScans: profileData.totalScans || 0,
-          healthScore: profileData.healthScore || 0,
-        },
-        healthData: {
-          height: profileData.height || 0,
-          weight: profileData.weight || 0,
-          activityLevel: profileData.activityLevel || 'Moderate'
-        },
-        nutritionGoals: {
-          calories: profileData.calorieTarget || 0,
-          protein: profileData.proteinTarget || 0,
-          carbs: profileData.carbohydrateTarget || 0,
-          fats: profileData.fatTarget || 0,
-          macroDistribution: profileData.macroDistribution || []
-        }
-      };
-
-      setSavedProfile(structuredData);
-      setDraftProfile(structuredData);
-    } catch (error) {
-      console.error('Failed to load profile from context:', error);
-    } finally {
+    if (!user) {
+      setSavedProfile(null);
+      setDraftProfile(null);
       setIsLoading(false);
+      return;
     }
-  }, [user]);
+
+    const structuredData = {
+      profile: {
+        fullName: user.fullname || 'User Name',
+        email: user.email || 'user@example.com',
+        age: user.age || 0,
+        gender: user.gender || 'Unspecified',
+        initials: (user.fullname || 'UN').substring(0, 2).toUpperCase(),
+        memberSince: user.createdAt 
+          ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) 
+          : new Date().getFullYear(),
+        totalScans: user.totalScans || 0,
+        healthScore: user.healthScore || 0,
+      },
+      healthData: {
+        height: user.height || 0,
+        weight: user.weight || 0,
+        activityLevel: user.activityLevel || 'Moderate',
+        bmi: user.bmi || 0
+      },
+      nutritionGoals: {
+        calories: user.calorieTarget || 0,
+        protein: user.proteinTarget || 0,
+        carbs: user.carbohydrateTarget || 0,
+        fats: user.fatTarget || 0,
+        macroDistribution: user.macroDistribution || []
+      }
+    };
+
+    setSavedProfile(structuredData);
+    setDraftProfile(structuredData);
+    setIsLoading(false);
+  }, [user]); 
 
   const identityLockedFields = {
     fullName: true,
@@ -98,36 +92,18 @@ export default function ProfilePage() {
       };
 
       const response = await profileAPI.updateProfile(payload);
+      console.log(response)
 
-      const updatedData = response?.data?.profile || response?.data || response;
 
-      const structuredData = {
-        ...draftProfile,
-        profile: {
-          ...draftProfile.profile,
-          age: updatedData.age || draftProfile.profile.age,
-          gender: updatedData.gender || draftProfile.profile.gender,
-        },
-        healthData: {
-          ...draftProfile.healthData,
-          height: updatedData.height || draftProfile.healthData.height,
-          weight: updatedData.weight || draftProfile.healthData.weight,
-        },
-        nutritionGoals: {
-          ...draftProfile.nutritionGoals,
-          calories: updatedData.calorieTarget || draftProfile.nutritionGoals.calories,
-          protein: updatedData.proteinTarget || draftProfile.nutritionGoals.protein,
-          carbs: updatedData.carbohydrateTarget || draftProfile.nutritionGoals.carbs,
-          fats: updatedData.fatTarget || draftProfile.nutritionGoals.fats,
-        }
-      };
 
-      setSavedProfile(structuredData);
+      const updatedData = response?.data?.user;
+
+      if (!updatedData) return;
+
       setUser(updatedData);
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to save profile:', error);
-      setSavedProfile(draftProfile);
       setIsEditing(false);
     }
   };
@@ -139,7 +115,6 @@ export default function ProfilePage() {
 
     setDraftProfile((prev) => ({
       ...prev,
-
       [section]: {
         ...prev[section],
         [field]: value,
@@ -156,51 +131,14 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-7xl space-y-8">
         <ProfileHeader isEditing={isEditing} onEdit={handleEdit} onSave={handleSave} onCancel={handleCancel} />
 
-        <div
-          className="
-            grid grid-cols-1
-            gap-6
-            xl:grid-cols-[360px_1fr]
-          "
-        >
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_1fr]">
           <ProfileSummaryCard profile={displayProfile.profile} />
 
-          <div
-            className="
-              rounded-3xl
-              border border-borderPrimary
-              bg-card
-              p-6
-            "
-          >
+          <div className="rounded-3xl border border-borderPrimary bg-card p-6">
             <div>
-              <h2
-                className="
-                  text-2xl font-semibold
-                  text-textPrimary
-                "
-              >
-                Profile Details
-              </h2>
-
-              <p
-                className="
-                  mt-2
-                  text-textSecondary
-                "
-              >
-                Your personal information and health settings
-              </p>
-
-              <p
-                className="
-                  mt-2
-                  text-sm
-                  text-textMuted
-                "
-              >
-                Identity information is system-controlled and locked to maintain account consistency.
-              </p>
+              <h2 className="text-2xl font-semibold text-textPrimary">Profile Details</h2>
+              <p className="mt-2 text-textSecondary">Your personal information and health settings</p>
+              <p className="mt-2 text-sm text-textMuted">Identity information is system-controlled and locked to maintain account consistency.</p>
             </div>
 
             <div className="mt-8">

@@ -2,6 +2,7 @@ import MacroDistribution from './MacroDistribution';
 import ProfileField from './ProfileField';
 
 export default function NutritionGoalsTab({ data, isEditing, onFieldChange }) {
+  console.log(data)
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
