@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 
-import { NotificationButton } from '../dashboard/NotificationButton';
-
 import { ThemeToggleButton } from '../theme/ThemeToggleButton';
 
 import { UserProfile } from './UserProfile';
@@ -14,21 +12,19 @@ export function NavbarActions({ isAuthenticated = false }) {
 
       {isAuthenticated ? (
         <>
-          <NotificationButton />
-
           <UserProfile />
         </>
       ) : (
         <div className="flex items-center gap-2">
           <Link to={'/auth?mode=login'}>
             <Button variant="outline" className="font-semibold">
-              Login
+              Masuk
             </Button>
           </Link>
 
           <Link to={'/auth?mode=register'}>
             <Button>
-              Register
+              Daftar
             </Button>
           </Link>
         </div>

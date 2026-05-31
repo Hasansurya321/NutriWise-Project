@@ -45,26 +45,14 @@ export function UserDropdown({ open }) {
           {/* PROFILE */}
           <Button
             type="button"
-            variant='ghost'
-            className="w-full"
+            variant="ghost"
+            className="w-full justify-start"
             size="lg"
+            asChild
           >
-            <NavLink
-              to="/profile"
-              className="
-                flex items-center
-              gap-3
-              rounded-2xl
-              px-4 py-3 
-              w-full
-              text-sm font-medium
-              text-textPrimary
-              transition-all duration-200
-              hover:bg-white/5
-            "
-            >
-              <User className="h-4 w-4" />
-              Profile
+            <NavLink to="/profile">
+              <User className="h-4 w-4 mr-2" />
+              Profil
             </NavLink>
           </Button>
 
@@ -73,11 +61,11 @@ export function UserDropdown({ open }) {
             type="button"
             variant="destructive"
             onClick={handleLogout}
-            size='lg'
-            className="w-full mt-6"
+            size="lg"
+            className="w-full mt-2"
           >
-            <LogOut className="h-4 w-4" />
-            Logout
+            <LogOut className="h-4 w-4 mr-2" />
+            Keluar
           </Button>
         </motion.div>
       )}

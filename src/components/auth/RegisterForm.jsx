@@ -109,7 +109,6 @@ export default function RegisterForm({ onSwitchToLogin }) {
         >
           Password
         </label>
-
         <div className="relative">
           <Input
             type={showPassword ? 'text' : 'password'}

@@ -24,7 +24,7 @@ export function MealDetailsModal({ meal, open, onClose }) {
         <div className="mt-8 space-y-6">
           {/* AI Insight */}
           <div>
-            <h3 className="text-sm font-medium text-textSecondary">AI Nutrition Insight</h3>
+            <h3 className="text-sm font-medium text-textSecondary">Analisis Nutrisi AI</h3>
             <div className="mt-3 rounded-2xl border border-borderPrimary bg-background/40 p-4 text-sm leading-relaxed text-textPrimary">
               {meal.aiInsight}
             </div>
@@ -33,7 +33,7 @@ export function MealDetailsModal({ meal, open, onClose }) {
           {/* Ingredients */}
           {meal.ingredients && meal.ingredients.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-textSecondary">Ingredients</h3>
+              <h3 className="text-sm font-medium text-textSecondary">Bahan/Komposisi</h3>
               <div className="mt-3 flex flex-wrap gap-2">
                 {meal.ingredients.map((ingredient) => (
                   <span
@@ -49,7 +49,7 @@ export function MealDetailsModal({ meal, open, onClose }) {
 
           {/* Nutrition Macros */}
           <div>
-            <h3 className="text-sm font-medium text-textSecondary">Nutrition Macros</h3>
+            <h3 className="text-sm font-medium text-textSecondary">Makro Nutrisi</h3>
             <div className="mt-3 grid grid-cols-3 gap-3">
               <div className="rounded-2xl border border-borderPrimary bg-background/40 p-4">
                 <p className="text-xs text-textSecondary">Protein</p>
@@ -57,12 +57,12 @@ export function MealDetailsModal({ meal, open, onClose }) {
               </div>
 
               <div className="rounded-2xl border border-borderPrimary bg-background/40 p-4">
-                <p className="text-xs text-textSecondary">Carbs</p>
+                <p className="text-xs text-textSecondary">Karbohidrat</p>
                 <p className="mt-2 text-lg font-semibold text-textPrimary">{meal.macros.carbs}g</p>
               </div>
 
               <div className="rounded-2xl border border-borderPrimary bg-background/40 p-4">
-                <p className="text-xs text-textSecondary">Fats</p>
+                <p className="text-xs text-textSecondary">Lemak</p>
                 <p className="mt-2 text-lg font-semibold text-textPrimary">{meal.macros.fat || meal.macros.fats}g</p>
               </div>
             </div>
@@ -70,7 +70,7 @@ export function MealDetailsModal({ meal, open, onClose }) {
 
           {/* Food Items */}
           <div>
-            <h3 className="text-sm font-medium text-textSecondary">Meal Items</h3>
+            <h3 className="text-sm font-medium text-textSecondary">Daftar Makanan</h3>
             <div className="mt-3 space-y-3">
               {meal.items.map((item) => {
                 const Icon = getIconByName(item.iconName, 'Apple');
@@ -81,20 +81,26 @@ export function MealDetailsModal({ meal, open, onClose }) {
                     className="flex items-center justify-between rounded-2xl border border-borderPrimary bg-background/40 p-4"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-card text-primary">
-                        <img src={item.img_url} alt={item.name} className="h-5 w-5 aspect-square" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-card text-primary overflow-hidden">
+                        <img src={item.img_url} alt={item.name} className="h-full w-full object-cover" />
                       </div>
 
                       <div>
-                        <p className="font-medium text-textPrimary">{item.name}</p>
-                        <p className="text-sm text-textSecondary">{item.calories} kcal</p>
+                        <p className="font-medium text-textPrimary">{item.name} <span className="text-xs text-textMuted font-normal ml-1">({item.portion} porsi)</span></p>
+                        <p className="text-sm text-textSecondary">{item.calories} kkal</p>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <div className="h-1.5 w-16 bg-background rounded-full overflow-hidden">
+                            <div className="h-full bg-primary" style={{ width: `${Math.round(item.confidenceScore * 100)}%` }}></div>
+                          </div>
+                          <p className="text-xs text-textMuted">{Math.round(item.confidenceScore * 100)}% akurasi</p>
+                        </div>
                       </div>
                     </div>
 
                     <div className="text-right text-sm text-textSecondary">
                       <p>P {item.protein}g</p>
-                      <p>C {item.carbs}g</p>
-                      <p>F {item.fats || item.fat}g</p>
+                      <p>K {item.carbs}g</p>
+                      <p>L {item.fats || item.fat}g</p>
                     </div>
                   </div>
                 );

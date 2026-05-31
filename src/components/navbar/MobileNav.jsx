@@ -5,7 +5,7 @@ import { cn } from '../../utils/cn';
 
 export function MobileNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-borderPrimary bg-sidebar/80 px-2 py-2 backdrop-blur-xl pb-safe lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-borderPrimary bg-sidebar/80 px-2 py-2 backdrop-blur-xl pb-safe lg:hidden">
       {navigation.map((item) => {
         const Icon = Icons[item.iconName] || Icons.Circle;
 

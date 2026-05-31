@@ -23,8 +23,8 @@ export default function PredictPage() {
   return (
     <div className="space-y-8 pb-8">
       <SectionHeader
-        title="Food Image AI"
-        description="Upload or capture a photo of your meal to instantly estimate its nutritional values."
+        title="AI Pemindai Makanan"
+        description="Unggah atau ambil foto makananmu untuk mendeteksi nilai nutrisinya secara langsung."
       />
 
       <div className="flex justify-center w-full">
@@ -33,13 +33,13 @@ export default function PredictPage() {
             onClick={() => switchTab('upload')}
             className={`flex-1 flex justify-center items-center px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${activeTab === 'upload' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-textSecondary hover:text-textPrimary hover:bg-input'}`}
           >
-            <UploadCloud className="w-4 h-4 mr-2" /> Upload File
+            <UploadCloud className="w-4 h-4 mr-2" /> Unggah File
           </button>
           <button
             onClick={() => switchTab('camera')}
             className={`flex-1 flex justify-center items-center px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${activeTab === 'camera' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-textSecondary hover:text-textPrimary hover:bg-input'}`}
           >
-            <Camera className="w-4 h-4 mr-2" /> Camera Capture
+            <Camera className="w-4 h-4 mr-2" /> Kamera
           </button>
         </div>
       </div>

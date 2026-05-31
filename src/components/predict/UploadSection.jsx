@@ -19,6 +19,8 @@ export function UploadSection({
   file,
   previewUrl,
   error,
+  portion,
+  setPortion,
   dragCounterRef,
   validateAndSetFile,
   handleReset,
@@ -115,15 +117,15 @@ export function UploadSection({
     <Card className="h-full relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-400"></div>
       <CardHeader>
-        <CardTitle>Quick Food Scan</CardTitle>
-        <CardDescription>Upload or capture your meal to let AI analyze calories, protein, carbs, and fats in one workflow.</CardDescription>
+        <CardTitle>Pemindai Makanan Cepat</CardTitle>
+        <CardDescription>Unggah atau ambil foto makananmu untuk mendeteksi kalori, protein, karbohidrat, dan lemak secara otomatis dengan AI.</CardDescription>
       </CardHeader>
 
       <CardContent>
         <div
           role="button"
           tabIndex={0}
-          aria-label="Upload food image"
+          aria-label="Unggah gambar makanan"
           aria-busy={showBusy}
           onClick={openFilePicker}
           onKeyDown={handleKeyDown}
@@ -205,7 +207,7 @@ export function UploadSection({
                         "
                       >
                         <CheckCircle2 className="h-3.5 w-3.5" />
-                        Scanned
+                        Selesai
                       </span>
                     ) : status === 'processing' ? (
                       <span
@@ -219,7 +221,7 @@ export function UploadSection({
                         "
                       >
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Processing
+                        Memproses
                       </span>
                     ) : status === 'uploading' ? (
                       <span
@@ -233,12 +235,12 @@ export function UploadSection({
                         "
                       >
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Uploading
+                        Mengunggah
                       </span>
                     ) : null}
                   </div>
 
-                  <p className="text-sm text-textSecondary">{formatFileSize(file.size)} · Drag another image or click browse to replace.</p>
+                  <p className="text-sm text-textSecondary">{formatFileSize(file.size)} · Tarik gambar lain atau klik telusuri untuk mengganti.</p>
                 </div>
               </div>
 
@@ -248,23 +250,41 @@ export function UploadSection({
                   bg-white/3 p-4 text-left
                 "
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className="
-                      rounded-2xl border
-                      border-borderCard bg-primary/10
-                      p-3 text-primary
-                    "
-                  >
-                    <ScanLine className="h-5 w-5" />
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="
+                        rounded-2xl border
+                        border-borderCard bg-primary/10
+                        p-3 text-primary shrink-0
+                      "
+                    >
+                      <ScanLine className="h-5 w-5" />
+                    </div>
+
+                    <div className="space-y-1">
+                      <h4 className="font-medium text-textPrimary">Siap untuk analisis AI</h4>
+
+                      <p className="text-sm text-textSecondary">Mulai pemindaian untuk mendeteksi detail nutrisi dari gambar makanan yang dipilih.</p>
+                    </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <h4 className="font-medium text-textPrimary">Ready for AI analysis</h4>
-
-                    <p className="text-sm text-textSecondary">Start scanning to detect nutrition details from the selected meal image.</p>
-                  </div>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 bg-card p-3 rounded-xl border border-borderPrimary shrink-0 w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
+                <label htmlFor="portion" className="text-sm font-medium text-textSecondary whitespace-nowrap">Jumlah</label>
+                <input
+                  id="portion"
+                  type="number"
+                  min="1"
+                  step="0.5"
+                  value={portion || 1}
+                  onChange={(e) => setPortion(parseFloat(e.target.value) || 1)}
+                  className="w-20 bg-background border border-borderPrimary rounded-lg px-3 py-1.5 text-sm font-medium text-textPrimary focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
               </div>
 
               <div
@@ -288,17 +308,17 @@ export function UploadSection({
                   {status === 'processing' ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Scanning
+                      Memindai
                     </>
                   ) : status === 'success' ? (
                     <>
                       <CheckCircle2 className="h-4 w-4" />
-                      Scanned
+                      Selesai, Scan ulang?
                     </>
                   ) : (
                     <>
                       <ScanLine className="h-4 w-4" />
-                      Start Scanning
+                      Mulai Pemindaian
                     </>
                   )}
                 </Button>
@@ -314,7 +334,7 @@ export function UploadSection({
                   }}
                 >
                   <ImagePlus className="h-4 w-4" />
-                  Browse files
+                  Telusuri file
                 </Button>
 
                 <Button
@@ -328,7 +348,7 @@ export function UploadSection({
                   }}
                 >
                   <X className="h-4 w-4" />
-                  Reset
+                  Hapus
                 </Button>
               </div>
             </div>
@@ -356,7 +376,7 @@ export function UploadSection({
                       text-textPrimary
                     "
                   >
-                    Upload failed
+                    Unggahan gagal
                   </p>
 
                   <p className="text-sm text-textSecondary">{error}</p>
@@ -381,7 +401,7 @@ export function UploadSection({
                   }}
                 >
                   <UploadCloud className="h-4 w-4" />
-                  Try again
+                  Coba lagi
                 </Button>
               </div>
             </div>
@@ -404,10 +424,10 @@ export function UploadSection({
                     text-textPrimary
                   "
                 >
-                  Drop your food image here
+                  Tarik gambar makananmu ke sini
                 </h3>
 
-                <p className="text-sm text-textSecondary">or click to browse files, then start scanning for nutrition insights.</p>
+                <p className="text-sm text-textSecondary">atau klik untuk menelusuri file, lalu mulai pemindaian untuk melihat analisis nutrisi.</p>
               </div>
 
               <div
@@ -428,7 +448,7 @@ export function UploadSection({
                   }}
                 >
                   <UploadCloud className="h-4 w-4" />
-                  Upload image
+                  Unggah gambar
                 </Button>
 
                 <Button
@@ -442,11 +462,11 @@ export function UploadSection({
                   }}
                 >
                   <ImagePlus className="h-4 w-4" />
-                  Browse files
+                  Telusuri file
                 </Button>
               </div>
 
-              <p className="text-xs text-textMuted">Supports JPG, PNG, and other image formats up to {MAX_FILE_SIZE_MB} MB.</p>
+              <p className="text-xs text-textMuted">Mendukung format JPG, PNG, dan gambar lainnya hingga {MAX_FILE_SIZE_MB} MB.</p>
             </div>
           )}
         </div>

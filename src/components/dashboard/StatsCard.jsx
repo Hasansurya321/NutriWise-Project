@@ -1,25 +1,25 @@
 import { motion } from 'framer-motion';
-
 import { cn } from '../../utils/cn';
 import { getIconByName } from '../../utils/iconRegistry';
 import { Card } from '../ui/card';
 
+// Menggunakan paduan warna Tailwind standar yang aman & kontras tinggi
 const accentStyles = {
   green: {
-    icon: 'bg-primary/10 text-primary',
-    fill: 'bg-primary',
+    icon: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400',
+    fill: 'bg-emerald-500',
   },
   blue: {
-    icon: 'bg-info/10 text-info',
-    fill: 'bg-info',
+    icon: 'bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400',
+    fill: 'bg-blue-500',
   },
   orange: {
-    icon: 'bg-warning/10 text-warning',
-    fill: 'bg-warning',
+    icon: 'bg-orange-50 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400',
+    fill: 'bg-orange-500',
   },
   warning: {
-    icon: 'bg-warning/10 text-warning',
-    fill: 'bg-warning',
+    icon: 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400',
+    fill: 'bg-amber-500',
   },
 };
 
@@ -33,11 +33,12 @@ export function StatsCard({
   color = 'green',
   className,
 }) {
+  // Memastikan nilai progress berada di rentang 0 - 100
   const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
 
   const theme = accentStyles[color] || accentStyles.green;
 
-  const ResolvedIcon = getIconByName(iconName, 'Flame');
+  const ResolvedIcon = getIconByName(iconName, 'Orange');
 
   return (
     <motion.div
@@ -59,7 +60,9 @@ export function StatsCard({
           className,
         )}
       >
-        <article className="flex h-full flex-col gap-4 p-5 sm:p-6">
+        <article className="flex h-full flex-col gap-5 p-5 sm:p-6">
+
+          {/* Bagian Atas: Judul dan Icon */}
           <header className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <p className="text-sm font-medium text-textSecondary">{title}</p>
@@ -78,6 +81,7 @@ export function StatsCard({
             </div>
           </header>
 
+          {/* Bagian Tengah: Angka Konsumsi vs Target Nutrisi */}
           <div className="space-y-1">
             <div className="flex flex-wrap items-end gap-2">
               <span
@@ -89,23 +93,29 @@ export function StatsCard({
                 {value}
               </span>
 
-              {target ? <span className="pb-1 text-base text-textSecondary">/ {target}</span> : null}
+              {target ? (
+                <span className="pb-1 text-base text-textSecondary font-medium">
+                  / {target}
+                </span>
+              ) : null}
             </div>
 
             {meta ? <p className="text-xs text-textSecondary">{meta}</p> : null}
           </div>
 
-          <div className="space-y-2">
+          {/* Bagian Bawah: Progress Bar (FIXED: Lebih kontras & konsisten) */}
+          <div className="mt-auto space-y-2">
             <div
               className="
-                h-2 overflow-hidden rounded-full bg-white/10
+                h-2 w-full overflow-hidden rounded-full 
+                bg-neutral-100 dark:bg-neutral-800
               "
             >
               <div
                 className={cn(
                   `
                     h-full rounded-full transition-all
-                    duration-500
+                    duration-500 ease-out
                   `,
                   theme.fill,
                 )}
@@ -118,13 +128,14 @@ export function StatsCard({
             <div
               className="
                 flex items-center justify-between text-xs
-                text-textSecondary
+                font-medium text-textSecondary
               "
             >
               <span>Progress</span>
-              <span>{safeProgress}%</span>
+              <span className="font-bold text-textPrimary">{safeProgress}%</span>
             </div>
           </div>
+
         </article>
       </Card>
     </motion.div>

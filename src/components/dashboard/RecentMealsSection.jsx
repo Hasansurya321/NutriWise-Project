@@ -9,11 +9,11 @@ export function RecentMealsSection({ meals = [] }) {
   return (
     <Card>
       <div className="flex items-start justify-between gap-4 px-6 pt-6">
-        <SectionHeader eyebrow="Recent activity" title="Recent meals" description="Your latest food scans and nutrition detections" />
+        <SectionHeader eyebrow="Aktivitas terbaru" title="Makanan terakhir" description="Pemindaian makanan dan deteksi nutrisi terbarumu" />
 
         <Button variant="ghost" className="hidden shrink-0 sm:inline-flex">
-          View all
-          <ArrowRight className="h-4 w-4" />
+          Lihat semua
+          <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
 
@@ -27,8 +27,8 @@ export function RecentMealsSection({ meals = [] }) {
         </ul>
 
         <Button variant="ghost" className="mt-4 w-full sm:hidden">
-          View all meals
-          <ArrowRight className="h-4 w-4" />
+          Lihat semua makanan
+          <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </CardContent>
     </Card>

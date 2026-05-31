@@ -41,7 +41,7 @@ export default function FoodItemRow({ item }) {
               text-textPrimary
             "
           >
-            {item.name}
+            {item.name} <span className="text-xs text-textMuted font-normal ml-1">({item.portion} porsi)</span>
           </h4>
 
           <div
@@ -52,8 +52,8 @@ export default function FoodItemRow({ item }) {
             "
           >
             <span>{item.protein}g protein</span>
-            <span>{item.carbs}g carbs</span>
-            <span>{item.fats}g fats</span>
+            <span>{item.carbs}g karbo</span>
+            <span>{item.fats}g lemak</span>
           </div>
         </div>
       </div>

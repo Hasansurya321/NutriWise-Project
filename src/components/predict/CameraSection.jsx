@@ -9,6 +9,8 @@ export function CameraSection({
   file,
   previewUrl,
   error,
+  portion,
+  setPortion,
   validateAndSetFile,
   handleReset,
   handleScan,
@@ -44,8 +46,8 @@ export function CameraSection({
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-400"></div>
 
       <CardHeader>
-        <CardTitle>Camera Capture</CardTitle>
-        <CardDescription>Take a picture of your food to instantly analyze nutrition details.</CardDescription>
+        <CardTitle>Kamera Pemindai</CardTitle>
+        <CardDescription>Ambil foto makananmu untuk mendeteksi detail nutrisi secara langsung.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center gap-6">
@@ -68,12 +70,12 @@ export function CameraSection({
                 {status === 'success' ? (
                   <>
                     <CheckCircle2 className="h-12 w-12 text-primary mb-3" />
-                    <p className="font-medium text-lg">Scanned Successfully</p>
+                    <p className="font-medium text-lg">Berhasil Dipindai</p>
                   </>
                 ) : (
                   <>
                     <Loader2 className="h-10 w-10 animate-spin text-primary mb-3" />
-                    <p className="font-medium text-lg">{status === 'processing' ? 'Analyzing...' : 'Uploading...'}</p>
+                    <p className="font-medium text-lg">{status === 'processing' ? 'Memproses...' : 'Mengunggah...'}</p>
                   </>
                 )}
               </div>
@@ -81,7 +83,7 @@ export function CameraSection({
 
             {error && (
               <div className="absolute inset-0 bg-destructive/90 flex flex-col items-center justify-center text-white p-6 text-center">
-                <p className="font-bold text-lg mb-2">Error</p>
+                <p className="font-bold text-lg mb-2">Gagal</p>
                 <p className="text-sm font-medium">{error}</p>
               </div>
             )}
@@ -91,30 +93,44 @@ export function CameraSection({
             {!(previewUrl || capturedImage) ? (
               <Button onClick={capture} variant="primary" size="default" className="w-full sm:w-auto">
                 <Camera className="h-4 w-4 mr-2" />
-                Capture Photo
+                Ambil Foto
               </Button>
             ) : (
-              <>
-                <Button
-                  onClick={handleScan}
-                  variant="primary"
-                  disabled={!file || showBusy || status === 'success'}
-                  className="w-full sm:w-auto"
-                >
-                  {status === 'success' ? (
-                    <><CheckCircle2 className="h-4 w-4 mr-2" /> Scanned</>
-                  ) : showBusy ? (
-                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing</>
-                  ) : (
-                    <><UploadCloud className="h-4 w-4 mr-2" /> Analyze Image</>
-                  )}
-                </Button>
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex items-center justify-between gap-3 bg-card p-3 rounded-xl border border-borderPrimary shrink-0 w-full">
+                  <label htmlFor="camera-portion" className="text-sm font-medium text-textSecondary whitespace-nowrap">Jumlah</label>
+                  <input
+                    id="camera-portion"
+                    type="number"
+                    min="1"
+                    step="0.5"
+                    value={portion || 1}
+                    onChange={(e) => setPortion(parseFloat(e.target.value) || 1)}
+                    className="w-20 bg-background border border-borderPrimary rounded-lg px-3 py-1.5 text-sm font-medium text-textPrimary focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                <div className="flex flex-wrap justify-center gap-3 w-full">
+                  <Button
+                    onClick={handleScan}
+                    variant="primary"
+                    disabled={!file || showBusy || status === 'success'}
+                    className="w-full sm:w-auto flex-1"
+                  >
+                    {status === 'success' ? (
+                      <><CheckCircle2 className="h-4 w-4 mr-2" /> Selesai</>
+                    ) : showBusy ? (
+                      <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Memproses</>
+                    ) : (
+                      <><UploadCloud className="h-4 w-4 mr-2" /> Analisis Gambar</>
+                    )}
+                  </Button>
 
-                <Button onClick={retake} variant="secondary" disabled={showBusy} className="w-full sm:w-auto">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Retake
-                </Button>
-              </>
+                  <Button onClick={retake} variant="secondary" disabled={showBusy} className="w-full sm:w-auto flex-1">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Ulangi
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
         </div>

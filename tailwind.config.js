@@ -41,6 +41,10 @@ export default {
         borderActive: 'var(--border-active)',
 
         primary: 'var(--primary)',
+        info: '#3b82f6',
+        warning: '#f59e0b',
+        success: '#22c55e',
+        danger: '#ef4444',
       },
     },
   },

@@ -44,16 +44,16 @@ export default function AuthOverlayPanel({ mode, setMode }) {
             text-white/70
           "
         >
-          Masuk kembali untuk melanjutkan perjalanan nutrisi dan kesehatanmu bersama NutriWise.
+          Masuk kembali untuk melanjutkan perjalanan nutrisi dan kesehatanmu bersama NutriCitra.
         </p>
 
         <Button
           type="button"
           variant="outline"
           onClick={() => setMode('register')}
-          className="pointer-events-auto rounded-full px-10 mt-10"
+          className="pointer-events-auto rounded-full px-10 mt-10 border-white text-white hover:bg-white hover:text-primary"
         >
-          Register
+          Daftar
         </Button>
       </div>
 
@@ -88,17 +88,15 @@ export default function AuthOverlayPanel({ mode, setMode }) {
             text-white/70
           "
         >
-          Tetap terhubung dengan NutriWise dan lanjutkan progress nutrisimu.
+          Tetap terhubung dengan NutriCitra dan lanjutkan progress nutrisimu.
         </p>
-
-
 
         <Button
           type="button"
           onClick={() => setMode('login')}
           variant="outline"
-          className="pointer-events-auto mt-10 rounded-full px-10 font-bold ">
-          Login
+          className="pointer-events-auto rounded-full px-10 mt-10 border-white text-white hover:bg-white hover:text-primary">
+          Masuk
         </Button>
       </div>
     </div>

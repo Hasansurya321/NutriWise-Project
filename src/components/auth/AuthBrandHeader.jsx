@@ -1,9 +1,10 @@
-export default function AuthBrandHeader({ title, subtitle }) {
-  return (
-    <div className="text-center lg:text-left">
-      <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{title}</h1>
+import { Logo } from '../ui/Logo';
 
-      <p className="mt-3 text-sm text-foreground sm:text-base">{subtitle}</p>
+export default function AuthBrandHeader({ subtitle }) {
+  return (
+    <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+      <Logo size="lg" className="mb-2" />
+      <p className="mt-3 text-sm text-foreground sm:text-base max-w-sm">{subtitle}</p>
     </div>
   );
 }
