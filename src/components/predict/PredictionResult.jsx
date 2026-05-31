@@ -1,20 +1,29 @@
-import { Activity, Flame, Beef, Wheat, Droplets, CheckCircle2, AlertCircle } from "lucide-react";
-import { cn } from "../../utils/cn";
+import { useState } from 'react';
+import { Activity, Flame, Beef, Wheat, Droplets, CheckCircle2, AlertCircle } from 'lucide-react';
+import { cn } from '../../utils/cn';
+import { mealAPI } from '../../services/api';
 
 export default function PredictionResult({ predictionResult }) {
+  const [mealState, setMealState] = useState('idle'); // idle | submitting | confirmed | error
+
   if (!predictionResult) return null;
 
   // Handle nested or direct data structures gracefully
-  const data = predictionResult.predict || predictionResult.data || predictionResult;
+  // Backend response.js wraps data in { status, message, data: { predictLogId, predict } }
+  // Axios interceptor extracts response.data, so we get { status, message, data: { ... } }
+  const responseData = predictionResult.data || predictionResult;
+  const predictLogId = responseData.predictLogId;
+  const data = responseData.predict || responseData;
 
-  const {
-    foodName,
-    confidence,
-    totalNutrition,
-    nutrition, portion
-  } = data || {};
+  // === DEBUG: log actual values ===
+  console.log('predictionResult:', predictionResult);
+  console.log('predictionResult.data:', predictionResult?.data);
+  console.log('predictLogId:', predictLogId);
+  // ================================
 
-  console.log(data)
+  const { foodName, confidence, totalNutrition, nutrition, portion } = data || {};
+
+  console.log(data);
 
   const finalFoodName = foodName;
   const finalConfidence = confidence || 0;
@@ -30,9 +39,7 @@ export default function PredictionResult({ predictionResult }) {
           </div>
 
           <h3 className="text-xl font-bold text-textPrimary mb-2">Makanan Tidak Dikenali</h3>
-          <p className="text-textSecondary max-w-md mx-auto mb-2">
-            Maaf, AI kami tidak dapat mengidentifikasi makanan dari gambar yang Anda berikan. Mohon pastikan gambar terlihat jelas, fokus pada makanan, dan coba ulangi pemindaian.
-          </p>
+          <p className="text-textSecondary max-w-md mx-auto mb-2">Maaf, AI kami tidak dapat mengidentifikasi makanan dari gambar yang Anda berikan. Mohon pastikan gambar terlihat jelas, fokus pada makanan, dan coba ulangi pemindaian.</p>
         </div>
       </div>
     );
@@ -47,6 +54,59 @@ export default function PredictionResult({ predictionResult }) {
 
   const confidencePercent = Math.round(finalConfidence * 100);
 
+  const handleConfirmMeal = async () => {
+    if (!predictLogId || mealState !== 'idle') return;
+    setMealState('submitting');
+    try {
+      await mealAPI.createMealFromPredict({ predictLogId });
+      setMealState('confirmed');
+    } catch (err) {
+      // 409 = already exists, treat as confirmed
+      if (err.response?.status === 409) {
+        setMealState('confirmed');
+      } else {
+        console.error('Failed to create meal:', err);
+        setMealState('error');
+      }
+    }
+  };
+
+  const renderConfirmButton = () => {
+    if (mealState === 'idle') {
+      return (
+        <button onClick={handleConfirmMeal} className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors duration-200">
+          Ini Yang Saya Makan
+        </button>
+      );
+    }
+
+    if (mealState === 'submitting') {
+      return (
+        <button disabled className="w-full sm:w-auto px-8 py-3 bg-primary/50 text-white rounded-xl font-semibold cursor-not-allowed">
+          Menyimpan...
+        </button>
+      );
+    }
+
+    if (mealState === 'confirmed') {
+      return (
+        <button disabled className="w-full sm:w-auto px-8 py-3 bg-success/10 text-success border border-success/30 rounded-xl font-semibold cursor-not-allowed">
+          ✓ Sudah Ditambahkan ke Meal History
+        </button>
+      );
+    }
+
+    if (mealState === 'error') {
+      return (
+        <button onClick={handleConfirmMeal} className="w-full sm:w-auto px-8 py-3 bg-danger text-white rounded-xl font-semibold hover:bg-danger/90 transition-colors duration-200">
+          Coba Lagi
+        </button>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="mx-auto w-full mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="p-6 sm:p-8 rounded-3xl bg-card border border-borderPrimary shadow-lg relative overflow-hidden">
@@ -60,9 +120,7 @@ export default function PredictionResult({ predictionResult }) {
             </div>
             <div>
               <p className="text-sm font-medium text-textSecondary uppercase tracking-wider">Hasil Analisis AI</p>
-              <h3 className="text-2xl sm:text-3xl font-bold text-textPrimary capitalize mt-1">
-                {finalFoodName.replace(/_/g, ' ')}
-              </h3>
+              <h3 className="text-2xl sm:text-3xl font-bold text-textPrimary capitalize mt-1">{finalFoodName.replace(/_/g, ' ')}</h3>
             </div>
           </div>
 
@@ -79,18 +137,14 @@ export default function PredictionResult({ predictionResult }) {
             <span className="text-sm font-semibold uppercase tracking-wider">Total Kalori</span>
           </div>
           <div className="flex items-end gap-2">
-            <span className="text-5xl font-black text-textPrimary tracking-tight">
-              {typeof calories === 'number' ? Math.round(calories) : calories}
-            </span>
+            <span className="text-5xl font-black text-textPrimary tracking-tight">{typeof calories === 'number' ? Math.round(calories) : calories}</span>
             <span className="text-lg font-medium text-textSecondary mb-1">kcal</span>
           </div>
-          {portion && portion !== 1 && (
-            <p className="text-sm text-textMuted mt-3 font-medium">Berdasarkan porsi: {portion}x</p>
-          )}
+          {portion && portion !== 1 && <p className="text-sm text-textMuted mt-3 font-medium">Berdasarkan porsi: {portion}x</p>}
         </div>
 
         {/* Macros Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="p-5 bg-card rounded-2xl border border-borderPrimary shadow-sm flex flex-col items-center text-center group transition-colors hover:border-info/30 hover:bg-info/5">
             <div className="p-3 bg-info/10 text-info rounded-xl mb-3 group-hover:scale-110 transition-transform">
               <Beef className="w-6 h-6" />
@@ -126,7 +180,7 @@ export default function PredictionResult({ predictionResult }) {
         </div>
 
         {/* Detailed Nutrition Table */}
-        <div className="mt-8 rounded-2xl border border-borderPrimary overflow-hidden bg-card">
+        <div className="mt-6 rounded-2xl border border-borderPrimary overflow-hidden bg-card">
           <div className="bg-surface2 px-6 py-4 border-b border-borderPrimary">
             <h4 className="font-semibold text-textPrimary">Rincian Nutrisi Terdeteksi</h4>
             {baseNutrition.servingDescription && (
@@ -142,62 +196,51 @@ export default function PredictionResult({ predictionResult }) {
                 <tr>
                   <th className="px-6 py-4 font-medium">Nutrisi</th>
                   <th className="px-6 py-4 font-medium text-right">Per Porsi</th>
-                  {portion && portion !== 1 && (
-                    <th className="px-6 py-4 font-medium text-right bg-primary/5 text-primary">Total ({portion}x)</th>
-                  )}
+                  {portion && portion !== 1 && <th className="px-6 py-4 font-medium text-right bg-primary/5 text-primary">Total ({portion}x)</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-borderPrimary text-textPrimary">
                 <tr className="hover:bg-surface2/50 transition-colors">
                   <td className="px-6 py-4 font-medium">Kalori</td>
                   <td className="px-6 py-4 text-right">{baseNutrition.calorie?.toFixed(1) || 0} kcal</td>
-                  {portion && portion !== 1 && (
-                    <td className="px-6 py-4 text-right font-bold bg-primary/5">{calories?.toFixed(1) || 0} kcal</td>
-                  )}
+                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{calories?.toFixed(1) || 0} kcal</td>}
                 </tr>
                 <tr className="hover:bg-surface2/50 transition-colors">
                   <td className="px-6 py-4 font-medium">Protein</td>
                   <td className="px-6 py-4 text-right">{baseNutrition.protein?.toFixed(1) || 0} g</td>
-                  {portion && portion !== 1 && (
-                    <td className="px-6 py-4 text-right font-bold bg-primary/5">{protein?.toFixed(1) || 0} g</td>
-                  )}
+                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{protein?.toFixed(1) || 0} g</td>}
                 </tr>
                 <tr className="hover:bg-surface2/50 transition-colors">
                   <td className="px-6 py-4 font-medium">Karbohidrat</td>
                   <td className="px-6 py-4 text-right">{baseNutrition.carbohydrate?.toFixed(1) || baseNutrition.carbs?.toFixed(1) || 0} g</td>
-                  {portion && portion !== 1 && (
-                    <td className="px-6 py-4 text-right font-bold bg-primary/5">{carbs?.toFixed(1) || 0} g</td>
-                  )}
+                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{carbs?.toFixed(1) || 0} g</td>}
                 </tr>
                 <tr className="hover:bg-surface2/50 transition-colors">
                   <td className="px-6 py-4 font-medium">Lemak</td>
                   <td className="px-6 py-4 text-right">{baseNutrition.fat?.toFixed(1) || baseNutrition.fats?.toFixed(1) || 0} g</td>
-                  {portion && portion !== 1 && (
-                    <td className="px-6 py-4 text-right font-bold bg-primary/5">{fat?.toFixed(1) || 0} g</td>
-                  )}
+                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{fat?.toFixed(1) || 0} g</td>}
                 </tr>
-                {(baseNutrition.fiber !== null && baseNutrition.fiber !== undefined) && (
+                {baseNutrition.fiber !== null && baseNutrition.fiber !== undefined && (
                   <tr className="hover:bg-surface2/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-textSecondary">Serat</td>
                     <td className="px-6 py-4 text-right text-textSecondary">{baseNutrition.fiber?.toFixed(1)} g</td>
-                    {portion && portion !== 1 && (
-                      <td className="px-6 py-4 text-right font-bold bg-primary/5 text-primary/80">{displayNutrition.fiber?.toFixed(1)} g</td>
-                    )}
+                    {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5 text-primary/80">{displayNutrition.fiber?.toFixed(1)} g</td>}
                   </tr>
                 )}
-                {(baseNutrition.water !== null && baseNutrition.water !== undefined) && (
+                {baseNutrition.water !== null && baseNutrition.water !== undefined && (
                   <tr className="hover:bg-surface2/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-textSecondary">Air</td>
                     <td className="px-6 py-4 text-right text-textSecondary">{baseNutrition.water?.toFixed(1)} g</td>
-                    {portion && portion !== 1 && (
-                      <td className="px-6 py-4 text-right font-bold bg-primary/5 text-primary/80">{displayNutrition.water?.toFixed(1)} g</td>
-                    )}
+                    {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5 text-primary/80">{displayNutrition.water?.toFixed(1)} g</td>}
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
         </div>
+
+        {/* Confirm Button - always rendered */}
+        <div className="flex justify-center mt-8">{renderConfirmButton()}</div>
       </div>
     </div>
   );

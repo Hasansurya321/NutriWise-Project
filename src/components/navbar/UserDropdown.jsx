@@ -1,14 +1,13 @@
-import { LogOut, User } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/button';
 
 export function UserDropdown({ open }) {
-
   const { logout } = useAuth();
 
   const navigate = useNavigate();
@@ -42,28 +41,8 @@ export function UserDropdown({ open }) {
             backdrop-blur-2xl
           "
         >
-          {/* PROFILE */}
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full justify-start"
-            size="lg"
-            asChild
-          >
-            <NavLink to="/profile">
-              <User className="h-4 w-4 mr-2" />
-              Profil
-            </NavLink>
-          </Button>
-
           {/* LOGOUT */}
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={handleLogout}
-            size="lg"
-            className="w-full mt-2"
-          >
+          <Button type="button" variant="destructive" onClick={handleLogout} size="lg" className="w-full">
             <LogOut className="h-4 w-4 mr-2" />
             Keluar
           </Button>

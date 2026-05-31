@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { authAPI, profileAPI } from '../services/api';
 
 const AuthContext = createContext();
@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState(true); // default true, set false only when API returns null/404
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -17,23 +18,32 @@ export function AuthProvider({ children }) {
       const token = localStorage.getItem('accessToken');
       if (!token) {
         setIsLoading(false);
+        setHasProfile(false);
         return;
       }
 
       try {
         const response = await profileAPI.getProfile();
-        const userData = response?.data?.user || response?.data?.profile || response?.data || response;
-        if (userData) {
+        const userData = response?.data?.user || response?.user || response;
+        if (userData && Object.keys(userData).length > 0) {
           setUser(userData);
           setIsAuthenticated(true);
+          setHasProfile(true);
         } else {
-          throw new Error('No user data found');
+          setHasProfile(false);
+          setIsAuthenticated(true); // token valid, tapi belum punya profile
         }
       } catch (error) {
-        console.error('Failed to authenticate token:', error);
-        localStorage.removeItem('accessToken');
-        setUser(null);
-        setIsAuthenticated(false);
+        // Jika 404, berarti profile belum ada (first login)
+        if (error.response?.status === 404) {
+          setHasProfile(false);
+          setIsAuthenticated(true); // token valid, tapi profile belum ada
+        } else {
+          localStorage.removeItem('accessToken');
+          setUser(null);
+          setIsAuthenticated(false);
+          setHasProfile(false);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -69,24 +79,28 @@ export function AuthProvider({ children }) {
       // Fetch Profile Data after login
       try {
         const profileResponse = await profileAPI.getProfile();
-        const userData = profileResponse?.data?.user || profileResponse?.data?.profile || profileResponse?.data || profileResponse;
-        if (userData) {
+        const userData = profileResponse?.data?.user || profileResponse?.user || profileResponse;
+        if (userData && Object.keys(userData).length > 0) {
           setUser(userData);
+          setHasProfile(true);
         } else {
           setUser(null);
+          setHasProfile(false);
         }
       } catch (profileError) {
-        console.warn('Failed to load profile right after login:', profileError);
+        // If 404, profile doesn't exist yet (first login)
+        if (profileError.response?.status === 404) {
+          setHasProfile(false);
+        }
         setUser(null);
       }
 
       setIsAuthenticated(true);
       return { success: true };
     } catch (error) {
-      console.error('Login failed:', error);
       return {
         success: false,
-        message: error.response?.data?.message || 'Login failed, please check your credentials'
+        message: error.response?.data?.message || 'Login failed, please check your credentials',
       };
     } finally {
       setIsLoading(false);
@@ -99,10 +113,9 @@ export function AuthProvider({ children }) {
       await authAPI.register(userData);
       return { success: true };
     } catch (error) {
-      console.error('Registration failed:', error);
       return {
         success: false,
-        message: error.response?.data?.message || 'Registration failed'
+        message: error.response?.data?.message || 'Registration failed',
       };
     } finally {
       setIsLoading(false);
@@ -114,22 +127,25 @@ export function AuthProvider({ children }) {
     if (refreshToken) {
       try {
         await authAPI.logout({ refreshToken });
-      } catch (err) {
-        console.error('Failed to call logout endpoint', err);
-      }
+      } catch (err) {}
     }
 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     setUser(null);
     setIsAuthenticated(false);
+    setHasProfile(false);
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, register, logout, setUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  // Update hasProfile when setUser is called externally (e.g. from onboarding)
+  const handleSetUser = useCallback((userData) => {
+    setUser(userData);
+    if (userData && Object.keys(userData).length > 0) {
+      setHasProfile(true);
+    }
+  }, []);
+
+  return <AuthContext.Provider value={{ user, isAuthenticated, isLoading, hasProfile, login, register, logout, setUser: handleSetUser }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {

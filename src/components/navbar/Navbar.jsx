@@ -1,7 +1,6 @@
 import { Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { NavbarActions } from './NavbarActions';
-import { SearchInput } from './SearchInput';
 import { Button } from '../ui/button';
 
 export function Navbar({ isAuthenticated = false, onMenuClick, collapsed, onToggleCollapsed }) {
@@ -16,7 +15,6 @@ export function Navbar({ isAuthenticated = false, onMenuClick, collapsed, onTogg
         backdrop-blur-lg
         h-20
         "
-
     >
       <div
         className="
@@ -33,8 +31,6 @@ export function Navbar({ isAuthenticated = false, onMenuClick, collapsed, onTogg
           <Button variant="ghost" size="icon" onClick={onToggleCollapsed} className="hidden lg:inline-flex text-textSecondary hover:text-textPrimary" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
             {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
           </Button>
-
-          <SearchInput />
         </div>
 
         <NavbarActions isAuthenticated={isAuthenticated} />

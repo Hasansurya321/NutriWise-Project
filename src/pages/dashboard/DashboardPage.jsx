@@ -13,15 +13,12 @@ import { MacroDistributionChart } from '../../components/dashboard/MacroDistribu
 import { WeeklyTrendChart } from '../../components/dashboard/WeeklyTrendChart';
 import { RecentMealsSection } from '../../components/dashboard/RecentMealsSection';
 import { AiPanel } from '../../components/dashboard/AiPanel';
-import { SectionHeader } from '../../components/dashboard/SectionHeader';
-import { HeroSection } from '../../components/dashboard/HeroSection';
 import { AuthRequiredPanel } from '../../components/dashboard/AuthRequiredPanel';
 import { UploadSection } from '../../components/predict/UploadSection';
 import PredictionResult from '../../components/predict/PredictionResult';
 
 import { predictAPI, nutritionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { getIconByName } from '../../utils/iconRegistry';
 import { useImagePredict } from '../../hooks/useImagePredict';
 
 const fadeUp = {
@@ -35,19 +32,6 @@ const fadeUp = {
   },
 };
 
-const featureHighlights = [
-  {
-    title: 'Panduan Nutrisi AI',
-    description: 'AI membandingkan makananmu dengan target harian.',
-    iconName: 'BrainCircuit',
-  },
-  {
-    title: 'Pelacakan Cerdas',
-    description: 'Kalori, protein, air, dan serat dalam satu tampilan.',
-    iconName: 'Sparkles',
-  },
-];
-
 const macroSummary = {
   title: 'Distribusi Makronutrisi',
   subtitle: 'Ringkasan keseimbangan makronutrisi harian',
@@ -60,13 +44,49 @@ const weeklyTrendSummary = {
 
 export default function DashboardPage() {
   const { user, isAuthenticated } = useAuth();
-  const [statsCards, setStatsCards] = useState([]);
+  const [statsCards, setStatsCards] = useState([
+    {
+      title: 'Kalori',
+      value: '0',
+      target: '2000 kcal',
+      progress: 0,
+      meta: 'Memuat data...',
+      iconName: 'Flame',
+      color: 'green',
+    },
+    {
+      title: 'Protein',
+      value: '0g',
+      target: '65g',
+      progress: 0,
+      meta: 'Memuat data...',
+      iconName: 'Drumstick',
+      color: 'blue',
+    },
+    {
+      title: 'Karbohidrat',
+      value: '0g',
+      target: '260g',
+      progress: 0,
+      meta: 'Memuat data...',
+      iconName: 'Wheat',
+      color: 'orange',
+    },
+    {
+      title: 'Lemak',
+      value: '0g',
+      target: '80g',
+      progress: 0,
+      meta: 'Memuat data...',
+      iconName: 'EggFried',
+      color: 'warning',
+    },
+  ]);
   const [recentMeals, setRecentMeals] = useState([]);
   const [macroDistributionData, setMacroDistributionData] = useState([]);
   const [weeklyCalorieTrendData, setWeeklyCalorieTrendData] = useState([]);
   const [aiInsights, setAiInsights] = useState([]);
   const [healthNotification, setHealthNotification] = useState(null);
-
 
   const predictHook = useImagePredict();
   const { predictionResult, handleReset } = predictHook;
@@ -75,7 +95,6 @@ export default function DashboardPage() {
     const loadDashboardData = async () => {
       try {
         if (!user?.email) {
-          console.warn('No active session, cannot load dashboard data');
           setStatsCards([]);
           setRecentMeals([]);
           setMacroDistributionData([]);
@@ -85,15 +104,11 @@ export default function DashboardPage() {
           return;
         }
 
-        const email = user.email;
+        const [dailySummaryRes, predictLogsRes] = await Promise.all([nutritionAPI.getNutritionDaily().catch(() => null), predictAPI.getPredictLogs(1, 5).catch(() => ({ data: { predictLogs: [] } }))]);
 
-        const [dailyNutritionRes, predictLogsRes, macros, trend, insights, notification] = await Promise.all([
-          nutritionAPI.getNutritionDaily().catch(() => ({ data: {} })),
-          predictAPI.getPredictLogs().catch(() => ({ data: [] })),
-        ]);
-
+        // Recent meals dari API predict
         const rawLogs = predictLogsRes?.data?.predictLogs || [];
-        const flatMeals = rawLogs.slice(0, 3).map(log => ({
+        const flatMeals = rawLogs.slice(0, 3).map((log) => ({
           id: log.id,
           timestamp: new Date(log.createdAt || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
           name: log.foodName || log.name || 'Makanan Terprediksi',
@@ -101,54 +116,58 @@ export default function DashboardPage() {
           calories: Math.round(log.totalNutrition?.calorie || log.nutrition?.calorie || log.calories || 0),
           confidence: log.confidenceScore || 0,
           image: log.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
-          iconName: 'Apple'
+          iconName: 'Apple',
         }));
 
-        const dailyData = dailyNutritionRes?.data?.nutrition || dailyNutritionRes?.data || {};
+        // Daily summary dari backend
+        const dailyData = dailySummaryRes?.data?.nutrition || dailySummaryRes?.data || {};
+        const consumedCalories = dailyData.calorieConsumed ?? dailyData.calories ?? 0;
+        const consumedProtein = dailyData.proteinConsumed ?? dailyData.protein ?? 0;
+        const consumedCarbs = dailyData.carbohydrateConsumed ?? dailyData.carbohydrate ?? 0;
+        const consumedFats = dailyData.fatConsumed ?? dailyData.fat ?? 0;
 
-        const safeTotalCalories = dailyData.calorieConsumed;
-        const safeTotalProtein = dailyData.proteinConsumed;
-        const safeTotalCarbs = dailyData.carbohydrateConsumed;
-        const safeTotalFats = dailyData.fatConsumed;
+        // Gunakan ?? bukan || agar nilai 0 tetap dianggap valid
+        // Cari dari berbagai kemungkinan field name yang dikirim API
+        const targetCalories = user?.calorieTarget ?? user?.calorie_target ?? user?.nutritionGoals?.calories ?? 2000;
+        const targetProtein = user?.proteinTarget ?? user?.protein_target ?? user?.nutritionGoals?.protein ?? 140;
+        const targetCarbs = user?.carbohydrateTarget ?? user?.carbohydrate_target ?? user?.nutritionGoals?.carbs ?? 260;
+        const targetFats = user?.fatTarget ?? user?.fat_target ?? user?.nutritionGoals?.fats ?? 80;
 
-        const targetCalories = user?.calorieTarget || 2000;
-        const targetProtein = user?.proteinTarget || 140;
-        const targetCarbs = user?.carbohydrateTarget || 260;
-        const targetFats = user?.fatTarget || 80;
+        const calcProgress = (consumed, target) => (target > 0 ? (consumed / target) * 100 : 0);
 
         const builtStatsCards = [
           {
             title: 'Kalori',
-            value: `${Math.round(safeTotalCalories)}`,
+            value: `${Math.round(consumedCalories)}`,
             target: `${targetCalories} kcal`,
-            progress: targetCalories > 0 ? (safeTotalCalories / targetCalories) * 100 : 0,
-            meta: `${Math.round(targetCalories > 0 ? (safeTotalCalories / targetCalories) * 100 : 0)}% dari target`,
+            progress: calcProgress(consumedCalories, targetCalories),
+            meta: `${Math.round(calcProgress(consumedCalories, targetCalories))}% dari target`,
             iconName: 'Flame',
             color: 'green',
           },
           {
             title: 'Protein',
-            value: `${Math.round(safeTotalProtein)}g`,
+            value: `${Math.round(consumedProtein)}g`,
             target: `${targetProtein}g`,
-            progress: targetProtein > 0 ? (safeTotalProtein / targetProtein) * 100 : 0,
+            progress: calcProgress(consumedProtein, targetProtein),
             meta: 'Asupan protein',
             iconName: 'Drumstick',
             color: 'blue',
           },
           {
             title: 'Karbohidrat',
-            value: `${Math.round(safeTotalCarbs)}g`,
+            value: `${Math.round(consumedCarbs)}g`,
             target: `${targetCarbs}g`,
-            progress: targetCarbs > 0 ? (safeTotalCarbs / targetCarbs) * 100 : 0,
+            progress: calcProgress(consumedCarbs, targetCarbs),
             meta: 'Asupan karbohidrat',
             iconName: 'Wheat',
             color: 'orange',
           },
           {
             title: 'Lemak',
-            value: `${Math.round(safeTotalFats)}g`,
+            value: `${Math.round(consumedFats)}g`,
             target: `${targetFats}g`,
-            progress: targetFats > 0 ? (safeTotalFats / targetFats) * 100 : 0,
+            progress: calcProgress(consumedFats, targetFats),
             meta: 'Asupan lemak',
             iconName: 'EggFried',
             color: 'warning',
@@ -156,14 +175,12 @@ export default function DashboardPage() {
         ];
 
         setStatsCards(builtStatsCards);
-        setRecentMeals(flatMeals || []);
-        setMacroDistributionData(macros || []);
-        setWeeklyCalorieTrendData(trend || []);
-        setAiInsights(insights || []);
-        setHealthNotification(notification || null);
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error);
-      }
+        setRecentMeals(flatMeals);
+        setMacroDistributionData([]);
+        setWeeklyCalorieTrendData([]);
+        setAiInsights([]);
+        setHealthNotification(null);
+      } catch (error) {}
     };
 
     loadDashboardData();
@@ -197,13 +214,7 @@ export default function DashboardPage() {
         {(statsCards || []).map((item) => (
           <StatsCard key={item.title} {...item} />
         ))}
-
-
       </motion.section>
-
-      <motion.div variants={fadeUp}>
-        <HeroSection isAuthenticated={isAuthenticated} />
-      </motion.div>
 
       <motion.section
         variants={fadeUp}
@@ -215,12 +226,9 @@ export default function DashboardPage() {
       >
         {isAuthenticated ? (
           <div className="xl:col-span-8">
-            <div className='grid grid-cols-1'>
+            <div className="grid grid-cols-1">
               <UploadSection {...predictHook} />
-              {predictionResult && (
-                <PredictionResult predictionResult={predictionResult} />
-              )}
-
+              {predictionResult && <PredictionResult predictionResult={predictionResult} />}
             </div>
           </div>
         ) : (
@@ -258,47 +266,6 @@ export default function DashboardPage() {
         "
       >
         <RecentMealsSection meals={recentMeals} />
-
-        <Card>
-          <div className="px-6 pt-6">
-            <SectionHeader eyebrow="Fitur Unggulan" title="Analisis Cerdas" description="Dapatkan kemudahan pemantauan nutrisi dengan dukungan kecerdasan buatan" />
-          </div>
-
-          <CardContent className="space-y-3">
-            {(featureHighlights || []).map((item) => {
-              const Icon = getIconByName(item.iconName, 'Sparkles');
-
-              return (
-                <div
-                  key={item.title}
-                  className="
-                    flex items-start gap-3 rounded-2xl
-                    border border-borderSoft
-                    bg-white/3 p-4 transition-all
-                    duration-200 ease-out
-                    hover:border-white/10
-                    hover:bg-white/[0.04]
-                  "
-                >
-                  <div
-                    className="
-                      rounded-2xl border border-borderCard
-                      bg-primary/10 p-3 text-primary
-                    "
-                  >
-                    {Icon ? <Icon className="h-5 w-5" /> : null}
-                  </div>
-
-                  <div className="space-y-1">
-                    <h4 className="font-medium text-textPrimary">{item.title}</h4>
-
-                    <p className="text-sm text-textSecondary">{item.description}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
       </motion.section>
     </motion.div>
   );

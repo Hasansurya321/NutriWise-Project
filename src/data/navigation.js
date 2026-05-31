@@ -15,8 +15,8 @@ export const navigation = [
     iconName: 'History',
   },
   {
-    label: 'Analitik',
-    href: '/insights',
-    iconName: 'LineChart',
+    label: 'Edit Profile',
+    href: '/profile',
+    iconName: 'User',
   },
 ];

@@ -9,11 +9,16 @@ import HistoryPage from '../pages/history/HistoryPage';
 import ProfilePage from '../pages/profile/ProfilePage';
 import InsightsPage from '../pages/insights/InsightsPage';
 import PredictPage from '../pages/predict/PredictPage';
+import OnboardingPage from '../pages/onboarding/OnboardingPage';
 
 export const router = createBrowserRouter([
   {
     path: '/auth',
     element: <AuthPage />,
+  },
+  {
+    path: '/onboarding',
+    element: <OnboardingPage />,
   },
   {
     path: '/',

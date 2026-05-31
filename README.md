@@ -40,15 +40,15 @@ export default defineConfig([
       // other options...
     },
   },
-])
+]);
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
 // eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+import reactX from 'eslint-plugin-react-x';
+import reactDom from 'eslint-plugin-react-dom';
 
 export default defineConfig([
   globalIgnores(['dist']),
@@ -69,5 +69,59 @@ export default defineConfig([
       // other options...
     },
   },
-])
+]);
 ```
+
+---
+
+## 📋 Dokumentasi Local Storage
+
+Data onboarding pengguna disimpan di `localStorage` dengan key **`onboarding_data`** (frontend-only, belum terhubung ke backend).
+
+### Cara akses halaman onboarding
+
+Buka manual di browser: `http://localhost:5173/onboarding`
+
+### Struktur data yang disimpan
+
+```json
+{
+  "age": 25,
+  "gender": "male" | "female",
+  "height": 170,
+  "weight": 65,
+  "isPregnant": false,
+  "trimester": null,
+  "calorieTarget": 2000,
+  "proteinTarget": 65,
+  "carbohydrateTarget": 260,
+  "fatTarget": 80,
+  "bmi": 22.5,
+  "bmiCategory": "Normal",
+  "createdAt": "2026-05-31T..."
+}
+```
+
+### Field Description
+
+| Field                | Type         | Description                                                  |
+| -------------------- | ------------ | ------------------------------------------------------------ |
+| `age`                | number       | Umur dalam tahun                                             |
+| `gender`             | string       | `"male"` atau `"female"`                                     |
+| `height`             | number       | Tinggi badan dalam cm                                        |
+| `weight`             | number       | Berat badan dalam kg                                         |
+| `isPregnant`         | boolean      | Status kehamilan (hanya relevan jika `gender === "female"`)  |
+| `trimester`          | number/null  | Trimester kehamilan (1/2/3) atau null jika tidak hamil       |
+| `calorieTarget`      | number       | Target kalori harian (kcal)                                  |
+| `proteinTarget`      | number       | Target protein harian (g)                                    |
+| `carbohydrateTarget` | number       | Target karbohidrat harian (g)                                |
+| `fatTarget`          | number       | Target lemak harian (g)                                      |
+| `bmi`                | number       | Indeks Massa Tubuh (kg/m²)                                   |
+| `bmiCategory`        | string       | Kategori BMI: Kurus / Normal / Gemuk (Overweight) / Obesitas |
+| `createdAt`          | string (ISO) | Timestamp saat data disimpan                                 |
+
+### Catatan
+
+- Data ini disimpan SEPENUHNYA di browser (localStorage).
+- Suatu saat jika backend sudah siap, data ini bisa dikirim ke API profile endpoint.
+- Tidak ada sinkronasi otomatis dengan backend untuk saat ini.

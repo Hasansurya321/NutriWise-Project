@@ -85,12 +85,11 @@ export function useImagePredict() {
       setPredictionResult(response.data || response);
       setStatus('success');
     } catch (err) {
-      console.error('Prediction error:', err);
       const errorMsg = err.response?.data?.message || err.message || 'Failed to analyze the image. Please try again.';
-      
+
       // Show the aesthetic error UI in PredictionResult if the food was not detected
       if (
-        errorMsg.toLowerCase().includes('tidak dapat memprediksi makanan') || 
+        errorMsg.toLowerCase().includes('tidak dapat memprediksi makanan') ||
         errorMsg.toLowerCase().includes('not detected') ||
         errorMsg.toLowerCase().includes('internal server error') ||
         (err.response?.status === 500 && !err.response?.data?.message)

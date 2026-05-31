@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
@@ -11,9 +12,11 @@ export function RecentMealsSection({ meals = [] }) {
       <div className="flex items-start justify-between gap-4 px-6 pt-6">
         <SectionHeader eyebrow="Aktivitas terbaru" title="Makanan terakhir" description="Pemindaian makanan dan deteksi nutrisi terbarumu" />
 
-        <Button variant="ghost" className="hidden shrink-0 sm:inline-flex">
-          Lihat semua
-          <ArrowRight className="h-4 w-4 ml-2" />
+        <Button variant="ghost" className="hidden shrink-0 sm:inline-flex" asChild>
+          <Link to="/history">
+            Lihat semua
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Link>
         </Button>
       </div>
 
@@ -26,9 +29,11 @@ export function RecentMealsSection({ meals = [] }) {
           ))}
         </ul>
 
-        <Button variant="ghost" className="mt-4 w-full sm:hidden">
-          Lihat semua makanan
-          <ArrowRight className="h-4 w-4 ml-2" />
+        <Button variant="ghost" className="mt-4 w-full sm:hidden" asChild>
+          <Link to="/history">
+            Lihat semua makanan
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Link>
         </Button>
       </CardContent>
     </Card>
