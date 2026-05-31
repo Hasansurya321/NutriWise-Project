@@ -8,12 +8,12 @@ export default function NutritionSummary({ macros }) {
       icon: Beef,
     },
     {
-      label: 'Carbs',
+      label: 'Karbohidrat',
       value: `${macros.carbs}g`,
       icon: Flame,
     },
     {
-      label: 'Fats',
+      label: 'Lemak',
       value: `${macros.fat}g`,
       icon: Droplets,
     },

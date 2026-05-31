@@ -16,11 +16,11 @@ export function groupPredictLogsByDate(logs = []) {
 
     let dateLabel = '';
     if (logDateOnly.getTime() === today.getTime()) {
-      dateLabel = 'Today';
+      dateLabel = 'Hari ini';
     } else if (logDateOnly.getTime() === yesterday.getTime()) {
-      dateLabel = 'Yesterday';
+      dateLabel = 'Kemarin';
     } else {
-      dateLabel = logDate.toLocaleDateString('en-US', {
+      dateLabel = logDate.toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'short',
         year: 'numeric'
@@ -36,26 +36,28 @@ export function groupPredictLogsByDate(logs = []) {
     const mealItem = {
       id: log.id,
       time: timeStr,
-      type: 'Scanned Food', // Fallback type
-      totalCalories: Math.round(log.calorie || log.calories || 0),
+      type: 'Makanan Terpindai',
+      totalCalories: Math.round(log.totalNutrition?.calorie || log.nutrition?.calorie || log.calories || 0),
       macros: {
-        protein: Math.round(log.protein || 0),
-        carbs: Math.round(log.carbohydrate || log.carbohydrates || 0),
-        fat: Math.round(log.fat || 0),
+        protein: Math.round(log.totalNutrition?.protein || log.nutrition?.protein || log.protein || 0),
+        carbs: Math.round(log.totalNutrition?.carbohydrate || log.nutrition?.carbohydrate || log.carbohydrates || 0),
+        fat: Math.round(log.totalNutrition?.fat || log.nutrition?.fat || log.fat || 0),
       },
       items: [
         {
           id: log.id,
-          name: log.food_name || log.name || 'Predicted Food',
-          protein: Math.round(log.protein || 0),
-          carbs: Math.round(log.carbohydrate || log.carbohydrates || 0),
-          fats: Math.round(log.fat || 0),
-          calories: Math.round(log.calorie || log.calories || 0),
+          name: log.foodName || log.name || 'Makanan Diprediksi',
+          protein: Math.round(log.totalNutrition?.protein || log.nutrition?.protein || log.protein || 0),
+          carbs: Math.round(log.totalNutrition?.carbohydrate || log.nutrition?.carbohydrate || log.carbohydrates || 0),
+          fats: Math.round(log.totalNutrition?.fat || log.nutrition?.fat || log.fat || 0),
+          calories: Math.round(log.totalNutrition?.calorie || log.nutrition?.calorie || log.calories || 0),
           iconName: 'Apple',
-          img_url: log.image_url || log.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
+          img_url: log.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
+          confidenceScore: log.confidenceScore || log.confidence || 0,
+          portion: log.portion || 1,
         }
       ],
-      aiInsight: 'Predicted via AI Scan',
+      aiInsight: 'Dipindai dengan AI',
     };
 
     if (!grouped[dateLabel]) {

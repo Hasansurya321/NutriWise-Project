@@ -13,6 +13,7 @@ export function useImagePredict() {
   const [previewUrl, setPreviewUrl] = useState('');
   const [error, setError] = useState('');
   const [predictionResult, setPredictionResult] = useState(null);
+  const [portion, setPortion] = useState(1);
 
   const dragCounterRef = useRef(0);
 
@@ -51,6 +52,7 @@ export function useImagePredict() {
     setStatus('idle');
     setFile(nextFile);
     setPredictionResult(null);
+    setPortion(1);
   };
 
   const handleReset = () => {
@@ -59,6 +61,7 @@ export function useImagePredict() {
     setError('');
     setStatus('idle');
     setPredictionResult(null);
+    setPortion(1);
     resetDragState();
   };
 
@@ -73,6 +76,9 @@ export function useImagePredict() {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      if (portion && portion !== 1) {
+        formData.append('portion', portion.toString());
+      }
 
       const response = await predictAPI.predict(formData);
 
@@ -80,8 +86,21 @@ export function useImagePredict() {
       setStatus('success');
     } catch (err) {
       console.error('Prediction error:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to analyze the image. Please try again.');
-      setStatus('idle');
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to analyze the image. Please try again.';
+      
+      // Show the aesthetic error UI in PredictionResult if the food was not detected
+      if (
+        errorMsg.toLowerCase().includes('tidak dapat memprediksi makanan') || 
+        errorMsg.toLowerCase().includes('not detected') ||
+        errorMsg.toLowerCase().includes('internal server error') ||
+        (err.response?.status === 500 && !err.response?.data?.message)
+      ) {
+        setPredictionResult({ predict: { foodName: null } });
+        setStatus('success');
+      } else {
+        setError(errorMsg);
+        setStatus('idle');
+      }
     }
   };
 
@@ -92,6 +111,8 @@ export function useImagePredict() {
     previewUrl,
     error,
     predictionResult,
+    portion,
+    setPortion,
     dragCounterRef,
     validateAndSetFile,
     handleReset,

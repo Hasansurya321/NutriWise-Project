@@ -108,7 +108,26 @@ export const predictAPI = {
   }),
 
   // Get Predict Logs
-  getPredictLogs: () => axiosInstance.get('/predict'),
+  getPredictLogs: (page = 1, limit = 10) => axiosInstance.get(`/predict?page=${page}&limit=${limit}`),
+};
+
+export const mealAPI = {
+  // Get Meals
+  getMeals: () => axiosInstance.get('/meals'),
+
+  // Create Meal
+  createMeal: (data) => axiosInstance.post('/meals', data),
+
+  // Update Meal
+  updateMeal: (mealId, data) => axiosInstance.put(`/meals/${mealId}`, data),
+
+  // Delete Meal
+  deleteMeal: (mealId) => axiosInstance.delete(`/meals/${mealId}`),
+};
+
+export const nutritionAPI = {
+  getNutritionDaily: () => axiosInstance.get('/nutrition/daily-summary'),
+
 };
 
 export default axiosInstance;

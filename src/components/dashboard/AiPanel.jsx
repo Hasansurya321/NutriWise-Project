@@ -8,7 +8,7 @@ import { cn } from '../../utils/cn';
 export function AiPanel({ aiInsights = [], healthNotification = null }) {
   const health = healthNotification || {
     variant: 'default',
-    title: 'No health notification',
+    title: 'Tidak ada notifikasi kesehatan',
     label: 'Info',
     message: '',
     meta: '',
@@ -25,8 +25,8 @@ export function AiPanel({ aiInsights = [], healthNotification = null }) {
           </div>
 
           <div>
-            <CardTitle>AI Assistant</CardTitle>
-            <CardDescription>Personalized nutrition insights</CardDescription>
+            <CardTitle>Asisten AI</CardTitle>
+            <CardDescription>Analisis nutrisi personalmu</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -57,7 +57,7 @@ export function AiPanel({ aiInsights = [], healthNotification = null }) {
             const safeInsight = insight || {
               id: crypto.randomUUID(),
               variant: 'default',
-              title: 'No insights available',
+              title: 'Tidak ada analisis yang tersedia',
               message: '',
               meta: '',
               iconName: null,

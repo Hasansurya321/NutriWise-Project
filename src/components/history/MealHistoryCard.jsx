@@ -58,7 +58,7 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
               text-sm text-textMuted
             "
           >
-            {meal.items.length} items detected
+            {meal.items.length} item terdeteksi
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
               text-sm text-textMuted
             "
           >
-            total kcal
+            total kalori
           </div>
         </div>
       </div>
@@ -111,7 +111,7 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
           hover:bg-background/50
         "
       >
-        View Details
+        Lihat Detail
         <ChevronRight size={16} />
       </button>
     </motion.div>

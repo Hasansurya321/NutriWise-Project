@@ -44,6 +44,11 @@
   --sidebar-active: rgba(93, 219, 138, 0.12);
 
   --sidebar-footer: rgba(15, 23, 42, 0.03);
+
+  --info: #60a5fa;
+  --success: #4ade80;
+  --warning: #f59e0b;
+  --danger: #ef4444;
 }
 
 .dark {
@@ -87,6 +92,11 @@
   --sidebar-active: rgba(93, 219, 138, 0.14);
 
   --sidebar-footer: rgba(255, 255, 255, 0.03);
+
+  --info: #3b82f6;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
 }
 
 html,

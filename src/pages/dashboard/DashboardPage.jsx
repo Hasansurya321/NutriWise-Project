@@ -14,11 +14,12 @@ import { WeeklyTrendChart } from '../../components/dashboard/WeeklyTrendChart';
 import { RecentMealsSection } from '../../components/dashboard/RecentMealsSection';
 import { AiPanel } from '../../components/dashboard/AiPanel';
 import { SectionHeader } from '../../components/dashboard/SectionHeader';
+import { HeroSection } from '../../components/dashboard/HeroSection';
+import { AuthRequiredPanel } from '../../components/dashboard/AuthRequiredPanel';
 import { UploadSection } from '../../components/predict/UploadSection';
 import PredictionResult from '../../components/predict/PredictionResult';
 
-import { nutritionService } from '../../services';
-import { predictAPI } from '../../services/api';
+import { predictAPI, nutritionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { getIconByName } from '../../utils/iconRegistry';
 import { useImagePredict } from '../../hooks/useImagePredict';
@@ -36,25 +37,25 @@ const fadeUp = {
 
 const featureHighlights = [
   {
-    title: 'Nutrition guidance',
-    description: 'AI checks meals against daily targets.',
+    title: 'Panduan Nutrisi AI',
+    description: 'AI membandingkan makananmu dengan target harian.',
     iconName: 'BrainCircuit',
   },
   {
-    title: 'Smart tracking',
-    description: 'Calories, protein, water, and fiber in one view.',
+    title: 'Pelacakan Cerdas',
+    description: 'Kalori, protein, air, dan serat dalam satu tampilan.',
     iconName: 'Sparkles',
   },
 ];
 
 const macroSummary = {
-  title: 'Macro distribution',
-  subtitle: 'Daily macronutrient balance overview',
+  title: 'Distribusi Makronutrisi',
+  subtitle: 'Ringkasan keseimbangan makronutrisi harian',
 };
 
 const weeklyTrendSummary = {
-  title: 'Weekly calorie trend',
-  subtitle: 'Track calorie fluctuations throughout the week',
+  title: 'Tren Kalori Mingguan',
+  subtitle: 'Pantau fluktuasi kalorimu sepanjang minggu',
 };
 
 export default function DashboardPage() {
@@ -86,28 +87,75 @@ export default function DashboardPage() {
 
         const email = user.email;
 
-        const [stats, predictLogsRes, macros, trend, insights, notification] = await Promise.all([
-          Promise.resolve(nutritionService.getDashboardStats(email)),
+        const [dailyNutritionRes, predictLogsRes, macros, trend, insights, notification] = await Promise.all([
+          nutritionAPI.getNutritionDaily().catch(() => ({ data: {} })),
           predictAPI.getPredictLogs().catch(() => ({ data: [] })),
-          Promise.resolve(nutritionService.getMacroDistribution(email)),
-          Promise.resolve(nutritionService.getWeeklyTrend(email)),
-          Promise.resolve(nutritionService.getAiInsights(email)),
-          Promise.resolve(nutritionService.getHealthNotification(email)),
         ]);
 
         const rawLogs = predictLogsRes?.data?.predictLogs || [];
         const flatMeals = rawLogs.slice(0, 3).map(log => ({
           id: log.id,
-          timestamp: new Date(log.created_at || log.createdAt || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: log.food_name || log.name || 'Predicted Meal',
-          type: 'Scanned Food',
-          calories: Math.round(log.calorie || log.calories || 0),
-          confidence: log.confident_score || 0,
-          image: log.image_url || log.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
+          timestamp: new Date(log.createdAt || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+          name: log.foodName || log.name || 'Makanan Terprediksi',
+          type: 'Makanan Terpindai',
+          calories: Math.round(log.totalNutrition?.calorie || log.nutrition?.calorie || log.calories || 0),
+          confidence: log.confidenceScore || 0,
+          image: log.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
           iconName: 'Apple'
         }));
 
-        setStatsCards(stats || []);
+        const dailyData = dailyNutritionRes?.data?.nutrition || dailyNutritionRes?.data || {};
+
+        const safeTotalCalories = dailyData.calorieConsumed;
+        const safeTotalProtein = dailyData.proteinConsumed;
+        const safeTotalCarbs = dailyData.carbohydrateConsumed;
+        const safeTotalFats = dailyData.fatConsumed;
+
+        const targetCalories = user?.calorieTarget || 2000;
+        const targetProtein = user?.proteinTarget || 140;
+        const targetCarbs = user?.carbohydrateTarget || 260;
+        const targetFats = user?.fatTarget || 80;
+
+        const builtStatsCards = [
+          {
+            title: 'Kalori',
+            value: `${Math.round(safeTotalCalories)}`,
+            target: `${targetCalories} kcal`,
+            progress: targetCalories > 0 ? (safeTotalCalories / targetCalories) * 100 : 0,
+            meta: `${Math.round(targetCalories > 0 ? (safeTotalCalories / targetCalories) * 100 : 0)}% dari target`,
+            iconName: 'Flame',
+            color: 'green',
+          },
+          {
+            title: 'Protein',
+            value: `${Math.round(safeTotalProtein)}g`,
+            target: `${targetProtein}g`,
+            progress: targetProtein > 0 ? (safeTotalProtein / targetProtein) * 100 : 0,
+            meta: 'Asupan protein',
+            iconName: 'Drumstick',
+            color: 'blue',
+          },
+          {
+            title: 'Karbohidrat',
+            value: `${Math.round(safeTotalCarbs)}g`,
+            target: `${targetCarbs}g`,
+            progress: targetCarbs > 0 ? (safeTotalCarbs / targetCarbs) * 100 : 0,
+            meta: 'Asupan karbohidrat',
+            iconName: 'Wheat',
+            color: 'orange',
+          },
+          {
+            title: 'Lemak',
+            value: `${Math.round(safeTotalFats)}g`,
+            target: `${targetFats}g`,
+            progress: targetFats > 0 ? (safeTotalFats / targetFats) * 100 : 0,
+            meta: 'Asupan lemak',
+            iconName: 'EggFried',
+            color: 'warning',
+          },
+        ];
+
+        setStatsCards(builtStatsCards);
         setRecentMeals(flatMeals || []);
         setMacroDistributionData(macros || []);
         setWeeklyCalorieTrendData(trend || []);
@@ -132,9 +180,9 @@ export default function DashboardPage() {
     >
       <motion.div variants={fadeUp}>
         {isAuthenticated ? (
-          <DashboardHeader username={user?.user?.fullname || user?.fullname || 'User'} description="Here's your nutrition summary for today. Track your meals, monitor macro balance, and review your nutrition insights in one unified dashboard." />
+          <DashboardHeader username={user?.user?.fullname || user?.fullname || 'Pengguna'} description="Ini adalah ringkasan nutrisimu hari ini. Pantau makanan, makronutrisi, dan dapatkan analisis AI dalam satu dashboard terpadu." />
         ) : (
-          <DashboardHeader title="Sign in to view your dashboard" description="Your dashboard session is inactive. Mock sandbox data may still exist internally, but it will not be shown until you authenticate again." />
+          <DashboardHeader title="Masuk untuk melihat dashboard" description="Sesi dashboard kamu belum aktif. Silakan masuk terlebih dahulu untuk memuat data nutrisimu." />
         )}
       </motion.div>
 
@@ -213,7 +261,7 @@ export default function DashboardPage() {
 
         <Card>
           <div className="px-6 pt-6">
-            <SectionHeader eyebrow="Foundation highlights" title="Reusable patterns" description="Cards, badges, sections, and layouts are separated cleanly for scale" />
+            <SectionHeader eyebrow="Fitur Unggulan" title="Analisis Cerdas" description="Dapatkan kemudahan pemantauan nutrisi dengan dukungan kecerdasan buatan" />
           </div>
 
           <CardContent className="space-y-3">
@@ -253,117 +301,5 @@ export default function DashboardPage() {
         </Card>
       </motion.section>
     </motion.div>
-  );
-}
-
-function HeroSection({ isAuthenticated }) {
-  if (!isAuthenticated) {
-    return (
-      <section
-        className="
-          rounded-2xl border border-borderCard
-          bg-card p-5 shadow-card
-          sm:p-6
-        "
-      >
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-3">
-            <Badge variant="primary" className="w-fit">
-              Logged out
-            </Badge>
-
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight text-textPrimary sm:text-3xl">Authentication required</h2>
-
-              <p className="max-w-2xl text-sm leading-6 text-textSecondary sm:text-base">Sign in through the auth gateway to load the demo sandbox. Direct dashboard navigation will never restore a session automatically.</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild variant="primary">
-              <Link to="/auth">Login</Link>
-            </Button>
-
-            <Button asChild variant="secondary">
-              <Link to="/auth?mode=register">Register</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section
-      className="
-        rounded-2xl border border-borderCard
-        bg-card p-5 shadow-card
-        sm:p-6
-      "
-    >
-      <div
-        className="
-          flex flex-col gap-6
-          xl:flex-row xl:items-end xl:justify-between
-        "
-      >
-        <div className="space-y-4">
-          <Badge variant="primary" className="w-fit">
-            Nutrition AI Dashboard
-          </Badge>
-
-          <div className="space-y-2">
-            <h2
-              className="
-                text-2xl font-bold tracking-tight
-                text-textPrimary sm:text-3xl
-              "
-            >
-              Build healthy habits with a modern nutrition control center.
-            </h2>
-
-            <p
-              className="
-                max-w-2xl text-sm leading-6
-                text-textSecondary sm:text-base
-              "
-            >
-              Monitor calories, protein, hydration, and macro balance in one dashboard. This foundation is structured for growth, future API integration, and reusable UI composition.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button variant="primary">Add meal</Button>
-
-          <Button variant="secondary">View reports</Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AuthRequiredPanel() {
-  return (
-    <Card className="h-full">
-      <CardContent className="flex min-h-[320px] flex-col items-center justify-center gap-4 text-center">
-        <Badge variant="primary">Session inactive</Badge>
-
-        <div className="space-y-2">
-          <h3 className="text-2xl font-semibold text-textPrimary">No active dashboard session</h3>
-          <p className="mx-auto max-w-xl text-sm leading-6 text-textSecondary">Protected dashboard actions are disabled while logged out. Persistent mock data stays isolated and will not be read until you explicitly log in.</p>
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button asChild variant="primary">
-            <Link to="/auth">Login</Link>
-          </Button>
-
-          <Button asChild variant="secondary">
-            <Link to="/auth?mode=register">Register</Link>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

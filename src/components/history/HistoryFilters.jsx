@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-const filters = ['All', 'Today', 'This Week', 'This Month'];
+const filters = ['All', 'Today', 'Yesterday', 'This Week', 'This Month'];
 
 export default function HistoryFilters({ activeFilter, onFilterChange }) {
   return (

@@ -43,7 +43,8 @@ export const iconMap = {
   Soup,
   Sparkles,
   Wheat,
-  Scan
+  Scan,
+  
 };
 
 export function getIconByName(iconName, fallbackName = null) {

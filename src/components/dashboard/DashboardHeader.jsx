@@ -1,7 +1,7 @@
 import { cn } from '../../utils/cn';
 
 export function DashboardHeader({ username, title, description, className }) {
-  const resolvedTitle = title || `Welcome back, ${username}!`;
+  const resolvedTitle = title || `Selamat datang kembali, ${username}!`;
 
   return (
     <section className={cn('mb-6 flex flex-col gap-1 sm:mb-8 sm:gap-2', className)}>

@@ -5,17 +5,17 @@ export const navigation = [
     iconName: 'LayoutDashboard',
   },
   {
-    label: 'Predict',
+    label: 'Pindai',
     href: '/predict',
     iconName: 'Scan',
   },
   {
-    label: 'History',
+    label: 'Riwayat',
     href: '/history',
     iconName: 'History',
   },
   {
-    label: 'Analytic',
+    label: 'Analitik',
     href: '/insights',
     iconName: 'LineChart',
   },

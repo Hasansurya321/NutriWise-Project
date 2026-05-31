@@ -13,7 +13,7 @@ export function Sidebar({ mobileOpen, onClose, collapsed, onToggleCollapsed }) {
       <div
         className={cn(
           `
-            fixed inset-0 z-40
+            fixed inset-0 z-50
             bg-black/40 backdrop-blur-sm
             lg:hidden
           `,
@@ -27,6 +27,7 @@ export function Sidebar({ mobileOpen, onClose, collapsed, onToggleCollapsed }) {
           `
             fixed left-0 top-0 z-50
             flex h-screen
+
             flex-col border-r
             border-borderPrimary
             bg-sidebar

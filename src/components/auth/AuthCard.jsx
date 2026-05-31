@@ -2,6 +2,8 @@ import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import AuthToggle from './AuthToggle';
 
+import { Logo } from '../ui/Logo';
+
 export default function AuthCard({ mode, setMode }) {
   return (
     <div
@@ -15,26 +17,8 @@ export default function AuthCard({ mode, setMode }) {
       "
     >
       <div className="p-10">
-        <div className="text-center">
-          <h1
-            className="
-              text-4xl font-semibold
-              tracking-tight
-              text-[#081225]
-            "
-          >
-            NutriWise
-          </h1>
-
-          <p
-            className="
-              mt-3
-              text-sm
-              text-textMuted
-            "
-          >
-            Premium nutrition analytics platform
-          </p>
+        <div className="flex justify-center mb-6">
+          <Logo size="lg" />
         </div>
 
         <div className="mt-8">

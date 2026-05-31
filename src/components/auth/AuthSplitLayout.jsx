@@ -51,7 +51,6 @@ export default function AuthSplitLayout({ mode, setMode }) {
           >
             <div className="relative">
               <AuthBrandHeader
-                title="NutriWise"
                 subtitle={isLogin ? "Masuk untuk mulai memantau nutrisi harianmu." : "Buat akun untuk memulai pengalaman tracking nutrisi cerdas."}
               />
               <Button className="absolute top-0 right-0" variant="ghost" size="icon">
@@ -94,7 +93,7 @@ export default function AuthSplitLayout({ mode, setMode }) {
           </div>
 
           <div className="px-6 py-10 relative">
-            <AuthBrandHeader title="NutriWise" subtitle={isLogin ? 'Masuk untuk mulai memantau nutrisi harianmu.' : 'Buat akun untuk memulai pengalaman tracking nutrisi cerdas.'} />
+            <AuthBrandHeader subtitle={isLogin ? 'Masuk untuk mulai memantau nutrisi harianmu.' : 'Buat akun untuk memulai pengalaman tracking nutrisi cerdas.'} />
             <Button className="absolute top-10 right-10" variant="ghost" size="icon">
               <ThemeToggleButton />
             </Button>
