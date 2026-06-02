@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasProfile, setHasProfile] = useState(false); // default true, set false only when API returns null/404
+  const [hasProfile, setHasProfile] = useState(false); 
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
         // Jika 404, berarti profile belum ada (first login)
         if (error.response?.status === 404) {
           setHasProfile(false);
-          setIsAuthenticated(true); // token valid, tapi profile belum ada
+          setIsAuthenticated(true); 
         } else {
           localStorage.removeItem('accessToken');
           setUser(null);
@@ -77,10 +77,13 @@ export function AuthProvider({ children }) {
       }
 
       // Fetch Profile Data after login
+
+      let isProfileComplete = false;
       try {
         const profileResponse = await profileAPI.getProfile();
         const userData = profileResponse?.data?.user || profileResponse?.user || profileResponse;
 
+        console.log('Profile data after login:', userData);
         isProfileComplete = profileResponse?.data?.user.isProfileComplete;
 
         if (userData && Object.keys(userData).length > 0) {
@@ -91,7 +94,6 @@ export function AuthProvider({ children }) {
           setHasProfile(false);
         }
       } catch (profileError) {
-        // If 404, profile doesn't exist yet (first login)
         if (profileError.response?.status === 404) {
           setHasProfile(false);
         }

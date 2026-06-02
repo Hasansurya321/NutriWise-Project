@@ -10,19 +10,30 @@ import ProfilePage from '../pages/profile/ProfilePage';
 import InsightsPage from '../pages/insights/InsightsPage';
 import PredictPage from '../pages/predict/PredictPage';
 import OnboardingPage from '../pages/onboarding/OnboardingPage';
+import NotFoundPage from '../pages/NotFoundPage';
 
 export const router = createBrowserRouter([
   {
     path: '/auth',
     element: <AuthPage />,
   },
+  
   {
     path: '/onboarding',
-    element: <OnboardingPage />,
+    element: (
+      <ProtectedRoute>
+        <OnboardingPage />
+      </ProtectedRoute>
+    ),
   },
+
   {
     path: '/',
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -30,44 +41,29 @@ export const router = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: (
-          <ProtectedRoute unauthenticated="render">
-            <DashboardPage />
-          </ProtectedRoute>
-        ),
+        element: <DashboardPage />, 
       },
       {
         path: 'history',
-        element: (
-          <ProtectedRoute>
-            <HistoryPage />
-          </ProtectedRoute>
-        ),
+        element: <HistoryPage />,
       },
       {
         path: 'profile',
-        element: (
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        ),
+        element: <ProfilePage />,
       },
       {
         path: 'predict',
-        element: (
-          <ProtectedRoute>
-            <PredictPage />
-          </ProtectedRoute>
-        ),
+        element: <PredictPage />,
       },
       {
         path: 'insights',
-        element: (
-          <ProtectedRoute>
-            <InsightsPage />
-          </ProtectedRoute>
-        ),
+        element: <InsightsPage />,
       },
     ],
+  },
+  
+  {
+    path: '*',
+    element: <NotFoundPage/>,
   },
 ]);
