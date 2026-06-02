@@ -5,6 +5,7 @@ import { useImagePredict } from '../../hooks/useImagePredict';
 import { SectionHeader } from '../../components/dashboard/SectionHeader';
 import PredictionResult from '../../components/predict/PredictionResult';
 import { Camera, UploadCloud } from 'lucide-react';
+import { Button } from '../../components/ui/button';
 
 export default function PredictPage() {
   // upload or camera
@@ -28,19 +29,19 @@ export default function PredictPage() {
       />
 
       <div className="flex justify-center w-full">
-        <div className="bg-surface2 p-1.5 rounded-2xl flex border border-borderPrimary shadow-sm max-w-md w-full">
-          <button
+        <div className="bg-surface2 p-1.5 rounded-2xl grid grid-cols-2 border border-borderPrimary shadow-sm max-w-md w-full">
+          <Button
             onClick={() => switchTab('upload')}
-            className={`flex-1 flex justify-center items-center px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${activeTab === 'upload' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-textSecondary hover:text-textPrimary hover:bg-input'}`}
+            variant={activeTab === 'upload' ? 'default' : 'ghost'}
           >
             <UploadCloud className="w-4 h-4 mr-2" /> Unggah File
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={activeTab === 'camera' ? 'default' : 'ghost'}
             onClick={() => switchTab('camera')}
-            className={`flex-1 flex justify-center items-center px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${activeTab === 'camera' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-textSecondary hover:text-textPrimary hover:bg-input'}`}
           >
             <Camera className="w-4 h-4 mr-2" /> Kamera
-          </button>
+          </Button>
         </div>
       </div>
 

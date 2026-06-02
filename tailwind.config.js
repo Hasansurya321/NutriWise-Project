@@ -41,6 +41,7 @@ export default {
         borderActive: 'var(--border-active)',
 
         primary: 'var(--primary)',
+        "primary-foreground": 'var(--primary-foreground)',
         info: '#3b82f6',
         warning: '#f59e0b',
         success: '#22c55e',

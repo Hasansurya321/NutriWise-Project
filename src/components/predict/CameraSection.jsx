@@ -91,14 +91,14 @@ export function CameraSection({
 
           <div className="flex flex-wrap justify-center gap-3 w-full max-w-xl">
             {!(previewUrl || capturedImage) ? (
-              <Button onClick={capture} variant="primary" size="default" className="w-full sm:w-auto">
+              <Button onClick={capture} variant="default" size="default" className="w-full sm:w-auto">
                 <Camera className="h-4 w-4 mr-2" />
                 Ambil Foto
               </Button>
             ) : (
               <div className="flex flex-col gap-4 w-full">
                 <div className="flex items-center justify-between gap-3 bg-card p-3 rounded-xl border border-borderPrimary shrink-0 w-full">
-                  <label htmlFor="camera-portion" className="text-sm font-medium text-textSecondary whitespace-nowrap">Jumlah</label>
+                  <label htmlFor="camera-portion" className="text-sm font-medium text-textoutline whitespace-nowrap">Jumlah</label>
                   <input
                     id="camera-portion"
                     type="number"
@@ -125,7 +125,7 @@ export function CameraSection({
                     )}
                   </Button>
 
-                  <Button onClick={retake} variant="secondary" disabled={showBusy} className="w-full sm:w-auto flex-1">
+                  <Button onClick={retake} variant="outline" disabled={showBusy} className="w-full sm:w-auto flex-1">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Ulangi
                   </Button>

@@ -296,7 +296,7 @@ export function UploadSection({
               >
                 <Button
                   type="button"
-                  variant="primary"
+                  variant="default"
                   className="w-full sm:w-auto"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -325,7 +325,7 @@ export function UploadSection({
 
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="outline"
                   className="w-full sm:w-auto"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -392,7 +392,7 @@ export function UploadSection({
               >
                 <Button
                   type="button"
-                  variant="primary"
+                  variant="default"
                   className="w-full sm:w-auto"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -430,17 +430,10 @@ export function UploadSection({
                 <p className="text-sm text-textSecondary">atau klik untuk menelusuri file, lalu mulai pemindaian untuk melihat analisis nutrisi.</p>
               </div>
 
-              <div
-                className="
-                  flex flex-col gap-3
-                  sm:flex-row
-                  sm:justify-center
-                "
-              >
+              <div className="gap-3 grid sm:grid-cols-2">
                 <Button
                   type="button"
-                  variant="primary"
-                  className="w-full sm:w-auto"
+                  variant="default"
                   onClick={(event) => {
                     event.stopPropagation();
 
@@ -453,8 +446,7 @@ export function UploadSection({
 
                 <Button
                   type="button"
-                  variant="secondary"
-                  className="w-full sm:w-auto"
+                  variant="outline"
                   onClick={(event) => {
                     event.stopPropagation();
 

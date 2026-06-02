@@ -95,11 +95,14 @@ export const profileAPI = {
   // Get Profile
   getProfile: () => axiosInstance.get('/profiles'),
 
-  // Create Profile (Dokumentasi menulis GET namun method yang lazim adalah POST karena ada request body untuk response 201 Created)
+  // Create Profile 
   createProfile: (data) => axiosInstance.post('/profiles', data),
 
   // Update Profile
   updateProfile: (data) => axiosInstance.put('/profiles', data),
+
+  // get akg references
+  getAKGReferences: (age,gender, pregnancyTrimester, breastfeedingStage) => axiosInstance.get(`/profiles/default-akg?age=${age}&gender=${gender}&pregnancyTrimester=${pregnancyTrimester}&breastfeedingStage=${breastfeedingStage}`),
 };
 
 export const predictAPI = {

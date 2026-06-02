@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasProfile, setHasProfile] = useState(true); // default true, set false only when API returns null/404
+  const [hasProfile, setHasProfile] = useState(false); // default true, set false only when API returns null/404
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -25,10 +25,11 @@ export function AuthProvider({ children }) {
       try {
         const response = await profileAPI.getProfile();
         const userData = response?.data?.user || response?.user || response;
+        const isProfileComplete = response?.data?.user.isProfileComplete;
         if (userData && Object.keys(userData).length > 0) {
           setUser(userData);
           setIsAuthenticated(true);
-          setHasProfile(true);
+          setHasProfile(isProfileComplete);
         } else {
           setHasProfile(false);
           setIsAuthenticated(true); // token valid, tapi belum punya profile
@@ -79,9 +80,12 @@ export function AuthProvider({ children }) {
       try {
         const profileResponse = await profileAPI.getProfile();
         const userData = profileResponse?.data?.user || profileResponse?.user || profileResponse;
+
+        isProfileComplete = profileResponse?.data?.user.isProfileComplete;
+
         if (userData && Object.keys(userData).length > 0) {
           setUser(userData);
-          setHasProfile(true);
+          setHasProfile(isProfileComplete);
         } else {
           setUser(null);
           setHasProfile(false);
@@ -95,7 +99,7 @@ export function AuthProvider({ children }) {
       }
 
       setIsAuthenticated(true);
-      return { success: true };
+      return { success: true, isProfileComplete };
     } catch (error) {
       return {
         success: false,

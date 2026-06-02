@@ -9,7 +9,7 @@ import { Input } from '../ui/input';
 export default function LoginForm({ onSwitchToRegister }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, hasProfile } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,17 +22,23 @@ export default function LoginForm({ onSwitchToRegister }) {
     setError('');
     setIsLoading(true);
 
+    
     try {
       const result = await login(email, password);
-
-      console.log(result);
-
+      console.log(result)
+    
       if (!result.success) {
         setError(result.message ||'Email atau password salah.');
         setIsLoading(false);
         return;
       }
-      navigate('/dashboard', { replace: true });
+      
+
+      if (!result.isProfileComplete) {
+        navigate('/onboarding', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
 
     } catch (error) {
       console.log(error);

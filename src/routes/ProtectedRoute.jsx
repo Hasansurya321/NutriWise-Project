@@ -13,7 +13,6 @@ export default function ProtectedRoute({ children, unauthenticated = 'redirect' 
     if (unauthenticated === 'render') {
       return children;
     }
-
     return <Navigate to="/auth" replace />;
   }
 

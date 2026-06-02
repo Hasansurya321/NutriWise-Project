@@ -1,23 +1,31 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '../../components/ui/input';
 import { Select } from '../../components/ui/select';
 import { Button } from '../../components/ui/button';
+import { profileAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const genderOptions = [
   { value: 'male', label: 'Laki-laki' },
   { value: 'female', label: 'Perempuan' },
 ];
 
-const pregnancyOptions = [
-  { value: 'no', label: 'Tidak' },
-  { value: 'yes', label: 'Ya' },
+const femaleConditionOptions = [
+  { value: 'normal', label: 'Tidak Hamil & Tidak Menyusui' },
+  { value: 'pregnant', label: 'Sedang Hamil' },
+  { value: 'breastfeeding', label: 'Sedang Menyusui' },
 ];
 
 const trimesterOptions = [
   { value: '1', label: 'Trimester 1' },
   { value: '2', label: 'Trimester 2' },
   { value: '3', label: 'Trimester 3' },
+];
+
+const breastfeedingOptions = [
+  { value: '1', label: '0 - 6 Bulan Pertama' },
+  { value: '2', label: '7 - 12 Bulan Kedua' },
 ];
 
 function calculateBMI(weight, heightCm) {
@@ -40,14 +48,25 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchingAkg, setFetchingAkg] = useState(false);
+  const { hasProfile, setUser } = useAuth();
+
+  // Pengaman rute: tendang ke dashboard kalau terdeteksi sudah bikin profil
+  useEffect(() => {
+    if (hasProfile) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [hasProfile, navigate]);
 
   const [form, setForm] = useState({
     age: '',
     gender: '',
     height: '',
     weight: '',
-    isPregnant: '',
+    femaleCondition: 'normal',
     trimester: '',
+    breastfeedingStage: '',
     calorieTarget: '',
     proteinTarget: '',
     carbohydrateTarget: '',
@@ -61,10 +80,42 @@ export default function OnboardingPage() {
   const bmi = useMemo(() => calculateBMI(Number(form.weight), Number(form.height)), [form.weight, form.height]);
   const bmiCategory = useMemo(() => getBMICategory(bmi), [bmi]);
 
+  // Hitung target AKG otomatis lewat backend
+  const fetchDefaultAKG = async () => {
+    const age = Number(form.age);
+    const gender = form.gender;
+
+    const pregnancyTrimester = gender === 'female' && form.femaleCondition === 'pregnant' ? Number(form.trimester) : 0;
+    const breastfeedingStage = gender === 'female' && form.femaleCondition === 'breastfeeding' ? Number(form.breastfeedingStage) : 0;
+
+    setFetchingAkg(true);
+    setError('');
+    try {
+      const res = await profileAPI.getAKGReferences(age, gender, pregnancyTrimester, breastfeedingStage);
+
+      if (res?.status === 'success' && res?.data?.akg) {
+        const { calories, protein, fat, carbohydrate } = res.data.akg;
+
+        setForm((prev) => ({
+          ...prev,
+          calorieTarget: calories || '',
+          proteinTarget: protein || '',
+          fatTarget: fat || '',
+          carbohydrateTarget: carbohydrate || '',
+        }));
+      }
+    } catch (err) {
+      console.error("Gagal fetch AKG:", err);
+      setError("Gagal memuat rekomendasi gizi otomatis. Target bisa diisi manual.");
+    } finally {
+      setFetchingAkg(false);
+    }
+  };
+
   const handleNext = () => {
     setError('');
 
-    // Step 1 validation
+    // Validasi Step 1: Data Utama
     if (step === 1) {
       if (!form.age || !form.gender || !form.height || !form.weight) {
         setError('Harap lengkapi semua data diri.');
@@ -78,95 +129,121 @@ export default function OnboardingPage() {
         setError('Tinggi dan berat badan harus lebih dari 0.');
         return;
       }
+
+      if (form.gender === 'male') {
+        setStep(3);
+      } else {
+        setStep(2);
+      }
+      return;
     }
 
-    // Step 2 validation (hanya untuk perempuan)
+    // Validasi Step 2: Kondisi Spesifik Perempuan
     if (step === 2) {
-      if (!form.isPregnant) {
-        setError('Harap pilih apakah Anda sedang hamil atau tidak.');
+      if (form.femaleCondition === 'pregnant' && !form.trimester) {
+        setError('Harap tentukan trimester kehamilan Anda.');
         return;
       }
-      if (form.isPregnant === 'yes' && !form.trimester) {
-        setError('Harap pilih trimester kehamilan.');
+      if (form.femaleCondition === 'breastfeeding' && !form.breastfeedingStage) {
+        setError('Harap tentukan tahap menyusui Anda.');
         return;
       }
+
+      setStep(3);
+      return;
     }
 
-    // Step 3 validation
+    // Validasi Step 3: Angka Gizi
     if (step === 3) {
       if (!form.calorieTarget || !form.proteinTarget || !form.carbohydrateTarget || !form.fatTarget) {
-        setError('Harap lengkapi semua target nutrisi.');
+        setError('Harap tentukan semua target capaian nutrisi.');
         return;
       }
       if (Number(form.calorieTarget) < 1 || Number(form.proteinTarget) < 1 || Number(form.carbohydrateTarget) < 1 || Number(form.fatTarget) < 1) {
-        setError('Target nutrisi harus lebih dari 0.');
+        setError('Target angka nutrisi harus bernilai positif.');
         return;
       }
-    }
 
-    if (step === 1 && form.gender === 'male') {
-      // Laki-laki: skip step 2 langsung ke step 3
-      setStep(3);
-    } else {
-      setStep(step + 1);
+      setStep(4);
+      return;
     }
   };
 
   const handleBack = () => {
     setError('');
-    if (step === 3 && form.gender === 'male') {
-      // Laki-laki: back dari step 3 ke step 1
+
+    if (step === 4) {
+      setStep(3);
+    } else if (step === 3) {
+      if (form.gender === 'male') {
+        setStep(1);
+      } else {
+        setStep(2);
+      }
+    } else if (step === 2) {
       setStep(1);
-    } else if (step === 3 && form.gender === 'female' && form.isPregnant === 'no') {
-      // Perempuan tidak hamil: back dari step 3 ke step 2
-      setStep(2);
-    } else {
-      setStep(step - 1);
     }
   };
 
-  const handleSave = () => {
-    setError('');
+  useEffect(() => {
+    if (step === 3) {
+      fetchDefaultAKG();
+    }
+  }, [step]);
 
-    // Simpan ke localStorage
-    const onboardingData = {
+  const handleSave = async () => {
+    setError('');
+    setIsLoading(true);
+    
+    const onboardingPayload = {
       age: Number(form.age),
       gender: form.gender,
       height: Number(form.height),
       weight: Number(form.weight),
-      isPregnant: form.gender === 'female' ? form.isPregnant === 'yes' : false,
-      trimester: form.gender === 'female' && form.isPregnant === 'yes' ? Number(form.trimester) : null,
       calorieTarget: Number(form.calorieTarget),
       proteinTarget: Number(form.proteinTarget),
       carbohydrateTarget: Number(form.carbohydrateTarget),
       fatTarget: Number(form.fatTarget),
-      bmi: bmi,
-      bmiCategory: bmiCategory,
-      createdAt: new Date().toISOString(),
+      pregnancyTrimester: form.gender === 'female' && form.femaleCondition === 'pregnant' ? Number(form.trimester) : 0,
+      breastfeedingStage: form.gender === 'female' && form.femaleCondition === 'breastfeeding' ? Number(form.breastfeedingStage) : 0,
     };
 
-    localStorage.setItem('onboarding_data', JSON.stringify(onboardingData));
-    setSaved(true);
+    try {
+      const responseData = await profileAPI.createProfile(onboardingPayload);
 
-    // Redirect ke dashboard setelah 1 detik
-    setTimeout(() => {
-      navigate('/dashboard', { replace: true });
-    }, 1000);
+      if (responseData.status === 'success') {
+        setSaved(true);
+
+        // 🟢 Hapus baris localStorage lama. Cukup panggil global state context:
+        setUser(responseData.data.user);
+        
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 1000);
+      }
+    } catch (err) {
+      console.error("❌ Error submit onboarding:", err);
+      const backendMessage = err.response?.data?.message || 'Gagal menyimpan profil ke server database.';
+      setError(backendMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
       <div className="w-full max-w-lg rounded-3xl border border-borderPrimary bg-card p-8 shadow-xl">
-        {/* Header */}
+
+        {/* Progress Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-textPrimary">Selamat Datang! 🎉</h1>
+          <h1 className="text-3xl font-bold text-textPrimary">Selamat Datang!</h1>
           <p className="mt-2 text-textSecondary">Lengkapi profilmu untuk memulai perjalanan nutrisimu</p>
           <p className="mt-1 text-sm text-textMuted">
             Langkah {step} dari {form.gender === 'male' ? 3 : 4}
           </p>
         </div>
 
-        {/* Progress Bar */}
+        {/* Indikator Bar Progress */}
         <div className="mt-6 flex gap-2">
           <div className={`h-2 flex-1 rounded-full ${step >= 1 ? 'bg-primary' : 'bg-borderPrimary'}`} />
           <div className={`h-2 flex-1 rounded-full ${step >= 2 && (form.gender === 'male' ? step >= 3 : true) ? 'bg-primary' : 'bg-borderPrimary'}`} />
@@ -174,17 +251,15 @@ export default function OnboardingPage() {
           <div className={`h-2 flex-1 rounded-full ${step >= (form.gender === 'male' ? 3 : 4) ? 'bg-primary' : 'bg-borderPrimary'}`} />
         </div>
 
-        {/* Error */}
+        {/* Status Alert */}
         {error && <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">{error}</div>}
-
-        {/* Success Message */}
         {saved && (
           <div className="mt-4 rounded-2xl border border-success/30 bg-success/10 p-4 text-center">
-            <p className="text-sm font-semibold text-success">✓ Data berhasil disimpan! Mengarahkan ke dashboard...</p>
+            <p className="text-sm font-semibold text-success">✓ Profil disimpan! Mengarahkan ke dashboard...</p>
           </div>
         )}
 
-        {/* Step 1: Data Diri */}
+        {/* STEP 1: DATA UTAMA */}
         {step === 1 && !saved && (
           <div className="mt-8 space-y-5">
             <h2 className="text-xl font-semibold text-textPrimary">Data Diri</h2>
@@ -202,10 +277,10 @@ export default function OnboardingPage() {
                 value={form.gender}
                 onChange={(val) => {
                   updateField('gender', val);
-                  // Reset field kehamilan jika ganti gender
                   if (val === 'male') {
-                    updateField('isPregnant', '');
+                    updateField('femaleCondition', 'normal');
                     updateField('trimester', '');
+                    updateField('breastfeedingStage', '');
                   }
                 }}
               />
@@ -230,34 +305,42 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Step 2: Kondisi Kehamilan (hanya untuk Perempuan) */}
+        {/* STEP 2: KONDISI WANITA */}
         {step === 2 && form.gender === 'female' && !saved && (
           <div className="mt-8 space-y-5">
-            <h2 className="text-xl font-semibold text-textPrimary">Kondisi Kehamilan</h2>
-            <p className="text-sm text-textMuted">Informasi ini membantu kami memberikan rekomendasi nutrisi yang sesuai.</p>
+            <h2 className="text-xl font-semibold text-textPrimary">Kondisi Khusus Wanita</h2>
+            <p className="text-sm text-textMuted">Data ini dipakai untuk mencocokkan target tambahan kalori AKG harian.</p>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-textPrimary">Apakah Anda sedang hamil?</label>
+              <label className="mb-2 block text-sm font-medium text-textPrimary">Apakah saat ini Anda sedang hamil atau menyusui?</label>
               <Select
-                options={pregnancyOptions}
-                placeholder="Pilih jawaban"
-                value={form.isPregnant}
+                options={femaleConditionOptions}
+                placeholder="Pilih kondisi"
+                value={form.femaleCondition}
                 onChange={(val) => {
-                  updateField('isPregnant', val);
-                  if (val === 'no') updateField('trimester', '');
+                  updateField('femaleCondition', val);
+                  updateField('trimester', '');
+                  updateField('breastfeedingStage', '');
                 }}
               />
             </div>
 
-            {form.isPregnant === 'yes' && (
+            {form.femaleCondition === 'pregnant' && (
               <div>
-                <label className="mb-2 block text-sm font-medium text-textPrimary">Trimester ke berapa?</label>
-                <Select options={trimesterOptions} placeholder="Pilih trimester" value={form.trimester} onChange={(val) => updateField('trimester', val)} />
+                <label className="mb-2 block text-sm font-medium text-textPrimary">Trimester Kehamilan</label>
+                <Select options={trimesterOptions} placeholder="Pilih fase trimester" value={form.trimester} onChange={(val) => updateField('trimester', val)} />
+              </div>
+            )}
+
+            {form.femaleCondition === 'breastfeeding' && (
+              <div>
+                <label className="mb-2 block text-sm font-medium text-textPrimary">Tahap Menyusui</label>
+                <Select options={breastfeedingOptions} placeholder="Pilih durasi bayi" value={form.breastfeedingStage} onChange={(val) => updateField('breastfeedingStage', val)} />
               </div>
             )}
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" onClick={() => setStep(1)} className="flex-1 rounded-2xl py-3">
+              <Button variant="outline" onClick={handleBack} className="flex-1 rounded-2xl py-3">
                 Kembali
               </Button>
               <Button onClick={handleNext} className="flex-1 rounded-2xl py-3">
@@ -267,59 +350,60 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Step 3: Target Nutrisi Harian */}
+        {/* STEP 3: TARGET GIZI AUTOMATIC */}
         {step === 3 && !saved && (
           <div className="mt-8 space-y-5">
-            <h2 className="text-xl font-semibold text-textPrimary">Target Nutrisi Harian</h2>
-            <p className="text-sm text-textMuted">Atur target nutrisi harianmu. Bisa diubah nanti di halaman profil.</p>
+            <h2 className="text-xl font-semibold text-textPrimary">Target Gizi Harian</h2>
+            <p className="text-sm text-textMuted">
+              {fetchingAkg ? '⏳ Menghitung acuan tabel AKG Kemenkes...' : '✨ Data otomatis terisi. Nilainya masih bisa diubah manual jika punya target khusus.'}
+            </p>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-textPrimary">Target Kalori (kcal)</label>
-              <Input type="number" min="1" value={form.calorieTarget} onChange={(e) => updateField('calorieTarget', e.target.value)} placeholder="Contoh: 2000" className="border-borderStrong bg-input text-textPrimary" />
+              <label className="mb-2 block text-sm font-medium text-textPrimary">Target Energi Kalori (kcal)</label>
+              <Input type="number" min="1" step="0.1" disabled={fetchingAkg} value={form.calorieTarget} onChange={(e) => updateField('calorieTarget', e.target.value)} placeholder="Menghitung gizi..." className="border-borderStrong bg-input text-textPrimary" />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="mb-2 block text-sm font-medium text-textPrimary">Protein (g)</label>
-                <Input type="number" min="1" value={form.proteinTarget} onChange={(e) => updateField('proteinTarget', e.target.value)} placeholder="65" className="border-borderStrong bg-input text-textPrimary" />
+                <Input type="number" min="1" step="0.1" disabled={fetchingAkg} value={form.proteinTarget} onChange={(e) => updateField('proteinTarget', e.target.value)} placeholder=".." className="border-borderStrong bg-input text-textPrimary" />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-textPrimary">Karbohidrat (g)</label>
-                <Input type="number" min="1" value={form.carbohydrateTarget} onChange={(e) => updateField('carbohydrateTarget', e.target.value)} placeholder="260" className="border-borderStrong bg-input text-textPrimary" />
+                <Input type="number" min="1" step="0.1" disabled={fetchingAkg} value={form.carbohydrateTarget} onChange={(e) => updateField('carbohydrateTarget', e.target.value)} placeholder=".." className="border-borderStrong bg-input text-textPrimary" />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-textPrimary">Lemak (g)</label>
-                <Input type="number" min="1" value={form.fatTarget} onChange={(e) => updateField('fatTarget', e.target.value)} placeholder="80" className="border-borderStrong bg-input text-textPrimary" />
+                <Input type="number" min="1" step="0.1" disabled={fetchingAkg} value={form.fatTarget} onChange={(e) => updateField('fatTarget', e.target.value)} placeholder=".." className="border-borderStrong bg-input text-textPrimary" />
               </div>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" onClick={handleBack} className="flex-1 rounded-2xl py-3">
+              <Button variant="outline" onClick={handleBack} disabled={fetchingAkg} className="flex-1 rounded-2xl py-3">
                 Kembali
               </Button>
-              <Button onClick={handleNext} className="flex-1 rounded-2xl py-3">
-                Lihat Ringkasan
+              <Button onClick={handleNext} disabled={fetchingAkg} className="flex-1 rounded-2xl py-3">
+                Ringkasan
               </Button>
             </div>
           </div>
         )}
 
-        {/* Step 4: Ringkasan & BMI */}
-        {step === (form.gender === 'male' ? 3 : 4) && !saved && (
+        {/* STEP 4: RINGKASAN DATA */}
+        {step === 4 && !saved && (
           <div className="mt-8 space-y-5">
             <h2 className="text-xl font-semibold text-textPrimary">Ringkasan Profil</h2>
-            <p className="text-sm text-textMuted">Periksa kembali data yang kamu isi sebelum menyimpan.</p>
+            <p className="text-sm text-textMuted">Cek ulang data sebelum disimpan permanen ke server.</p>
 
-            {/* Data Diri Summary */}
             <div className="rounded-2xl border border-borderPrimary bg-surface2/50 p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-textSecondary uppercase tracking-wider">Data Diri</h3>
+              <h3 className="text-sm font-semibold text-textSecondary uppercase tracking-wider">Identitas</h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <p className="text-textMuted">Umur</p>
                   <p className="font-semibold text-textPrimary">{form.age} tahun</p>
                 </div>
                 <div>
-                  <p className="text-textMuted">Jenis Kelamin</p>
+                  <p className="text-textMuted">Gender</p>
                   <p className="font-semibold text-textPrimary capitalize">{form.gender === 'male' ? 'Laki-laki' : 'Perempuan'}</p>
                 </div>
                 <div>
@@ -333,63 +417,53 @@ export default function OnboardingPage() {
               </div>
 
               {form.gender === 'female' && (
-                <div className="pt-2 border-t border-borderPrimary">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-textMuted">Sedang Hamil</p>
-                      <p className="font-semibold text-textPrimary">{form.isPregnant === 'yes' ? 'Ya' : 'Tidak'}</p>
-                    </div>
-                    {form.isPregnant === 'yes' && (
-                      <div>
-                        <p className="text-textMuted">Trimester</p>
-                        <p className="font-semibold text-textPrimary">{form.trimester}</p>
-                      </div>
-                    )}
-                  </div>
+                <div className="pt-2 border-t border-borderPrimary text-sm space-y-1">
+                  <p>
+                    <span className="text-textMuted">Kondisi Fisik: </span>
+                    <span className="font-semibold text-textPrimary">
+                      {form.femaleCondition === 'pregnant' ? `Hamil (Trimester ${form.trimester})` :
+                        form.femaleCondition === 'breastfeeding' ? `Menyusui (Fase ${form.breastfeedingStage === '1' ? '0-6M' : '7-12M'})` :
+                          'Normal'}
+                    </span>
+                  </p>
                 </div>
               )}
             </div>
 
-            {/* BMI Summary */}
             <div className="rounded-2xl border border-borderPrimary bg-primary/5 p-5 text-center">
-              <p className="text-sm text-textMuted mb-1">Indeks Massa Tubuh (BMI)</p>
+              <p className="text-sm text-textMuted mb-1">Status Massa Tubuh (BMI)</p>
               <p className="text-3xl font-bold text-primary">{bmi}</p>
               <p className={`mt-1 text-sm font-semibold ${bmiCategory === 'Normal' ? 'text-success' : bmiCategory === 'Kurus' ? 'text-warning' : 'text-danger'}`}>{bmiCategory}</p>
             </div>
 
-            {/* Target Nutrisi Summary */}
             <div className="rounded-2xl border border-borderPrimary bg-surface2/50 p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-textSecondary uppercase tracking-wider">Target Nutrisi Harian</h3>
+              <h3 className="text-sm font-semibold text-textSecondary uppercase tracking-wider">Target Capaian Gizi</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                 <div className="text-center p-3 bg-card rounded-xl border border-borderPrimary">
                   <p className="text-xs text-textMuted">Kalori</p>
-                  <p className="text-lg font-bold text-primary">{form.calorieTarget}</p>
-                  <p className="text-xs text-textMuted">kcal</p>
+                  <p className="text-sm font-bold text-primary">{form.calorieTarget} <span className="text-[10px] font-normal">kcal</span></p>
                 </div>
                 <div className="text-center p-3 bg-card rounded-xl border border-borderPrimary">
                   <p className="text-xs text-textMuted">Protein</p>
-                  <p className="text-lg font-bold text-info">{form.proteinTarget}</p>
-                  <p className="text-xs text-textMuted">g</p>
+                  <p className="text-sm font-bold text-info">{form.proteinTarget}<span className="text-[10px] font-normal">g</span></p>
                 </div>
                 <div className="text-center p-3 bg-card rounded-xl border border-borderPrimary">
-                  <p className="text-xs text-textMuted">Karbohidrat</p>
-                  <p className="text-lg font-bold text-warning">{form.carbohydrateTarget}</p>
-                  <p className="text-xs text-textMuted">g</p>
+                  <p className="text-xs text-textMuted">Karbo</p>
+                  <p className="text-sm font-bold text-warning">{form.carbohydrateTarget}<span className="text-[10px] font-normal">g</span></p>
                 </div>
                 <div className="text-center p-3 bg-card rounded-xl border border-borderPrimary">
                   <p className="text-xs text-textMuted">Lemak</p>
-                  <p className="text-lg font-bold text-danger">{form.fatTarget}</p>
-                  <p className="text-xs text-textMuted">g</p>
+                  <p className="text-sm font-bold text-danger">{form.fatTarget}<span className="text-[10px] font-normal">g</span></p>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" onClick={handleBack} className="flex-1 rounded-2xl py-3">
+              <Button variant="outline" onClick={handleBack} disabled={isLoading} className="flex-1 rounded-2xl py-3">
                 Kembali
               </Button>
-              <Button onClick={handleSave} className="flex-1 rounded-2xl py-3">
-                Simpan & Mulai
+              <Button onClick={handleSave} disabled={isLoading} className="flex-1 rounded-2xl py-3">
+                {isLoading ? 'Menyimpan...' : 'Simpan & Mulai'}
               </Button>
             </div>
           </div>
