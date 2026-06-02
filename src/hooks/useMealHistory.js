@@ -18,7 +18,7 @@ export function useMealHistory() {
       setError(null);
       const response = await mealAPI.getMeals(currentPage, 15, filter);
       const data = response?.data;
-      const mealsData = data?.meals || [];
+      const mealsData = data || [];
       setMeals(mealsData);
       setFilteredGroups(groupMealsByDate(mealsData));
       setTotalPages(data?.pagination?.totalPages || 1);

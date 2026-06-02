@@ -62,7 +62,6 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    setIsLoading(true);
     try {
       const response = await authAPI.login({ email, password });
 
@@ -102,13 +101,10 @@ export function AuthProvider({ children }) {
         success: false,
         message: error.response?.data?.message || 'Login failed, please check your credentials',
       };
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const register = async (userData) => {
-    setIsLoading(true);
     try {
       await authAPI.register(userData);
       return { success: true };
@@ -117,9 +113,7 @@ export function AuthProvider({ children }) {
         success: false,
         message: error.response?.data?.message || 'Registration failed',
       };
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const logout = async () => {

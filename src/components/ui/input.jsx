@@ -7,7 +7,7 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-input border-black/10  focus:border-input focus:bg-background",
+        default: "bg-input border-input focus:border-input focus:outline-none focus:ring-2 focus:ring-input/50 focus:ring-offset-0 disabled:bg-input/50 data-[state=open]:bg-input ",
       },
       size: {
         default: "h-14 px-5"

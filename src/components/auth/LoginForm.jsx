@@ -8,30 +8,37 @@ import { Input } from '../ui/input';
 
 export default function LoginForm({ onSwitchToRegister }) {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     setError('');
-    setIsSubmitting(true);
+    setIsLoading(true);
 
-    const result = await login(email, password);
+    try {
+      const result = await login(email, password);
 
-    setIsSubmitting(false);
+      console.log(result);
 
-    if (!result.success) {
-      setError(result.message || 'Email atau password salah.');
-      return;
-    }
+      if (!result.success) {
+        setError(result.message ||'Email atau password salah.');
+        setIsLoading(false);
+        return;
+      }
+      navigate('/dashboard', { replace: true });
 
-    navigate('/dashboard', { replace: true });
+    } catch (error) {
+      console.log(error);
+      setError('Terjadi kesalahan saat login. Silakan coba lagi.');
+      setIsLoading(false);
+    } 
   }
 
   return (
@@ -40,10 +47,10 @@ export default function LoginForm({ onSwitchToRegister }) {
         <div
           className="
             mb-6 rounded-2xl
-            border border-destructive/30
-            bg-destructive/10
+            border border-danger/30
+            bg-danger/10
             px-4 py-3 text-sm
-            text-destructive
+            text-danger
           "
         >
           {error}
@@ -100,7 +107,6 @@ export default function LoginForm({ onSwitchToRegister }) {
 
           </Button>
         </div>
-
         <div className="mt-3 flex justify-end">
           <Button variant='ghost' type="button">
             Lupa password?
@@ -109,8 +115,8 @@ export default function LoginForm({ onSwitchToRegister }) {
       </div>
 
       {/* SUBMIT */}
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
         Sign In
       </Button>
 
@@ -123,7 +129,7 @@ export default function LoginForm({ onSwitchToRegister }) {
             onClick={onSwitchToRegister}
             variant='ghost'
             className="font-bold"
-            disabled={isSubmitting}
+            disabled={isLoading}
           >
             Buat disini
           </Button>

@@ -3,6 +3,7 @@ import { Navigate, useSearchParams } from 'react-router-dom';
 
 import AuthSplitLayout from '../../components/auth/AuthSplitLayout';
 import { useAuth } from '../../context/AuthContext';
+import AuthCard from '../../components/auth/AuthCard';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();

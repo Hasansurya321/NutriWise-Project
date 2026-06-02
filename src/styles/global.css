@@ -13,7 +13,7 @@
   --surface-2: #f7fafc;
   --sidebar: rgba(253, 254, 254, 0.96);
 
-  --input: #f3f7fb;
+  --input: #00000005;
   --input-readonly: #f0f5fa;
   --input-hover: #eef4fa;
   --input-active: #f8fbff;
@@ -128,6 +128,15 @@ body {
 }
 
 /* ROOT SYNCHRONIZED THEME TRANSITION */
+
+
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+}
+
 
 html.theme-switching,
 html.theme-switching *,

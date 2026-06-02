@@ -43,6 +43,8 @@ export default function AuthSplitLayout({ mode, setMode }) {
         flex-col
         px-12 py-14
         transition-all
+        overflow-y-scroll
+        no-scrollbar
         duration-[1000ms]
         ease-[cubic-bezier(0.22,1,0.36,1)]
         /* DINAMIS: Geser posisi kontainer utama kiri/kanan berdasarkan mode */
@@ -53,9 +55,9 @@ export default function AuthSplitLayout({ mode, setMode }) {
               <AuthBrandHeader
                 subtitle={isLogin ? "Masuk untuk mulai memantau nutrisi harianmu." : "Buat akun untuk memulai pengalaman tracking nutrisi cerdas."}
               />
-              <Button className="absolute top-0 right-0" variant="ghost" size="icon">
+              <div className="absolute top-0 right-0" variant="ghost" size="icon">
                 <ThemeToggleButton />
-              </Button>
+              </div>
             </div>
 
             <div className="mt-8 transition-opacity duration-500">
@@ -94,9 +96,9 @@ export default function AuthSplitLayout({ mode, setMode }) {
 
           <div className="px-6 py-10 relative">
             <AuthBrandHeader subtitle={isLogin ? 'Masuk untuk mulai memantau nutrisi harianmu.' : 'Buat akun untuk memulai pengalaman tracking nutrisi cerdas.'} />
-            <Button className="absolute top-10 right-10" variant="ghost" size="icon">
+            <div className="absolute top-10 right-10" variant="ghost" size="icon">
               <ThemeToggleButton />
-            </Button>
+            </div>
             <div className="mt-8">{isLogin ? <LoginForm onSwitchToRegister={() => setMode('register')} /> : <RegisterForm onSwitchToLogin={() => setMode('login')} />}</div>
           </div>
         </div>

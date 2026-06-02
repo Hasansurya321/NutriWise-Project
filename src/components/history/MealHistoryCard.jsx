@@ -5,6 +5,7 @@ import FoodItemRow from './FoodItemRow';
 import NutritionSummary from './NutritionSummary';
 
 export default function MealHistoryCard({ meal, onViewDetails }) {
+  console.log('Rendering MealHistoryCard for meal:', meal);
   return (
     <motion.div
       layout
@@ -58,7 +59,7 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
               text-sm text-textMuted
             "
           >
-            {meal.items.length} item terdeteksi
+            {meal.meals.length} item terdeteksi
           </p>
         </div>
 
@@ -84,7 +85,7 @@ export default function MealHistoryCard({ meal, onViewDetails }) {
 
       {/* Food Items */}
       <div className="mt-6 space-y-3">
-        {meal.items.map((item) => (
+        {meal.meals.map((item) => (
           <FoodItemRow key={item.id} item={item} />
         ))}
       </div>
