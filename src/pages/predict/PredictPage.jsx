@@ -3,21 +3,22 @@ import { motion } from 'framer-motion';
 import { UploadSection } from '../../components/predict/UploadSection';
 import { CameraSection } from '../../components/predict/CameraSection';
 import { useImagePredict } from '../../hooks/useImagePredict';
-import { SectionHeader } from '../../components/dashboard/SectionHeader';
+import { PageHeader } from '../../components/layout/PageHeader';
 import PredictionResult from '../../components/predict/PredictionResult';
 import { Camera, UploadCloud } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { fadeUp } from '../../utils/animation.js';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 export default function PredictPage() {
+  useDocumentTitle('Scan AI');
   const [activeTab, setActiveTab] = useState('upload');
 
   const predictHook = useImagePredict();
-  const { predictionResult, handleReset } = predictHook;
+  const { predictionResult } = predictHook;
 
   const switchTab = (tab) => {
     if (tab !== activeTab) {
-      handleReset();
       setActiveTab(tab);
     }
   };
@@ -31,10 +32,9 @@ export default function PredictPage() {
       }}
       className="space-y-8 pb-8">
       <motion.div variants={fadeUp}>
-
-        <SectionHeader
-          title="AI Pemindai Makanan"
-          description="Unggah atau ambil foto makananmu untuk mendeteksi nilai nutrisinya secara langsung."
+        <PageHeader
+          title="Pemindai Makanan"
+          description="Pindai makanan untuk mengetahui kandungan nutrisinya."
         />
       </motion.div>
 
@@ -44,12 +44,12 @@ export default function PredictPage() {
         <div className="bg-surface2 p-1.5 rounded-2xl grid grid-cols-2 border border-borderPrimary shadow-sm max-w-md w-full">
           <Button
             onClick={() => switchTab('upload')}
-            variant={activeTab === 'upload' ? 'default' : 'ghost'}
+            variant={activeTab === 'upload' ? 'outline' : 'ghost'}
           >
             <UploadCloud className="w-4 h-4 mr-2" /> Unggah File
           </Button>
           <Button
-            variant={activeTab === 'camera' ? 'default' : 'ghost'}
+            variant={activeTab === 'camera' ? 'outline' : 'ghost'}
             onClick={() => switchTab('camera')}
           >
             <Camera className="w-4 h-4 mr-2" /> Kamera

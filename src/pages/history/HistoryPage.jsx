@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Plus, Clock3, Flame, Beef, Wheat, Droplets, ArrowRight } from 'lucide-react';
+import { Plus, Clock3, Flame, Beef, Wheat, Droplets, ArrowRight, Eye, CalendarDays } from 'lucide-react';
 
 import HistorySearch from '../../components/history/HistorySearch';
 import HistoryFilters from '../../components/history/HistoryFilters';
@@ -11,6 +11,9 @@ import { MealFormModal } from '../../components/meals/MealFormModal';
 import { DeleteConfirmDialog } from '../../components/meals/DeleteConfirmDialog';
 import { useMealHistory } from '../../hooks/useMealHistory';
 import { usePredictHistory } from '../../hooks/usePredictHistory';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import PredictHistoryCard from '../../components/history/PredictHistoryCard';
+import { PageHeader } from '../../components/layout/PageHeader';
 
 const filterMap = {
   Semua: 'all',
@@ -27,13 +30,12 @@ const reverseFilterMap = {
 };
 
 export default function HistoryPage() {
+  useDocumentTitle('Riwayat');
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [activeCategory, setActiveCategory] = useState('meal');
 
-  // CRUD modal states
   const [editMeal, setEditMeal] = useState(null);
   const [deleteMealTarget, setDeleteMealTarget] = useState(null);
-  const [addModalOpen, setAddModalOpen] = useState(false);
   const [addFromPredict, setAddFromPredict] = useState(null);
 
   const mealHistory = useMealHistory();
@@ -65,7 +67,7 @@ export default function HistoryPage() {
   };
 
   const renderEmptyState = () => (
-    <div className="rounded-3xl border border-borderPrimary bg-card p-10 text-center">
+    <div className="roundeed-3xl border border-borderPrimary bg-card p-10 text-center">
       <p className="text-base font-medium text-textPrimary">
         {activeCategory === 'meal' ? 'Belum ada riwayat makanan.' : 'Belum ada riwayat prediksi.'}
       </p>
@@ -76,79 +78,6 @@ export default function HistoryPage() {
       </p>
     </div>
   );
-
-  const renderPredictCard = (log) => {
-    const n = log.nutrition || {};
-    const tn = log.totalNutrition || n;
-
-    return (
-      <motion.div
-        key={log.id}
-        layout
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.2 }}
-        className="rounded-3xl border border-borderPrimary bg-card p-5 shadow-sm transition-all duration-300 hover:border-primary/20 hover:shadow-lg"
-      >
-        <div className="flex items-start gap-4">
-          {log.imageUrl && (
-            <img
-              src={log.imageUrl}
-              alt={log.foodName}
-              className="h-16 w-16 rounded-2xl object-cover shrink-0 border border-borderPrimary"
-              onError={(e) => { e.target.style.display = 'none'; }}
-            />
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-[0.65rem] font-semibold uppercase tracking-wide bg-blue-500/10 text-blue-600 border border-blue-500/25">
-                Scan AI
-              </span>
-              <span className="text-xs text-textMuted flex items-center gap-1 ml-auto">
-                <Clock3 size={12} />
-                {new Date(log.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            </div>
-            <h3 className="mt-1 text-lg font-bold text-textPrimary capitalize truncate">
-              {log.foodName?.replace(/_/g, ' ')}
-            </h3>
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-4 gap-2">
-          {[
-            { icon: Flame, label: 'Kalori', value: tn.calorie || n.calorie, unit: 'kcal', color: 'text-amber-500' },
-            { icon: Beef, label: 'Protein', value: tn.protein || n.protein, unit: 'g', color: 'text-emerald-500' },
-            { icon: Wheat, label: 'Karbo', value: tn.carbohydrate || n.carbohydrate, unit: 'g', color: 'text-indigo-500' },
-            { icon: Droplets, label: 'Lemak', value: tn.fat || n.fat, unit: 'g', color: 'text-rose-500' },
-          ].map(({ icon: Icon, label, value, unit, color }) => (
-            <div key={label} className="flex flex-col items-center gap-0.5 rounded-xl bg-background/60 py-2 px-1 text-center border border-borderPrimary/50">
-              <Icon size={14} className={color} />
-              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-textMuted">{label}</p>
-              <p className="text-sm font-bold text-textPrimary leading-tight">
-                {typeof value === 'number' ? (value % 1 === 0 ? value : value.toFixed(1)) : '0'}
-                <span className="text-[0.6rem] font-normal text-textMuted">{unit}</span>
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Action Button */}
-        <div className="mt-4">
-          <button
-            onClick={() => {
-              // Open Add Meal Modal with prefilled predict data
-              setAddFromPredict(log);
-            }}
-            className="w-full flex items-center justify-center gap-1.5 rounded-2xl bg-primary/10 text-primary px-4 py-2.5 text-sm font-semibold transition-all hover:bg-primary hover:text-white"
-          >
-            Tambah ke Jurnal <ArrowRight size={14} />
-          </button>
-        </div>
-      </motion.div>
-    );
-  };
 
   const renderContent = () => {
     if (activeData.isLoading) {
@@ -167,10 +96,52 @@ export default function HistoryPage() {
     if (activeCategory === 'predict') {
       const logs = activeData.predictLogs || [];
       if (logs.length === 0) return renderEmptyState();
+
+      const groupedLogsMap = logs.reduce((acc, log) => {
+        const d = new Date(log.createdAt);
+        d.setHours(0,0,0,0);
+        let dateLabel = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        const today = new Date(); today.setHours(0,0,0,0);
+        const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+        if(d.getTime() === today.getTime()) dateLabel = 'Hari Ini';
+        else if(d.getTime() === yesterday.getTime()) dateLabel = 'Kemarin';
+
+        if (!acc[dateLabel]) acc[dateLabel] = { date: dateLabel, rawDate: d, logs: [] };
+        acc[dateLabel].logs.push(log);
+        return acc;
+      }, {});
+
+      const groupedLogs = Object.values(groupedLogsMap).sort((a,b) => b.rawDate - a.rawDate);
+
       return (
         <>
           <AnimatePresence mode="popLayout" className="space-y-4">
-            {logs.map((log) => renderPredictCard(log))}
+            {groupedLogs.map(group => (
+              <motion.div
+                key={group.date}
+                layout
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-4 mb-8"
+              >
+                <div className="flex items-center gap-2.5">
+                  <CalendarDays size={18} className="text-primary shrink-0" />
+                  <h2 className="text-xl font-semibold tracking-tight text-textPrimary">{group.date}</h2>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {group.logs.map(log => (
+                    <PredictHistoryCard
+                      key={log.id}
+                      log={log}
+                      onView={setSelectedMeal}
+                      onAdd={setAddFromPredict}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            ))}
           </AnimatePresence>
           {!activeData.isLoading && !activeData.error && (
             <Pagination
@@ -183,7 +154,6 @@ export default function HistoryPage() {
       );
     }
 
-    // Meal history
     const groups = activeData.filteredGroups || [];
     if (groups.length === 0) return renderEmptyState();
 
@@ -222,20 +192,10 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-textPrimary">Riwayat</h1>
-          <p className="mt-1.5 text-sm text-textSecondary">Tinjau daftar makananmu, rincian nutrisi, dan analisis AI.</p>
-        </div>
-        {activeCategory === 'meal' && (
-          <button
-            onClick={() => setAddModalOpen(true)}
-            className="flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all duration-150 shrink-0"
-          >
-            <Plus size={16} /> Tambah
-          </button>
-        )}
-      </header>
+      <PageHeader
+        title="Riwayat"
+        description="Riwayat pemindaian makanan dan asupan nutrisimu."
+      />
 
       <div className="space-y-4">
         <HistorySearch value={activeData?.search} onChange={(e) => activeData?.setSearch?.(e.target.value)} />
@@ -249,14 +209,7 @@ export default function HistoryPage() {
 
       <div className="space-y-8">{renderContent()}</div>
 
-      {/* Modals */}
       <MealDetailsModal meal={selectedMeal} open={Boolean(selectedMeal)} onClose={() => setSelectedMeal(null)} />
-
-      <MealFormModal
-        open={addModalOpen}
-        onClose={() => setAddModalOpen(false)}
-        onSuccess={handleCRUDSuccess}
-      />
 
       <MealFormModal
         open={Boolean(addFromPredict)}

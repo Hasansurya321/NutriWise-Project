@@ -10,7 +10,7 @@ export const navigation = [
     iconName: 'Scan',
   },
   {
-    label: 'Meals',
+    label: 'Jurnal Makan',
     href: '/meals',
     iconName: 'UtensilsCrossed',
   },

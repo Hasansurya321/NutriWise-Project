@@ -2,16 +2,16 @@ import { X, Flame, Beef, Wheat, Droplets, Pencil, Trash2, Eye } from 'lucide-rea
 
 const MEAL_TYPE_LABELS = {
   BREAKFAST: 'Sarapan',
-  LUNCH:     'Makan Siang',
-  DINNER:    'Makan Malam',
-  SNACK:     'Camilan',
+  LUNCH: 'Makan Siang',
+  DINNER: 'Makan Malam',
+  SNACK: 'Camilan',
 };
 
 const MEAL_TYPE_STYLES = {
   BREAKFAST: 'bg-amber-500/10 text-amber-600 border border-amber-500/30',
-  LUNCH:     'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30',
-  DINNER:    'bg-indigo-500/10 text-indigo-600 border border-indigo-500/30',
-  SNACK:     'bg-rose-500/10 text-rose-600 border border-rose-500/30',
+  LUNCH: 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30',
+  DINNER: 'bg-indigo-500/10 text-indigo-600 border border-indigo-500/30',
+  SNACK: 'bg-rose-500/10 text-rose-600 border border-rose-500/30',
 };
 
 function fmt(n) {
@@ -39,16 +39,13 @@ function MealCard({ meal, onEdit, onDelete, onView }) {
 
   return (
     <div className="rounded-2xl border border-borderPrimary bg-background p-3.5 flex flex-col gap-3 transition-all duration-150 hover:border-primary/30 hover:shadow-[0_2px_12px_rgba(93,219,138,0.08)]">
-      {/* Header row */}
       <div className="flex gap-3 items-start">
-        {meal.imageUrl && (
-          <img
-            src={meal.imageUrl}
-            alt={meal.foodName}
-            className="w-[52px] h-[52px] rounded-xl object-cover shrink-0 border border-borderPrimary"
-            onError={(e) => { e.target.style.display = 'none'; }}
-          />
-        )}
+        <img
+          src={meal.imageUrl || 'https://images.unsplash.com/photo-1493770348161-369560ae357d?w=400&q=80'}
+          alt={meal.foodName}
+          className="w-[52px] h-[52px] rounded-xl object-cover shrink-0 border border-borderPrimary"
+          onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1493770348161-369560ae357d?w=400&q=80'; }}
+        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className={`inline-block px-2 py-0.5 rounded-full text-[0.6rem] font-semibold uppercase tracking-wide ${badgeClass}`}>
@@ -57,21 +54,36 @@ function MealCard({ meal, onEdit, onDelete, onView }) {
             <span className="text-[0.7rem] text-textMuted ml-auto">{time}</span>
           </div>
           <p className="mt-1 text-[0.9375rem] font-semibold text-textPrimary truncate">{meal.foodName}</p>
-          {meal.portion && (
-            <p className="text-[0.75rem] text-textMuted mt-0.5">{meal.portion} porsi</p>
-          )}
+          <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+            {meal.portion && Number(meal.portion) !== 1 && (
+              <p className="text-[0.75rem] text-textMuted">{meal.portion} porsi</p>
+            )}
+            {(n.servingDescription || n.servingSizeG) ? (
+              <>
+                {meal.portion && Number(meal.portion) !== 1 && (
+                  <span className="text-textMuted text-[0.75rem]">•</span>
+                )}
+                <p className="text-[0.75rem] text-textSecondary">
+                  {n.servingDescription || '-'}
+                  {n.servingSizeG ? ` (${n.servingSizeG}g)` : ''}
+                </p>
+              </>
+            ) : (
+              Number(meal.portion) === 1 && (
+                <p className="text-[0.75rem] text-textMuted">1 porsi</p>
+              )
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Nutrition grid */}
       <div className="grid grid-cols-4 gap-1.5">
-        <NutrientBadge icon={Flame}    label="Kalori"  value={n.calorie}      unit=" kcal" colorClass="text-amber-500" />
-        <NutrientBadge icon={Beef}     label="Protein" value={n.protein}      unit="g"     colorClass="text-emerald-500" />
-        <NutrientBadge icon={Wheat}    label="Karbo"   value={n.carbohydrate} unit="g"     colorClass="text-indigo-500" />
-        <NutrientBadge icon={Droplets} label="Lemak"   value={n.fat}          unit="g"     colorClass="text-rose-500" />
+        <NutrientBadge icon={Flame} label="Kalori" value={n.calorie} unit=" kcal" colorClass="text-amber-500" />
+        <NutrientBadge icon={Beef} label="Protein" value={n.protein} unit="g" colorClass="text-emerald-500" />
+        <NutrientBadge icon={Wheat} label="Karbo" value={n.carbohydrate} unit="g" colorClass="text-indigo-500" />
+        <NutrientBadge icon={Droplets} label="Lemak" value={n.fat} unit="g" colorClass="text-rose-500" />
       </div>
 
-      {/* Action buttons */}
       <div className="flex gap-2">
         <button
           onClick={() => onView?.(meal)}
@@ -97,15 +109,15 @@ function MealCard({ meal, onEdit, onDelete, onView }) {
 }
 
 export default function MealsDayPanel({ date, meals, onClose, onEdit, onDelete, onView }) {
-  const totalCalorie  = meals.reduce((s, m) => s + (m.totalNutrition?.calorie       || m.nutrition?.calorie       || 0), 0);
-  const totalProtein  = meals.reduce((s, m) => s + (m.totalNutrition?.protein       || m.nutrition?.protein       || 0), 0);
-  const totalCarbs    = meals.reduce((s, m) => s + (m.totalNutrition?.carbohydrate  || m.nutrition?.carbohydrate  || 0), 0);
-  const totalFat      = meals.reduce((s, m) => s + (m.totalNutrition?.fat           || m.nutrition?.fat           || 0), 0);
+  const totalCalorie = meals.reduce((s, m) => s + (m.totalNutrition?.calorie || m.nutrition?.calorie || 0), 0);
+  const totalProtein = meals.reduce((s, m) => s + (m.totalNutrition?.protein || m.nutrition?.protein || 0), 0);
+  const totalCarbs = meals.reduce((s, m) => s + (m.totalNutrition?.carbohydrate || m.nutrition?.carbohydrate || 0), 0);
+  const totalFat = meals.reduce((s, m) => s + (m.totalNutrition?.fat || m.nutrition?.fat || 0), 0);
 
   const formattedDate = date
     ? new Date(date + 'T00:00:00').toLocaleDateString('id-ID', {
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-      })
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    })
     : '';
 
   if (!date) {
@@ -122,7 +134,6 @@ export default function MealsDayPanel({ date, meals, onClose, onEdit, onDelete, 
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
       <div className="flex items-start justify-between px-5 py-4 border-b border-borderPrimary shrink-0">
         <div>
           <p className="text-[0.9375rem] font-semibold text-textPrimary leading-snug">{formattedDate}</p>
@@ -146,13 +157,12 @@ export default function MealsDayPanel({ date, meals, onClose, onEdit, onDelete, 
         </div>
       ) : (
         <>
-          {/* Daily summary strip */}
           <div className="grid grid-cols-4 border-b border-borderPrimary shrink-0">
             {[
-              { icon: Flame,    label: 'Kalori',  value: `${Math.round(totalCalorie)} kcal`, color: 'text-amber-500' },
-              { icon: Beef,     label: 'Protein', value: `${fmt(totalProtein)}g`,             color: 'text-emerald-500' },
-              { icon: Wheat,    label: 'Karbo',   value: `${fmt(totalCarbs)}g`,               color: 'text-indigo-500' },
-              { icon: Droplets, label: 'Lemak',   value: `${fmt(totalFat)}g`,                 color: 'text-rose-500' },
+              { icon: Flame, label: 'Kalori', value: `${Math.round(totalCalorie)} kcal`, color: 'text-amber-500' },
+              { icon: Beef, label: 'Protein', value: `${fmt(totalProtein)}g`, color: 'text-emerald-500' },
+              { icon: Wheat, label: 'Karbo', value: `${fmt(totalCarbs)}g`, color: 'text-indigo-500' },
+              { icon: Droplets, label: 'Lemak', value: `${fmt(totalFat)}g`, color: 'text-rose-500' },
             ].map(({ icon: Icon, label, value, color }, i, arr) => (
               <div
                 key={label}
@@ -167,7 +177,6 @@ export default function MealsDayPanel({ date, meals, onClose, onEdit, onDelete, 
             ))}
           </div>
 
-          {/* Meal list */}
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
             {meals.map((meal) => (
               <MealCard key={meal.id} meal={meal} onEdit={onEdit} onDelete={onDelete} onView={onView} />

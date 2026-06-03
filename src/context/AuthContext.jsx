@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasProfile, setHasProfile] = useState(false); 
+  const [hasProfile, setHasProfile] = useState(false);
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
         // Jika 404, berarti profile belum ada (first login)
         if (error.response?.status === 404) {
           setHasProfile(false);
-          setIsAuthenticated(true); 
+          setIsAuthenticated(true);
         } else {
           localStorage.removeItem('accessToken');
           setUser(null);
@@ -83,7 +83,6 @@ export function AuthProvider({ children }) {
         const profileResponse = await profileAPI.getProfile();
         const userData = profileResponse?.data?.user || profileResponse?.user || profileResponse;
 
-        console.log('Profile data after login:', userData);
         isProfileComplete = profileResponse?.data?.user.isProfileComplete;
 
         if (userData && Object.keys(userData).length > 0) {
@@ -119,7 +118,7 @@ export function AuthProvider({ children }) {
         success: false,
         message: error.response?.data?.message || 'Registration failed',
       };
-    } 
+    }
   };
 
   const logout = async () => {
@@ -127,7 +126,7 @@ export function AuthProvider({ children }) {
     if (refreshToken) {
       try {
         await authAPI.logout({ refreshToken });
-      } catch (err) {}
+      } catch (err) { }
     }
 
     localStorage.removeItem('accessToken');

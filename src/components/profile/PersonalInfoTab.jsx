@@ -36,12 +36,12 @@ export default function PersonalInfoTab({ data, isEditing, onFieldChange, errors
 
       {/* Email – always locked, shown for reference */}
       <div className="md:col-span-2">
-        <ProfileField label="Email Address" value={data.email} isLocked={true} />
+        <ProfileField label="Alamat Email" value={data.email} isLocked={true} />
       </div>
 
       {/* Age */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-textPrimary">Age</label>
+        <label className="mb-2 block text-sm font-medium text-textPrimary">Umur</label>
         <Input
           type="number"
           value={data.age ?? ''}
@@ -54,7 +54,7 @@ export default function PersonalInfoTab({ data, isEditing, onFieldChange, errors
 
       {/* Gender */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-textPrimary">Gender</label>
+        <label className="mb-2 block text-sm font-medium text-textPrimary">Jenis Kelamin</label>
         {isEditing ? (
           <Select
             options={genderOptions}

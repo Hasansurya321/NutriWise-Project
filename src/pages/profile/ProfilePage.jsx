@@ -14,6 +14,7 @@ import { useAuth } from '../../context/AuthContext';
 
 import { motion } from 'framer-motion';
 import { fadeUp } from '../../utils/animation.js';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 function validateProfile(data) {
   const errors = {};
@@ -70,10 +71,11 @@ function extractProfileData(user) {
 }
 
 export default function ProfilePage() {
+  useDocumentTitle('Profil');
   const { user } = useAuth();
   const { updateProfile, fetchProfile, isLoading: profileLoading, error: profileError } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('Personal Info');
+  const [activeTab, setActiveTab] = useState('Info Pribadi');
   const [draftProfile, setDraftProfile] = useState(null);
   const [errors, setErrors] = useState({});
 
@@ -140,6 +142,7 @@ export default function ProfilePage() {
     if (newFullName !== originalFullName && newFullName.trim() !== '') {
       try {
         await userAPI.updateFullname(userId, newFullName);
+
       } catch (e) {
         setErrors((prev) => ({ ...prev, fullName: 'Gagal menyimpan nama lengkap' }));
         allSuccess = false;
@@ -201,16 +204,16 @@ export default function ProfilePage() {
               onAvatarSuccess={async () => {
                 await fetchProfile();
               }}
-              onFullnameSuccess={async (newName) => {
+              onFullnameSuccess={async () => {
                 await fetchProfile();
               }}
             />
           </motion.div>
           <div className="rounded-3xl border border-borderPrimary bg-card p-6">
             <motion.div variants={fadeUp}>
-              <h2 className="text-2xl font-semibold text-textPrimary">Profile Details</h2>
-              <p className="mt-2 text-textSecondary">Your personal information and health settings</p>
-              <p className="mt-2 text-sm text-textMuted">Identity information is system-controlled and locked to maintain account consistency.</p>
+              <h2 className="text-2xl font-semibold text-textPrimary">Detail Profil</h2>
+              <p className="mt-2 text-textSecondary">Informasi pribadi dan pengaturan kesehatan Anda</p>
+              <p className="mt-2 text-sm text-textMuted">Informasi identitas dikontrol oleh sistem dan dikunci untuk menjaga konsistensi akun.</p>
             </motion.div>
 
             <motion.div variants={fadeUp} className="mt-8">
@@ -219,11 +222,11 @@ export default function ProfilePage() {
 
             <div className="mt-8">
               <motion.div variants={fadeUp}>
-                {activeTab === 'Personal Info' && <PersonalInfoTab data={displayProfile.profile} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('profile', field, value)} errors={errors} />}
+                {activeTab === 'Info Pribadi' && <PersonalInfoTab data={displayProfile.profile} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('profile', field, value)} errors={errors} />}
 
-                {activeTab === 'Health Data' && <HealthDataTab data={displayProfile.healthData} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('healthData', field, value)} />}
+                {activeTab === 'Data Kesehatan' && <HealthDataTab data={displayProfile.healthData} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('healthData', field, value)} />}
 
-                {activeTab === 'Nutrition Goals' && <NutritionGoalsTab data={displayProfile.nutritionGoals} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('nutritionGoals', field, value)} />}
+                {activeTab === 'Target Nutrisi' && <NutritionGoalsTab data={displayProfile.nutritionGoals} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('nutritionGoals', field, value)} />}
               </motion.div>
             </div>
           </div>

@@ -10,13 +10,13 @@ export default function NutritionGoalsTab({ data, isEditing, onFieldChange }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        <ProfileField label="Daily Calorie Target (kcal)" type="number" value={data.calories} isEditing={isEditing} onChange={(value) => handleNumericChange('calories', value)} />
+        <ProfileField label="Target Kalori Harian (kcal)" type="number" value={data.calories} isEditing={isEditing} onChange={(value) => handleNumericChange('calories', value)} />
 
-        <ProfileField label="Protein Target (g)" type="number" value={data.protein} isEditing={isEditing} onChange={(value) => handleNumericChange('protein', value)} />
+        <ProfileField label="Target Protein (g)" type="number" value={data.protein} isEditing={isEditing} onChange={(value) => handleNumericChange('protein', value)} />
 
-        <ProfileField label="Carbohydrate Target (g)" type="number" value={data.carbs} isEditing={isEditing} onChange={(value) => handleNumericChange('carbs', value)} />
+        <ProfileField label="Target Karbohidrat (g)" type="number" value={data.carbs} isEditing={isEditing} onChange={(value) => handleNumericChange('carbs', value)} />
 
-        <ProfileField label="Fats Target (g)" type="number" value={data.fats} isEditing={isEditing} onChange={(value) => handleNumericChange('fats', value)} />
+        <ProfileField label="Target Lemak (g)" type="number" value={data.fats} isEditing={isEditing} onChange={(value) => handleNumericChange('fats', value)} />
       </div>
 
       {/* <MacroDistribution macros={data.macroDistribution} /> */}

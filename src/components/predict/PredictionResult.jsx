@@ -15,15 +15,7 @@ export default function PredictionResult({ predictionResult }) {
   const predictLogId = responseData.predictLogId;
   const data = responseData.predict || responseData;
 
-  // === DEBUG: log actual values ===
-  console.log('predictionResult:', predictionResult);
-  console.log('predictionResult.data:', predictionResult?.data);
-  console.log('predictLogId:', predictLogId);
-  // ================================
-
   const { foodName, confidence, totalNutrition, nutrition, portion } = data || {};
-
-  console.log(data);
 
   const finalFoodName = foodName;
   const finalConfidence = confidence || 0;
@@ -75,7 +67,7 @@ export default function PredictionResult({ predictionResult }) {
     if (mealState === 'idle') {
       return (
         <>
-        {/* <button onClick={handleConfirmMeal} className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors duration-200">
+          {/* <button onClick={handleConfirmMeal} className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors duration-200">
           Ini Yang Saya Makan
         </button> */}
         </>

@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -41,11 +41,16 @@ export function UserDropdown({ open }) {
             backdrop-blur-2xl
           "
         >
-          {/* LOGOUT */}
-          <Button type="button" variant="destructive" onClick={handleLogout} size="lg" className="w-full">
-            <LogOut className="h-4 w-4 mr-2" />
-            Keluar
-          </Button>
+          <div className="flex flex-col gap-1">
+            <Button type="button" variant="ghost" onClick={() => navigate('/profile')} size="lg" className="w-full justify-start text-textPrimary">
+              <User className="h-4 w-4 mr-2" />
+              Edit Profil
+            </Button>
+            <Button type="button" variant="destructive" onClick={handleLogout} size="lg" className="w-full justify-start">
+              <LogOut className="h-4 w-4 mr-2" />
+              Keluar
+            </Button>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

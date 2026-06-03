@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { ConfidenceBadge } from './ConfidenceBadge';
 import { MealMetadata } from './MealMetadata';
 
-export function MealItem({ name, calories, confidence, timestamp, image, iconName }) {
+export function MealItem({ name, calories, confidence, timestamp, image, iconName, servingSizeG, servingDescription, portion }) {
   const Icon = getIconByName(iconName, 'Apple');
 
   return (
@@ -35,7 +35,13 @@ export function MealItem({ name, calories, confidence, timestamp, image, iconNam
             <ConfidenceBadge confidence={confidence} />
           </div>
 
-          <MealMetadata calories={calories} timestamp={timestamp} />
+          <MealMetadata
+            calories={calories}
+            timestamp={timestamp}
+            servingSizeG={servingSizeG}
+            servingDescription={servingDescription}
+            portion={portion}
+          />
         </div>
       </div>
     </article>

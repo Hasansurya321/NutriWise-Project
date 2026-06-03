@@ -20,12 +20,12 @@ export default function AuthSplitLayout({ mode, setMode }) {
       <div
         className="
           relative
-          w-full max-w-6xl
+          w-full max-w-5xl
           overflow-hidden
-          rounded-[36px]
-          border border-black/10
-          bg-background
-          shadow-[0_30px_90px_rgba(15,23,42,0.12)]
+          rounded-3xl
+          border border-borderPrimary
+          bg-card
+          shadow-2xl
         "
       >
         {/* DESKTOP */}
@@ -53,9 +53,9 @@ export default function AuthSplitLayout({ mode, setMode }) {
           >
             <div className="relative">
               <AuthBrandHeader
-                subtitle={isLogin ? "Masuk untuk mulai memantau nutrisi harianmu." : "Buat akun untuk memulai pengalaman tracking nutrisi cerdas."}
+                subtitle={isLogin ? "Masuk untuk memantau asupan harianmu." : "Buat akun untuk memantau nutrisimu."}
               />
-              <div className="absolute top-0 right-0" variant="ghost" size="icon">
+              <div className="absolute top-0 right-0">
                 <ThemeToggleButton />
               </div>
             </div>
@@ -94,8 +94,8 @@ export default function AuthSplitLayout({ mode, setMode }) {
           </div>
 
           <div className="px-6 py-10 relative">
-            <AuthBrandHeader subtitle={isLogin ? 'Masuk untuk mulai memantau nutrisi harianmu.' : 'Buat akun untuk memulai pengalaman tracking nutrisi cerdas.'} />
-            <div className="absolute top-10 right-10" variant="ghost" size="icon">
+            <AuthBrandHeader subtitle={isLogin ? 'Masuk untuk memantau asupan harianmu.' : 'Buat akun untuk memantau nutrisimu.'} />
+            <div className="absolute top-10 right-10">
               <ThemeToggleButton />
             </div>
             <div className="mt-8">{isLogin ? <LoginForm onSwitchToRegister={() => setMode('register')} /> : <RegisterForm onSwitchToLogin={() => setMode('login')} />}</div>

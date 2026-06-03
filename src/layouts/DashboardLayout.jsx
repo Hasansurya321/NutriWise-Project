@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import { Navbar } from '../components/navbar/Navbar';
 import { Sidebar } from '../components/sidebar/Sidebar';
@@ -14,6 +14,11 @@ export default function DashboardLayout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { isAuthenticated } = useAuth();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [pathname]);
 
   useEffect(() => {
     if (!mobileSidebarOpen) {
@@ -47,7 +52,7 @@ export default function DashboardLayout() {
       <div
         className={cn(
           "flex min-h-screen flex-col transition-all duration-300",
-          collapsed ? "lg:pl-[88px]" : "lg:pl-[270px]"
+          collapsed ? "lg:pl-[88px]" : "lg:pl-72"
         )}
       >
         <Navbar

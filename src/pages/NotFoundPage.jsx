@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../context/AuthContext';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function NotFoundPage() {
+  useDocumentTitle('Halaman Tidak Ditemukan');
   const navigate = useNavigate();
   const {user} = useAuth();
 

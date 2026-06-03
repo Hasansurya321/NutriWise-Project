@@ -57,7 +57,7 @@ export default function ProfileField({ label, value, isEditing, onChange, type =
         )}
       </div>
 
-      {isLocked && <p className="mt-1 text-xs text-textMuted">System controlled field</p>}
+      {isLocked && <p className="mt-1 text-xs text-textMuted">Kolom dikontrol oleh sistem</p>}
     </div>
   );
 }

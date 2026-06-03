@@ -43,11 +43,9 @@ export function CameraSection({
 
   return (
     <Card className="h-full relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-400"></div>
-
       <CardHeader>
         <CardTitle>Kamera Pemindai</CardTitle>
-        <CardDescription>Ambil foto makananmu untuk mendeteksi detail nutrisi secara langsung.</CardDescription>
+        <CardDescription>Ambil foto makanan untuk mengetahui kandungan nutrisinya.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center gap-6">

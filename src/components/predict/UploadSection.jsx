@@ -115,10 +115,9 @@ export function UploadSection({
 
   return (
     <Card className="h-full relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-400"></div>
       <CardHeader>
         <CardTitle>Pemindai Makanan</CardTitle>
-        <CardDescription>Unggah atau ambil foto makananmu untuk mendeteksi kalori, protein, karbohidrat, dan lemak secara otomatis dengan AI.</CardDescription>
+        <CardDescription>Pilih gambar makanan untuk mengetahui kandungan nutrisinya.</CardDescription>
       </CardHeader>
 
       <CardContent>

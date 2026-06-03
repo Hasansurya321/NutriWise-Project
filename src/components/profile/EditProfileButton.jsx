@@ -7,12 +7,12 @@ export default function EditProfileButton({ isEditing, onEdit, onSave, onCancel 
       <div className="flex items-center gap-3">
         <Button variant="destructive" size="default" onClick={onCancel}>
           <X size={16} />
-          Cancel
+          Batal
         </Button>
 
         <Button variant="outline" size="default" onClick={onSave}>
           <Check size={16} />
-          Save Changes
+          Simpan
         </Button>
       </div>
     );
@@ -21,7 +21,7 @@ export default function EditProfileButton({ isEditing, onEdit, onSave, onCancel 
   return (
     <Button variant="outline" size="default" onClick={onEdit}>
       <Pencil size={16} />
-      Edit Profile
+      Edit Profil
     </Button>
   );
 }

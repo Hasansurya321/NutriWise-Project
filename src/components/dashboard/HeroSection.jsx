@@ -55,7 +55,7 @@ export function HeroSection({ isAuthenticated }) {
       >
         <div className="space-y-4">
           <Badge variant="primary" className="w-fit">
-            Dashboard AI Nutrisi
+            Ringkasan Nutrisi
           </Badge>
 
           <div className="space-y-2">
@@ -65,7 +65,7 @@ export function HeroSection({ isAuthenticated }) {
                 text-textPrimary sm:text-3xl
               "
             >
-              Bangun kebiasaan sehat dengan asisten nutrisi cerdas.
+              Pantau asupan nutrisi harianmu dengan mudah.
             </h2>
 
             <p

@@ -33,12 +33,17 @@ export function StatsCard({
   color = 'green',
   className,
 }) {
-  // Memastikan nilai progress berada di rentang 0 - 100
-  const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  // Memastikan nilai progress berada di rentang 0 - 100 untuk width bar
+  const rawProgress = Number(progress) || 0;
+  const safeProgress = Math.max(0, Math.min(100, rawProgress));
+  const isExceeded = rawProgress > 100;
 
   const theme = accentStyles[color] || accentStyles.green;
 
   const ResolvedIcon = getIconByName(iconName, 'Orange');
+
+  const barColor = isExceeded ? 'bg-red-500' : theme.fill;
+  const textColor = isExceeded ? 'text-red-500 dark:text-red-400' : 'text-textPrimary';
 
   return (
     <motion.div
@@ -117,7 +122,7 @@ export function StatsCard({
                     h-full rounded-full transition-all
                     duration-500 ease-out
                   `,
-                  theme.fill,
+                  barColor,
                 )}
                 style={{
                   width: `${safeProgress}%`,
@@ -131,8 +136,10 @@ export function StatsCard({
                 font-medium text-textSecondary
               "
             >
-              <span>Progress</span>
-              <span className="font-bold text-textPrimary">{safeProgress.toFixed(1)}%</span>
+              <span>{isExceeded ? 'Melebihi target' : 'Progres'}</span>
+              <span className={cn("font-bold", textColor)}>
+                {rawProgress.toFixed(1)}%
+              </span>
             </div>
           </div>
 

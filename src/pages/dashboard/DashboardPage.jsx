@@ -20,6 +20,7 @@ import PredictionResult from '../../components/predict/PredictionResult';
 import { predictAPI, nutritionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useImagePredict } from '../../hooks/useImagePredict';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 import { fadeUp } from '../../utils/animation.js';
 
@@ -34,6 +35,7 @@ const weeklyTrendSummary = {
 };
 
 export default function DashboardPage() {
+  useDocumentTitle('Dashboard');
   const { user, isAuthenticated } = useAuth();
   const [statsCards, setStatsCards] = useState([
     {
@@ -110,8 +112,11 @@ export default function DashboardPage() {
           type: 'Makanan Terpindai',
           calories: Math.round(log.totalNutrition?.calorie || log.nutrition?.calorie || log.calories || 0),
           confidence: log.confidenceScore || 0,
-          image: log.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
+          image: log.imageUrl || 'https://images.unsplash.com/photo-1493770348161-369560ae357d?w=400&q=80',
           iconName: 'Apple',
+          servingSizeG: log.nutrition?.servingSizeG,
+          servingDescription: log.nutrition?.servingDescription,
+          portion: log.portion,
         }));
 
         // Daily summary dari backend
@@ -223,7 +228,7 @@ export default function DashboardPage() {
     >
       <motion.div variants={fadeUp}>
         {isAuthenticated ? (
-          <DashboardHeader username={user?.user?.fullname || user?.fullname || 'Pengguna'} description="Ini adalah ringkasan nutrisimu hari ini. Pantau makanan, makronutrisi, dan prediksi nutrisi dan kalori makanan dalam satu dashboard terpadu." />
+          <DashboardHeader username={user?.user?.fullname || user?.fullname || 'Pengguna'} description="Ringkasan asupan kalori dan nutrisi harianmu." />
         ) : (
           <DashboardHeader title="Masuk untuk melihat dashboard" description="Sesi dashboard kamu belum aktif. Silakan masuk terlebih dahulu untuk memuat data nutrisimu." />
         )}

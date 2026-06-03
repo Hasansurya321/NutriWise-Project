@@ -52,7 +52,7 @@ export function groupPredictLogsByDate(logs = []) {
           fats: Math.round(log.totalNutrition?.fat || log.nutrition?.fat || log.fat || 0),
           calories: Math.round(log.totalNutrition?.calorie || log.nutrition?.calorie || log.calories || 0),
           iconName: 'Apple',
-          img_url: log.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
+          img_url: log.imageUrl || 'https://images.unsplash.com/photo-1493770348161-369560ae357d?w=400&q=80',
           confidenceScore: log.confidenceScore || log.confidence || 0,
           portion: log.portion || 1,
         }

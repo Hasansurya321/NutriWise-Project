@@ -1,3 +1,5 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 export default function Pagination({ currentPage, totalPages, onPageChange }) {
   const getPageNumbers = () => {
     const pages = [];
@@ -47,7 +49,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
           disabled:pointer-events-none disabled:opacity-40
         "
       >
-        Prev
+        <ChevronLeft size={18} />
       </button>
 
       <div className="flex items-center gap-1">
@@ -85,7 +87,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
           disabled:pointer-events-none disabled:opacity-40
         "
       >
-        Next
+        <ChevronRight size={18} />
       </button>
     </nav>
   );

@@ -5,6 +5,7 @@ import { Select } from '../../components/ui/select';
 import { Button } from '../../components/ui/button';
 import { profileAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 const genderOptions = [
   { value: 'male', label: 'Laki-laki' },
@@ -44,6 +45,7 @@ function getBMICategory(bmi) {
 }
 
 export default function OnboardingPage() {
+  useDocumentTitle('Onboarding');
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');

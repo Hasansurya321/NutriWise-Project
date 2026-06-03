@@ -50,7 +50,6 @@ export default function MealHistoryCard({ meal, onEdit, onDelete, onView }) {
         )}
 
         <div className="flex-1 min-w-0">
-          {/* Badge + time row */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className={`inline-block px-2.5 py-0.5 rounded-full text-[0.65rem] font-semibold uppercase tracking-wide ${badgeClass}`}>
               {label}
@@ -65,9 +64,14 @@ export default function MealHistoryCard({ meal, onEdit, onDelete, onView }) {
           <h3 className="mt-1.5 text-base font-semibold text-textPrimary capitalize leading-snug truncate">
             {meal.foodName?.replace(/_/g, ' ')}
           </h3>
+          {(n.servingDescription || n.servingSizeG) && (
+            <p className="mt-0.5 text-[0.65rem] text-textSecondary">
+              {n.servingDescription || '-'}
+              {n.servingSizeG ? ` (${n.servingSizeG}g)` : ''}
+            </p>
+          )}
         </div>
 
-        {/* Calorie highlight */}
         <div className="text-right shrink-0">
           <p className="text-2xl font-bold text-primary leading-tight">{Math.round(n.calorie || 0)}</p>
           <p className="text-xs text-textMuted">kcal</p>

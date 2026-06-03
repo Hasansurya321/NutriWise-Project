@@ -36,7 +36,7 @@ export function Sidebar({ mobileOpen, onClose, collapsed, onToggleCollapsed }) {
             transition-all duration-300
           `,
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-          collapsed ? 'w-[270px] lg:w-[88px]' : 'w-[270px]'
+          collapsed ? 'w-72 lg:w-[88px]' : 'w-72'
         )}
       >
         <div

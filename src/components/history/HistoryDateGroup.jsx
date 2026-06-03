@@ -1,7 +1,7 @@
 import { CalendarDays } from 'lucide-react';
 import MealHistoryCard from './MealHistoryCard';
 
-export default function HistoryDateGroup({ group, onEdit, onDelete }) {
+export default function HistoryDateGroup({ group, onEdit, onDelete, onViewDetails }) {
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-2.5">
@@ -16,6 +16,7 @@ export default function HistoryDateGroup({ group, onEdit, onDelete }) {
             meal={meal}
             onEdit={onEdit}
             onDelete={onDelete}
+            onView={onViewDetails}
           />
         ))}
       </div>

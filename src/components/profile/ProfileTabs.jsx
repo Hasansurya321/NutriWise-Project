@@ -1,4 +1,4 @@
-const tabs = ['Personal Info', 'Health Data', 'Nutrition Goals'];
+const tabs = ['Info Pribadi', 'Data Kesehatan', 'Target Nutrisi'];
 
 export default function ProfileTabs({ activeTab, onChange }) {
   return (

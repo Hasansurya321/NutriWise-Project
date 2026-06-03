@@ -59,6 +59,8 @@ const DEFAULT_FORM = {
   protein: '',
   carbohydrate: '',
   fat: '',
+  servingSizeG: '',
+  servingDescription: '',
 };
 
 export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initialData = null }) {
@@ -72,7 +74,6 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
   const predict = useImagePredict();
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (open && editMeal) {
       const n = editMeal.nutrition || {};
@@ -85,8 +86,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
         protein: String(Number(tn.protein ?? n.protein ?? 0).toFixed(2)),
         carbohydrate: String(Number(tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
         fat: String(Number(tn.fat ?? n.fat ?? 0).toFixed(2)),
+        servingSizeG: String(n.servingSizeG ?? ''),
+        servingDescription: n.servingDescription || '',
       });
       setTab('manual');
+      setImageFile(editMeal.imageUrl || null);
     } else if (open && initialData) {
       const n = initialData.nutrition || {};
       const tn = initialData.totalNutrition || n;
@@ -98,9 +102,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
         protein: String(Number(tn.protein ?? n.protein ?? 0).toFixed(2)),
         carbohydrate: String(Number(tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
         fat: String(Number(tn.fat ?? n.fat ?? 0).toFixed(2)),
+        servingSizeG: String(n.servingSizeG ?? ''),
+        servingDescription: n.servingDescription || '',
       });
       setTab('manual');
-      setImageFile(null);
+      setImageFile(initialData.imageUrl || null);
       setPredictionUsed(false);
       predict.handleReset();
     } else if (open && !editMeal && !initialData) {
@@ -112,7 +118,6 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
     }
   }, [open, editMeal, initialData]);
 
-  // When prediction result arrives → auto-fill manual form
   useEffect(() => {
     if (!predict.predictionResult || predictionUsed) return;
     const d = predict.predictionResult?.predict || predict.predictionResult;
@@ -120,6 +125,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
     const n = d.nutrition || {};
     const tn = d.totalNutrition || n;
+
     setForm((prev) => ({
       ...prev,
       foodName: d.foodName?.replace(/_/g, ' ') || prev.foodName,
@@ -128,10 +134,13 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
       protein: String((tn.protein ?? n.protein ?? 0).toFixed(2)),
       carbohydrate: String((tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
       fat: String((tn.fat ?? n.fat ?? 0).toFixed(2)),
+      servingSizeG: String(n.servingSizeG ?? ''),
+      servingDescription: n.servingDescription || '',
     }));
-    setImageFile(predict.file);
+    setImageFile(d.imageUrl || predict.file);
     setPredictionUsed(true);
-    setTab('manual'); // switch to form to review
+    setTab('manual');
+
   }, [predict.predictionResult, predictionUsed]);
 
   function setField(key) {
@@ -161,16 +170,24 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
       fd.append('protein', form.protein || '0');
       fd.append('carbohydrate', form.carbohydrate || '0');
       fd.append('fat', form.fat || '0');
+      if (form.servingSizeG) fd.append('servingSizeG', form.servingSizeG);
+      if (form.servingDescription) fd.append('servingDescription', form.servingDescription);
 
-      // Attach predictLogId if we are prefilling from a predict log
       if (!isEdit && initialData?.id) {
         fd.append('predictLogId', initialData.id);
+      } else if (!isEdit && predict.predictionResult) {
+        const d = predict.predictionResult?.predict || predict.predictionResult;
+        if (d?.id) {
+          fd.append('predictLogId', d.id);
+        }
       }
 
-      // Attach image if present (manual upload or camera override)
-      const fileToUpload = imageFile || predict.file;
-      if (fileToUpload) {
-        fd.append('image', fileToUpload);
+      if (imageFile instanceof File) {
+        fd.append('image', imageFile);
+      } else if (typeof imageFile === 'string') {
+        fd.append('imageUrl', imageFile);
+      } else if (predict.file) {
+        fd.append('image', predict.file);
       }
 
       if (isEdit) {
@@ -196,14 +213,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
     onClose();
   }
 
-  const showFillFromAI = predict.predictionResult && !predictionUsed && tab !== 'manual';
-
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="w-[94%] sm:w-[680px] md:w-[720px] lg:w-[780px] max-w-none max-h-[90vh] overflow-y-auto rounded-3xl border border-borderPrimary bg-card p-0">
         <DialogTitle className="sr-only">{isEdit ? 'Edit Meal' : 'Tambah Meal'}</DialogTitle>
 
-        {/* Modal Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-borderPrimary sticky top-0 bg-card z-10">
           <div>
             <p className="text-[0.7rem] font-semibold uppercase tracking-widest text-primary">
@@ -221,7 +235,6 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
           </button>
         </div>
 
-        {/* Tabs – hide in edit mode */}
         {!isEdit && (
           <div className="flex gap-2 px-6 pt-4">
             {TABS.map(({ id, label, icon: Icon }) => (
@@ -243,7 +256,6 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
         )}
 
         <div className="px-6 pb-6 pt-4 flex flex-col gap-6">
-          {/* ── SCAN TABS ── */}
           {!isEdit && tab === 'upload' && (
             <div>
               <UploadSection {...predict} />
@@ -275,10 +287,8 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
             </div>
           )}
 
-          {/* ── MANUAL FORM ── */}
           {(tab === 'manual' || isEdit) && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              {/* Filled-from-AI notice */}
               {predictionUsed && (
                 <div className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm text-primary">
                   <CheckCircle2 size={16} className="shrink-0" />
@@ -286,18 +296,38 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                 </div>
               )}
 
-              {/* Preview image (from scan) */}
               {(imageFile || predict.previewUrl) && (
-                <div className="relative w-full h-40 rounded-2xl overflow-hidden border border-borderPrimary">
+                <div className="relative w-full h-40 rounded-2xl overflow-hidden border border-borderPrimary group">
                   <img
-                    src={predict.previewUrl || URL.createObjectURL(imageFile)}
+                    src={predict.previewUrl || (imageFile instanceof File ? URL.createObjectURL(imageFile) : imageFile)}
                     alt="preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setImageFile(null)}
+                    className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
               )}
 
-              {/* Food Name */}
+              {!imageFile && !predict.previewUrl && (
+                <Field label="Foto Makanan (Opsional)">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setImageFile(e.target.files[0]);
+                      }
+                    }}
+                    className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40 file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer"
+                  />
+                </Field>
+              )}
+
               <Field label="Nama Makanan" required>
                 <input
                   type="text"
@@ -308,7 +338,6 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                 />
               </Field>
 
-              {/* Meal Type + Portion */}
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Waktu Makan" required>
                   <select
@@ -326,7 +355,21 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                 </Field>
               </div>
 
-              {/* Nutrition grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Takaran Saji (Opsional)">
+                  <input
+                    type="text"
+                    value={form.servingDescription}
+                    onChange={(e) => setField('servingDescription')(e.target.value)}
+                    placeholder="contoh: 1 piring / 1 mangkuk"
+                    className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  />
+                </Field>
+                <Field label="Berat (g) (Opsional)">
+                  <NumInput id="servingSizeG" value={form.servingSizeG} onChange={setField('servingSizeG')} placeholder="200" />
+                </Field>
+              </div>
+
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-textSecondary mb-3">
                   Kandungan Nutrisi (per porsi)
@@ -383,14 +426,12 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                 </div>
               </div>
 
-              {/* Error */}
               {submitError && (
                 <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-xl px-4 py-2.5">
                   {submitError}
                 </p>
               )}
 
-              {/* Submit */}
               <Button type="submit" className="w-full mt-1" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <><Loader2 size={16} className="animate-spin" /> Menyimpan…</>
