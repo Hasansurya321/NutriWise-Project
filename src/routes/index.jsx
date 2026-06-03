@@ -10,6 +10,7 @@ import ProfilePage from '../pages/profile/ProfilePage';
 import InsightsPage from '../pages/insights/InsightsPage';
 import PredictPage from '../pages/predict/PredictPage';
 import OnboardingPage from '../pages/onboarding/OnboardingPage';
+import MealsPage from '../pages/meals/MealsPage';
 import NotFoundPage from '../pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
       {
         path: 'insights',
         element: <InsightsPage />,
+      },
+      {
+        path: 'meals',
+        element: <MealsPage />,
       },
     ],
   },

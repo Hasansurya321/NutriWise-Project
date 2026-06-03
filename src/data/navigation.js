@@ -10,6 +10,11 @@ export const navigation = [
     iconName: 'Scan',
   },
   {
+    label: 'Meals',
+    href: '/meals',
+    iconName: 'UtensilsCrossed',
+  },
+  {
     label: 'Riwayat',
     href: '/history',
     iconName: 'History',
@@ -20,3 +25,4 @@ export const navigation = [
     iconName: 'User',
   },
 ];
+

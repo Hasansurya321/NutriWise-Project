@@ -1,0 +1,387 @@
+import { useState, useEffect } from 'react';
+import {
+  Camera, Upload, Pencil, Loader2, CheckCircle2, X,
+  Flame, Beef, Wheat, Droplets,
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
+import { Button } from '../ui/button';
+import { cn } from '../../utils/cn';
+import { mealAPI } from '../../services/api';
+import { useImagePredict } from '../../hooks/useImagePredict';
+import { UploadSection } from '../predict/UploadSection';
+import { CameraSection } from '../predict/CameraSection';
+import PredictionResult from '../predict/PredictionResult';
+
+const MEAL_TYPES = [
+  { value: 'BREAKFAST', label: 'Sarapan' },
+  { value: 'LUNCH', label: 'Makan Siang' },
+  { value: 'DINNER', label: 'Makan Malam' },
+  { value: 'SNACK', label: 'Camilan' },
+];
+
+const TABS = [
+  { id: 'manual', label: 'Manual', icon: Pencil },
+  { id: 'upload', label: 'Upload Foto', icon: Upload },
+  { id: 'camera', label: 'Kamera', icon: Camera },
+];
+
+function Field({ label, children, required }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-semibold uppercase tracking-wide text-textSecondary">
+        {label}{required && <span className="text-danger ml-0.5">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function NumInput({ id, value, onChange, placeholder }) {
+  return (
+    <input
+      id={id}
+      type="number"
+      min="0"
+      step="0.1"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+    />
+  );
+}
+
+const DEFAULT_FORM = {
+  foodName: '',
+  mealType: 'BREAKFAST',
+  portion: '1',
+  calorie: '',
+  protein: '',
+  carbohydrate: '',
+  fat: '',
+};
+
+export function MealFormModal({ open, onClose, onSuccess, editMeal = null }) {
+  const isEdit = Boolean(editMeal);
+  const [tab, setTab] = useState('manual');
+  const [form, setForm] = useState(DEFAULT_FORM);
+  const [imageFile, setImageFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [predictionUsed, setPredictionUsed] = useState(false);
+
+  const predict = useImagePredict();
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (open && editMeal) {
+      const n = editMeal.nutrition || {};
+      setForm({
+        foodName: editMeal.foodName || '',
+        mealType: editMeal.mealType || 'BREAKFAST',
+        portion: String(editMeal.portion ?? 1),
+        calorie: String(n.calorie ?? ''),
+        protein: String(n.protein ?? ''),
+        carbohydrate: String(n.carbohydrate ?? ''),
+        fat: String(n.fat ?? ''),
+      });
+      setTab('manual');
+    } else if (open && !editMeal) {
+      setForm(DEFAULT_FORM);
+      setImageFile(null);
+      setSubmitError('');
+      setPredictionUsed(false);
+      predict.handleReset();
+    }
+  }, [open, editMeal]);
+
+  // When prediction result arrives → auto-fill manual form
+  useEffect(() => {
+    if (!predict.predictionResult || predictionUsed) return;
+    const d = predict.predictionResult?.predict || predict.predictionResult;
+    if (!d?.foodName) return;
+
+    const n = d.nutrition || {};
+    const tn = d.totalNutrition || n;
+    setForm((prev) => ({
+      ...prev,
+      foodName: d.foodName?.replace(/_/g, ' ') || prev.foodName,
+      portion: String(d.portion ?? 1),
+      calorie: String(Math.round(tn.calorie ?? n.calorie ?? 0)),
+      protein: String((tn.protein ?? n.protein ?? 0).toFixed(2)),
+      carbohydrate: String((tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
+      fat: String((tn.fat ?? n.fat ?? 0).toFixed(2)),
+    }));
+    setImageFile(predict.file);
+    setPredictionUsed(true);
+    setTab('manual'); // switch to form to review
+  }, [predict.predictionResult, predictionUsed]);
+
+  function setField(key) {
+    return (val) => setForm((p) => ({ ...p, [key]: val }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSubmitError('');
+
+    if (!form.foodName.trim()) {
+      setSubmitError('Nama makanan wajib diisi.');
+      return;
+    }
+    if (!form.calorie) {
+      setSubmitError('Kalori wajib diisi.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const fd = new FormData();
+      fd.append('foodName', form.foodName.trim());
+      fd.append('mealType', form.mealType);
+      fd.append('portion', form.portion || '1');
+      fd.append('calorie', form.calorie);
+      fd.append('protein', form.protein || '0');
+      fd.append('carbohydrate', form.carbohydrate || '0');
+      fd.append('fat', form.fat || '0');
+
+      // Attach image if present
+      const fileToUpload = imageFile || predict.file;
+      if (fileToUpload) {
+        fd.append('image', fileToUpload);
+      }
+
+      if (isEdit) {
+        await mealAPI.updateMeal(editMeal.id, fd);
+      } else {
+        await mealAPI.createMeal(fd);
+      }
+
+      onSuccess?.();
+      onClose();
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Terjadi kesalahan, coba lagi.';
+      setSubmitError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function handleClose() {
+    if (isSubmitting) return;
+    predict.handleReset();
+    setPredictionUsed(false);
+    onClose();
+  }
+
+  const showFillFromAI = predict.predictionResult && !predictionUsed && tab !== 'manual';
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
+      <DialogContent className="w-[94%] sm:w-[680px] md:w-[720px] lg:w-[780px] max-w-none max-h-[90vh] overflow-y-auto rounded-3xl border border-borderPrimary bg-card p-0">
+        <DialogTitle className="sr-only">{isEdit ? 'Edit Meal' : 'Tambah Meal'}</DialogTitle>
+
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-borderPrimary sticky top-0 bg-card z-10">
+          <div>
+            <p className="text-[0.7rem] font-semibold uppercase tracking-widest text-primary">
+              {isEdit ? 'Edit' : 'Tambah'} Makanan
+            </p>
+            <h2 className="text-xl font-bold text-textPrimary mt-0.5">
+              {isEdit ? editMeal?.foodName : 'Catat Konsumsi Baru'}
+            </h2>
+          </div>
+          <button
+            onClick={handleClose}
+            className="flex items-center justify-center w-9 h-9 rounded-xl border border-borderPrimary text-textSecondary hover:bg-background hover:text-textPrimary transition-all"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Tabs – hide in edit mode */}
+        {!isEdit && (
+          <div className="flex gap-2 px-6 pt-4">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150',
+                  tab === id
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-background border border-borderPrimary text-textSecondary hover:text-textPrimary'
+                )}
+              >
+                <Icon size={14} />
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="px-6 pb-6 pt-4 flex flex-col gap-6">
+          {/* ── SCAN TABS ── */}
+          {!isEdit && tab === 'upload' && (
+            <div>
+              <UploadSection {...predict} />
+              {predict.predictionResult && (
+                <div className="mt-4">
+                  <PredictionResult predictionResult={predict.predictionResult} />
+                  {!predictionUsed && predict.predictionResult?.predict?.foodName && (
+                    <Button
+                      className="w-full mt-4"
+                      onClick={() => setPredictionUsed(false) || setTab('manual')}
+                    >
+                      <CheckCircle2 size={16} />
+                      Gunakan Hasil Ini
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {!isEdit && tab === 'camera' && (
+            <div>
+              <CameraSection {...predict} />
+              {predict.predictionResult && (
+                <div className="mt-4">
+                  <PredictionResult predictionResult={predict.predictionResult} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── MANUAL FORM ── */}
+          {(tab === 'manual' || isEdit) && (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              {/* Filled-from-AI notice */}
+              {predictionUsed && (
+                <div className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm text-primary">
+                  <CheckCircle2 size={16} className="shrink-0" />
+                  Form diisi otomatis dari hasil scan AI. Koreksi jika perlu.
+                </div>
+              )}
+
+              {/* Preview image (from scan) */}
+              {(imageFile || predict.previewUrl) && (
+                <div className="relative w-full h-40 rounded-2xl overflow-hidden border border-borderPrimary">
+                  <img
+                    src={predict.previewUrl || URL.createObjectURL(imageFile)}
+                    alt="preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Food Name */}
+              <Field label="Nama Makanan" required>
+                <input
+                  type="text"
+                  value={form.foodName}
+                  onChange={(e) => setField('foodName')(e.target.value)}
+                  placeholder="contoh: Nasi Goreng Ayam"
+                  className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </Field>
+
+              {/* Meal Type + Portion */}
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Waktu Makan" required>
+                  <select
+                    value={form.mealType}
+                    onChange={(e) => setField('mealType')(e.target.value)}
+                    className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  >
+                    {MEAL_TYPES.map(({ value, label }) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Porsi">
+                  <NumInput id="portion" value={form.portion} onChange={setField('portion')} placeholder="1" />
+                </Field>
+              </div>
+
+              {/* Nutrition grid */}
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-textSecondary mb-3">
+                  Kandungan Nutrisi (per porsi)
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Kalori (kcal)" required>
+                    <div className="relative">
+                      <Flame size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" />
+                      <input
+                        type="number" min="0" step="0.1"
+                        value={form.calorie}
+                        onChange={(e) => setField('calorie')(e.target.value)}
+                        placeholder="0"
+                        className="w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      />
+                    </div>
+                  </Field>
+                  <Field label="Protein (g)">
+                    <div className="relative">
+                      <Beef size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500" />
+                      <input
+                        type="number" min="0" step="0.1"
+                        value={form.protein}
+                        onChange={(e) => setField('protein')(e.target.value)}
+                        placeholder="0"
+                        className="w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      />
+                    </div>
+                  </Field>
+                  <Field label="Karbohidrat (g)">
+                    <div className="relative">
+                      <Wheat size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" />
+                      <input
+                        type="number" min="0" step="0.1"
+                        value={form.carbohydrate}
+                        onChange={(e) => setField('carbohydrate')(e.target.value)}
+                        placeholder="0"
+                        className="w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      />
+                    </div>
+                  </Field>
+                  <Field label="Lemak (g)">
+                    <div className="relative">
+                      <Droplets size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500" />
+                      <input
+                        type="number" min="0" step="0.1"
+                        value={form.fat}
+                        onChange={(e) => setField('fat')(e.target.value)}
+                        placeholder="0"
+                        className="w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      />
+                    </div>
+                  </Field>
+                </div>
+              </div>
+
+              {/* Error */}
+              {submitError && (
+                <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-xl px-4 py-2.5">
+                  {submitError}
+                </p>
+              )}
+
+              {/* Submit */}
+              <Button type="submit" className="w-full mt-1" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <><Loader2 size={16} className="animate-spin" /> Menyimpan…</>
+                ) : isEdit ? (
+                  <><CheckCircle2 size={16} /> Simpan Perubahan</>
+                ) : (
+                  <><CheckCircle2 size={16} /> Tambah Meal</>
+                )}
+              </Button>
+            </form>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

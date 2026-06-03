@@ -24,7 +24,7 @@ export function Logo({
       subtitle: "text-xs"
     },
     lg: {
-      iconContainer: "h-14 w-14 rounded-3xl border-2",
+      iconContainer: "h-12 w-12 rounded-full",
       icon: "h-7 w-7",
       title: "text-2xl font-black tracking-tighter",
       subtitle: "text-sm"
@@ -35,19 +35,14 @@ export function Logo({
 
   return (
     <div className={cn("flex min-w-0 items-center gap-3", className)}>
-      <div className={cn(`flex shrink-0 items-center justify-center border border-primary/20 bg-primary/10 text-primary shadow-glow`, styles.iconContainer, iconClassName)}>
-        <Leaf className={styles.icon} />
+      <div className={cn(`flex shrink-0 items-center justify-center text-primary `, styles.iconContainer, iconClassName)}>
+        <img src="/NutriCitraLogo.png" alt="logo"  className='w-full h-full object-contain'/>
       </div>
 
       <div className={cn('min-w-0 flex flex-col justify-center', collapsed && 'hidden')}>
         <h1 className={cn(`truncate text-textPrimary`, styles.title, textClassName)}>
-          NutriCitra
+          <span className="text-primary">Nutri</span>Citra
         </h1>
-        {showSubtitle && (
-          <p className={cn(`truncate text-textSecondary font-medium`, styles.subtitle, subtitleClassName)}>
-            Nutrition AI
-          </p>
-        )}
       </div>
     </div>
   );

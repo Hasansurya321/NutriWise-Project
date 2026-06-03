@@ -132,7 +132,7 @@ export function StatsCard({
               "
             >
               <span>Progress</span>
-              <span className="font-bold text-textPrimary">{safeProgress}%</span>
+              <span className="font-bold text-textPrimary">{safeProgress.toFixed(1)}%</span>
             </div>
           </div>
 

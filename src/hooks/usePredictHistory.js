@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { predictAPI } from '../services/api';
 
 export function usePredictHistory() {
@@ -8,15 +8,16 @@ export function usePredictHistory() {
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [search, setSearch] = useState('');
 
-  const loadPredictLogs = useCallback(async (currentPage = 1, filter = 'all') => {
+  const loadPredictLogs = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await predictAPI.getPredictLogs(currentPage, 15, filter);
+      // Fetch up to 100 logs to allow robust client-side filtering
+      const response = await predictAPI.getPredictLogs(1, 100, 'all');
       const data = response?.data;
       setPredictLogs(data?.predictLogs || []);
-      setTotalPages(data?.pagination?.totalPages || 1);
     } catch (err) {
       console.error('Failed to load predict history:', err);
       setError('Gagal memuat riwayat prediksi');
@@ -26,14 +27,15 @@ export function usePredictHistory() {
   }, []);
 
   useEffect(() => {
+    loadPredictLogs();
+  }, [loadPredictLogs]);
+
+  useEffect(() => {
     setPage(1);
-    loadPredictLogs(1, activeFilter);
-  }, [activeFilter, loadPredictLogs]);
+  }, [activeFilter, search]);
 
   const handlePageChange = (newPage) => {
-    if (newPage < 1 || newPage > totalPages || newPage === page) return;
     setPage(newPage);
-    loadPredictLogs(newPage, activeFilter);
   };
 
   const handleFilterChange = (filter) => {
@@ -41,8 +43,44 @@ export function usePredictHistory() {
     setPage(1);
   };
 
+  const filteredLogs = useMemo(() => {
+    let result = predictLogs;
+
+    // 1. Apply time filter using local timezone
+    if (activeFilter !== 'all') {
+      const now = new Date();
+      if (activeFilter === 'today') {
+        const todayStr = now.toLocaleDateString('en-CA');
+        result = result.filter(m => new Date(m.createdAt).toLocaleDateString('en-CA') === todayStr);
+      } else if (activeFilter === 'week') {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(now.getDate() - 7);
+        result = result.filter(m => new Date(m.createdAt) >= oneWeekAgo);
+      } else if (activeFilter === 'month') {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        result = result.filter(m => new Date(m.createdAt) >= oneMonthAgo);
+      }
+    }
+
+    // 2. Apply search filter
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((m) => m.foodName?.toLowerCase().includes(q));
+    }
+
+    // 3. Client-side Pagination (15 items per page)
+    const totalItems = result.length;
+    const computedTotalPages = Math.ceil(totalItems / 15) || 1;
+    setTotalPages(computedTotalPages);
+
+    return result.slice((page - 1) * 15, page * 15);
+  }, [predictLogs, search, activeFilter, page]);
+
   return {
-    predictLogs,
+    search,
+    setSearch,
+    predictLogs: filteredLogs,
     isLoading,
     page,
     totalPages,

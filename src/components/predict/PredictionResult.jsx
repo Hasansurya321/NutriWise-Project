@@ -74,9 +74,11 @@ export default function PredictionResult({ predictionResult }) {
   const renderConfirmButton = () => {
     if (mealState === 'idle') {
       return (
-        <button onClick={handleConfirmMeal} className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors duration-200">
+        <>
+        {/* <button onClick={handleConfirmMeal} className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors duration-200">
           Ini Yang Saya Makan
-        </button>
+        </button> */}
+        </>
       );
     }
 

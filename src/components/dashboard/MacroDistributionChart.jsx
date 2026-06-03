@@ -12,7 +12,7 @@ export function MacroDistributionChart({ data = [] }) {
             sm:h-[260px]
           "
         >
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <PieChart>
               <Pie data={data} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90} paddingAngle={4} cornerRadius={8} stroke="rgba(255,255,255,.05)" strokeWidth={1}>
                 {data.map((entry) => (

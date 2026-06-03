@@ -12,6 +12,7 @@ export function UserProfile() {
   const name = currentUser?.fullname || currentUser?.fullName || 'User Name';
   const email = currentUser?.email || 'user@example.com';
   const initials = name.substring(0, 2).toUpperCase();
+  const avatarUrl = currentUser?.avatarUrl || "";
 
   return (
     <div className="relative" ref={ref}>
@@ -35,7 +36,18 @@ export function UserProfile() {
             font-semibold
           "
         >
-          {initials}
+          {
+            avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={name}
+                className="h-full w-full rounded-full object-cover"
+              />
+            ) : (
+              initials
+            )
+          }
+
         </div>
 
         <div className="hidden text-left sm:block">

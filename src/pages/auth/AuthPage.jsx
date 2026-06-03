@@ -9,7 +9,7 @@ export default function AuthPage() {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
   const [mode, setMode] = useState(initialMode);
-  
+
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -25,13 +25,14 @@ export default function AuthPage() {
       className="
         fixed inset-0
         h-screen w-screen
-        overflow-hidden
+        overflow-y-auto
       "
     >
       <div
         className="
-          absolute inset-0
+          fixed inset-0
           flex
+          pointer-events-none
         "
         aria-hidden="true"
       >
@@ -51,9 +52,9 @@ export default function AuthPage() {
       <div
         className="
           relative z-10
-          flex h-full w-full
+          flex min-h-full w-full
           items-center justify-center
-          px-6
+          px-6 py-10
         "
       >
         <AuthSplitLayout mode={mode} setMode={setMode} />

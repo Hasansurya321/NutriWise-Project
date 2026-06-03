@@ -38,16 +38,6 @@ export function MealItem({ name, calories, confidence, timestamp, image, iconNam
           <MealMetadata calories={calories} timestamp={timestamp} />
         </div>
       </div>
-
-      <Button
-        variant="ghost"
-        className="
-          w-full justify-center sm:w-auto sm:justify-start
-        "
-      >
-        View details
-        <ChevronRight className="h-4 w-4" />
-      </Button>
     </article>
   );
 }

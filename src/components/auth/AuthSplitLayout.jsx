@@ -75,7 +75,6 @@ export default function AuthSplitLayout({ mode, setMode }) {
               absolute left-0 top-0
               z-20
               h-full w-1/2
-              overflow-hidden
               bg-primary
               pointer-events-none
               transition-transform

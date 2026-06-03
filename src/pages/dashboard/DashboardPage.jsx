@@ -21,16 +21,7 @@ import { predictAPI, nutritionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useImagePredict } from '../../hooks/useImagePredict';
 
-const fadeUp = {
-  hidden: {
-    opacity: 0,
-    y: 12,
-  },
-  show: {
-    opacity: 1,
-    y: 0,
-  },
-};
+import { fadeUp } from '../../utils/animation.js';
 
 const macroSummary = {
   title: 'Distribusi Makronutrisi',
@@ -104,7 +95,11 @@ export default function DashboardPage() {
           return;
         }
 
-        const [dailySummaryRes, predictLogsRes] = await Promise.all([nutritionAPI.getNutritionDaily().catch(() => null), predictAPI.getPredictLogs(1, 5).catch(() => ({ data: { predictLogs: [] } }))]);
+        const [dailySummaryRes, weeklySummaryRes, predictLogsRes] = await Promise.all([
+          nutritionAPI.getNutritionDaily().catch(() => null),
+          nutritionAPI.getNutritionWeekly().catch(() => null),
+          predictAPI.getPredictLogs(1, 5).catch(() => ({ data: { predictLogs: [] } }))
+        ]);
 
         // Recent meals dari API predict
         const rawLogs = predictLogsRes?.data?.predictLogs || [];
@@ -126,8 +121,7 @@ export default function DashboardPage() {
         const consumedCarbs = dailyData.carbohydrateConsumed ?? dailyData.carbohydrate ?? 0;
         const consumedFats = dailyData.fatConsumed ?? dailyData.fat ?? 0;
 
-        // Gunakan ?? bukan || agar nilai 0 tetap dianggap valid
-        // Cari dari berbagai kemungkinan field name yang dikirim API
+        // Target nutrisi user hasil onboarding
         const targetCalories = user?.calorieTarget ?? user?.calorie_target ?? user?.nutritionGoals?.calories ?? 2000;
         const targetProtein = user?.proteinTarget ?? user?.protein_target ?? user?.nutritionGoals?.protein ?? 140;
         const targetCarbs = user?.carbohydrateTarget ?? user?.carbohydrate_target ?? user?.nutritionGoals?.carbs ?? 260;
@@ -174,17 +168,49 @@ export default function DashboardPage() {
           },
         ];
 
+        // 🟢 1. ISI DATA: MacroDistributionChart (Pie/Donut)
+        // Menyelaraskan key 'fill' dengan entry.color yang diminta oleh komponen Recharts-mu
+        const builtMacroData = [
+          { name: 'Protein', value: Math.round(consumedProtein), color: '#3b82f6' },
+          { name: 'Karbohidrat', value: Math.round(consumedCarbs), color: '#f97316' },
+          { name: 'Lemak', value: Math.round(consumedFats), color: '#eab308' },
+        ];
+
+        // 2. 🟢 ISI DATA: WeeklyTrendChart (Line Chart)
+        const weeklyRawData = weeklySummaryRes?.data?.nutrition || weeklySummaryRes?.data?.data?.chartData || [];
+
+        let builtWeeklyData = [];
+        if (weeklyRawData.length > 0) {
+          builtWeeklyData = weeklyRawData.map((item) => ({
+            day: item.dayName ? item.dayName.slice(0, 3) : '---',
+            calories: Math.round(item.calorie || 0),
+          }));
+        } else {
+          builtWeeklyData = [
+            { day: 'Sen', calories: 0 },
+            { day: 'Sel', calories: 0 },
+            { day: 'Rab', calories: 0 },
+            { day: 'Kam', calories: 0 },
+            { day: 'Jum', calories: 0 },
+            { day: 'Sab', calories: 0 },
+            { day: 'Min', calories: 0 },
+          ];
+        }
+
+        // Set semua state dashboard secara kolektif
         setStatsCards(builtStatsCards);
         setRecentMeals(flatMeals);
-        setMacroDistributionData([]);
-        setWeeklyCalorieTrendData([]);
+        setMacroDistributionData(builtMacroData);
+        setWeeklyCalorieTrendData(builtWeeklyData);
         setAiInsights([]);
         setHealthNotification(null);
-      } catch (error) {}
+      } catch (error) {
+        console.error("Gagal memuat visual analitik dashboard:", error);
+      }
     };
 
     loadDashboardData();
-  }, [user?.email]);
+  }, [user?.email, user?.calorieTarget]);
 
   return (
     <motion.div
@@ -197,7 +223,7 @@ export default function DashboardPage() {
     >
       <motion.div variants={fadeUp}>
         {isAuthenticated ? (
-          <DashboardHeader username={user?.user?.fullname || user?.fullname || 'Pengguna'} description="Ini adalah ringkasan nutrisimu hari ini. Pantau makanan, makronutrisi, dan dapatkan analisis AI dalam satu dashboard terpadu." />
+          <DashboardHeader username={user?.user?.fullname || user?.fullname || 'Pengguna'} description="Ini adalah ringkasan nutrisimu hari ini. Pantau makanan, makronutrisi, dan prediksi nutrisi dan kalori makanan dalam satu dashboard terpadu." />
         ) : (
           <DashboardHeader title="Masuk untuk melihat dashboard" description="Sesi dashboard kamu belum aktif. Silakan masuk terlebih dahulu untuk memuat data nutrisimu." />
         )}
@@ -206,7 +232,7 @@ export default function DashboardPage() {
       <motion.section
         variants={fadeUp}
         className="
-          grid grid-cols-1 gap-4
+          grid grid-cols-2 gap-4
           sm:grid-cols-2 sm:gap-6
           xl:grid-cols-4
         "
@@ -219,40 +245,16 @@ export default function DashboardPage() {
       <motion.section
         variants={fadeUp}
         className="
-          grid gap-6
-          lg:grid-cols-1
-          xl:grid-cols-12
-        "
+            grid gap-6
+            xl:grid-cols-2
+          "
       >
-        {isAuthenticated ? (
-          <div className="xl:col-span-8">
-            <div className="grid grid-cols-1">
-              <UploadSection {...predictHook} />
-              {predictionResult && <PredictionResult predictionResult={predictionResult} />}
-            </div>
-          </div>
-        ) : (
-          <div className="xl:col-span-8">
-            <AuthRequiredPanel />
-          </div>
-        )}
-
-        <div className="xl:col-span-4">
-          <AiPanel aiInsights={aiInsights} healthNotification={healthNotification} />
-        </div>
-      </motion.section>
-
-      <motion.section
-        variants={fadeUp}
-        className="
-          grid gap-6
-          xl:grid-cols-2
-        "
-      >
+        {/* Render Line Chart Tren Kalori Mingguan */}
         <ChartCard title={weeklyTrendSummary.title} description={weeklyTrendSummary.subtitle}>
           <WeeklyTrendChart data={weeklyCalorieTrendData} />
         </ChartCard>
 
+        {/* Render Donut/Pie Chart Distribusi Gizi */}
         <ChartCard title={macroSummary.title} description={macroSummary.subtitle}>
           <MacroDistributionChart data={macroDistributionData} />
         </ChartCard>
@@ -262,11 +264,28 @@ export default function DashboardPage() {
         variants={fadeUp}
         className="
           grid gap-6
-          xl:grid-cols-2
+          xl:grid-cols-3
         "
       >
-        <RecentMealsSection meals={recentMeals} />
+        {isAuthenticated ? (
+          <div className="xl:col-span-2">
+            <div className="grid grid-cols-1 h-full">
+              <UploadSection {...predictHook} />
+              {predictionResult && <PredictionResult predictionResult={predictionResult} />}
+            </div>
+          </div>
+        ) : (
+          <div className="xl:col-span-2">
+            <AuthRequiredPanel />
+          </div>
+        )}
+
+        <div className="xl:col-span-1 md:col-span-1">
+          <RecentMealsSection meals={recentMeals} />
+        </div>
       </motion.section>
+
+      {/* GRAPH CHART SECTION */}
     </motion.div>
   );
 }

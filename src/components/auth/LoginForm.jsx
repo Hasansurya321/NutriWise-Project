@@ -47,7 +47,7 @@ export default function LoginForm({ onSwitchToRegister }) {
     } 
   }
 
-  return (
+  return ( 
     <form onSubmit={handleSubmit} className="mt-10 space-y-6">
       {error && (
         <div

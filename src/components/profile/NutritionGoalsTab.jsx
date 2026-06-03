@@ -1,4 +1,4 @@
-import MacroDistribution from './MacroDistribution';
+// import MacroDistribution from './MacroDistribution';
 import ProfileField from './ProfileField';
 
 export default function NutritionGoalsTab({ data, isEditing, onFieldChange }) {
@@ -19,7 +19,7 @@ export default function NutritionGoalsTab({ data, isEditing, onFieldChange }) {
         <ProfileField label="Fats Target (g)" type="number" value={data.fats} isEditing={isEditing} onChange={(value) => handleNumericChange('fats', value)} />
       </div>
 
-      <MacroDistribution macros={data.macroDistribution} />
+      {/* <MacroDistribution macros={data.macroDistribution} /> */}
     </div>
   );
 }

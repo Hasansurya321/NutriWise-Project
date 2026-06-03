@@ -18,9 +18,9 @@ import {
   Sandwich,
   Soup,
   Sparkles,
-  User,
   Wheat,
   Scan,
+  UtensilsCrossed
 } from 'lucide-react';
 
 export const iconMap = {
@@ -43,9 +43,9 @@ export const iconMap = {
   Sandwich,
   Soup,
   Sparkles,
-  User,
   Wheat,
   Scan,
+  UtensilsCrossed,
 };
 
 export function getIconByName(iconName, fallbackName = null) {
@@ -59,3 +59,4 @@ export function getIconByName(iconName, fallbackName = null) {
 
   return null;
 }
+

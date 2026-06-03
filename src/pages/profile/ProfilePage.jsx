@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { userAPI } from '../../services/api';
 
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileSummaryCard from '../../components/profile/ProfileSummaryCard';
@@ -11,8 +12,15 @@ import NutritionGoalsTab from '../../components/profile/NutritionGoalsTab';
 import { useProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../context/AuthContext';
 
+import { motion } from 'framer-motion';
+import { fadeUp } from '../../utils/animation.js';
+
 function validateProfile(data) {
   const errors = {};
+
+  if (!data.fullName || data.fullName.trim() === '') {
+    errors.fullName = 'Nama lengkap tidak boleh kosong';
+  }
 
   if (data.age !== undefined && data.age !== '' && data.age !== null && Number(data.age) <= 0) {
     errors.age = 'Umur harus lebih dari 0';
@@ -39,6 +47,7 @@ function extractProfileData(user) {
       email: user.email || '',
       age: user.age ?? '',
       gender: user.gender || '',
+      avatarUrl: user.avatarUrl || '',
       initials: (user.fullname || user.fullName || 'UN').substring(0, 2).toUpperCase(),
       memberSince: user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : String(new Date().getFullYear()),
       totalScans: user.totalScans ?? 0,
@@ -69,6 +78,7 @@ export default function ProfilePage() {
   const [errors, setErrors] = useState({});
 
   const savedProfile = useMemo(() => extractProfileData(user), [user]);
+  const userId = user?.userId || user?.id;
 
   if (!savedProfile) {
     return <div className="py-8 text-center text-textSecondary">Memuat profil...</div>;
@@ -92,6 +102,7 @@ export default function ProfilePage() {
     const data = draftProfile || savedProfile;
 
     const validationErrors = validateProfile({
+      fullName: data.profile.fullName,
       age: data.profile.age,
       gender: data.profile.gender,
       height: data.healthData.height,
@@ -121,9 +132,27 @@ export default function ProfilePage() {
       fatTarget: safeNumber(data.nutritionGoals.fats),
     };
 
+    let allSuccess = true;
+
+    const originalFullName = savedProfile.profile.fullName;
+    const newFullName = data.profile.fullName;
+
+    if (newFullName !== originalFullName && newFullName.trim() !== '') {
+      try {
+        await userAPI.updateFullname(userId, newFullName);
+      } catch (e) {
+        setErrors((prev) => ({ ...prev, fullName: 'Gagal menyimpan nama lengkap' }));
+        allSuccess = false;
+      }
+    }
+
     const result = await updateProfile(payload);
-    if (result.success) {
-      await fetchProfile(); // refetch from DB to ensure state is synced
+    if (!result.success) {
+      allSuccess = false;
+    }
+
+    if (allSuccess) {
+      await fetchProfile();
       setIsEditing(false);
       setDraftProfile(null);
     }
@@ -147,36 +176,59 @@ export default function ProfilePage() {
   }
 
   return (
-    <div>
+    <motion.div
+      initial="hidden"
+      animate="show"
+      transition={{
+        staggerChildren: 0.06,
+      }}
+    >
       <div className="mx-auto max-w-7xl space-y-8">
-        <ProfileHeader isEditing={isEditing} onEdit={handleEdit} onSave={handleSave} onCancel={handleCancel} />
-
-        {profileError && <div className="rounded-2xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger">{profileError}</div>}
+        <motion.div variants={fadeUp}>
+          <ProfileHeader isEditing={isEditing} onEdit={handleEdit} onSave={handleSave} onCancel={handleCancel} />
+        </motion.div>
+        {profileError && (
+          <motion.div variants={fadeUp}>
+            <div className="rounded-2xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger">{profileError}</div>
+          </motion.div>
+        )}
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_1fr]">
-          <ProfileSummaryCard profile={displayProfile.profile} />
-
+          <motion.div variants={fadeUp}>
+            <ProfileSummaryCard
+              profile={displayProfile.profile}
+              userId={userId}
+              onAvatarSuccess={async () => {
+                await fetchProfile();
+              }}
+              onFullnameSuccess={async (newName) => {
+                await fetchProfile();
+              }}
+            />
+          </motion.div>
           <div className="rounded-3xl border border-borderPrimary bg-card p-6">
-            <div>
+            <motion.div variants={fadeUp}>
               <h2 className="text-2xl font-semibold text-textPrimary">Profile Details</h2>
               <p className="mt-2 text-textSecondary">Your personal information and health settings</p>
               <p className="mt-2 text-sm text-textMuted">Identity information is system-controlled and locked to maintain account consistency.</p>
-            </div>
+            </motion.div>
 
-            <div className="mt-8">
+            <motion.div variants={fadeUp} className="mt-8">
               <ProfileTabs activeTab={activeTab} onChange={setActiveTab} />
-            </div>
+            </motion.div>
 
             <div className="mt-8">
-              {activeTab === 'Personal Info' && <PersonalInfoTab data={displayProfile.profile} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('profile', field, value)} errors={errors} />}
+              <motion.div variants={fadeUp}>
+                {activeTab === 'Personal Info' && <PersonalInfoTab data={displayProfile.profile} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('profile', field, value)} errors={errors} />}
 
-              {activeTab === 'Health Data' && <HealthDataTab data={displayProfile.healthData} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('healthData', field, value)} />}
+                {activeTab === 'Health Data' && <HealthDataTab data={displayProfile.healthData} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('healthData', field, value)} />}
 
-              {activeTab === 'Nutrition Goals' && <NutritionGoalsTab data={displayProfile.nutritionGoals} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('nutritionGoals', field, value)} />}
+                {activeTab === 'Nutrition Goals' && <NutritionGoalsTab data={displayProfile.nutritionGoals} isEditing={isEditing} onFieldChange={(field, value) => updateSectionField('nutritionGoals', field, value)} />}
+              </motion.div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

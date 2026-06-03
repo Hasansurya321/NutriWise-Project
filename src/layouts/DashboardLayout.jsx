@@ -5,6 +5,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from '../components/navbar/Navbar';
 import { Sidebar } from '../components/sidebar/Sidebar';
 import { MobileNav } from '../components/navbar/MobileNav';
+import { DashboardFooter } from '../components/layout/DashboardFooter';
 import { cn } from '../utils/cn';
 
 import { useAuth } from '../context/AuthContext';
@@ -61,7 +62,7 @@ export default function DashboardLayout() {
             flex-1 overflow-x-hidden
             px-4 pb-24 pt-4
             sm:px-6 sm:pb-24 sm:pt-6
-            lg:pb-8
+            lg:pb-6
             xl:px-8
           "
         >
@@ -74,6 +75,8 @@ export default function DashboardLayout() {
             <Outlet />
           </div>
         </main>
+
+        <DashboardFooter />
       </div>
 
       <MobileNav />

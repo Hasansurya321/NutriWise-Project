@@ -131,9 +131,12 @@ body {
 
 
 .no-scrollbar {
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+
+  /* Firefox */
   &::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+    display: none;
+    /* Safari and Chrome */
   }
 }
 
@@ -176,4 +179,74 @@ html.theme-switching *::after {
   100% {
     transform: translateX(0);
   }
+}
+
+/* ── FullCalendar theme overrides ── */
+.fc-toolbar-title {
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.01em;
+}
+
+.fc-col-header-cell-cushion {
+  padding: 0.5rem 0.25rem !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none !important;
+}
+
+.fc-daygrid-day-number {
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: var(--text-secondary) !important;
+  text-decoration: none !important;
+  padding: 0.375rem !important;
+}
+
+.fc-day-today {
+  background: rgba(93, 219, 138, 0.04) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background: var(--primary);
+  color: #fff !important;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: 0.25rem;
+  padding: 0 !important;
+}
+
+.fc-day-selected {
+  background: rgba(93, 219, 138, 0.1) !important;
+}
+
+.fc-daygrid-day:hover {
+  background: var(--surface-2) !important;
+  cursor: pointer;
+}
+
+.fc-scrollgrid,
+.fc-scrollgrid-section>*,
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: var(--border-primary) !important;
+}
+
+.fc-daygrid-event,
+.fc-event {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.fc-event-main {
+  color: inherit !important;
 }

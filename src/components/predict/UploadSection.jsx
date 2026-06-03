@@ -117,7 +117,7 @@ export function UploadSection({
     <Card className="h-full relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-400"></div>
       <CardHeader>
-        <CardTitle>Pemindai Makanan Cepat</CardTitle>
+        <CardTitle>Pemindai Makanan</CardTitle>
         <CardDescription>Unggah atau ambil foto makananmu untuk mendeteksi kalori, protein, karbohidrat, dan lemak secara otomatis dengan AI.</CardDescription>
       </CardHeader>
 
@@ -406,7 +406,7 @@ export function UploadSection({
               </div>
             </div>
           ) : (
-            <div className="w-full max-w-xl space-y-5">
+            <div className="w-full flex flex-col items-center justify-center max-w-xl space-y-5">
               <div
                 className="
                   flex h-16 w-16 items-center

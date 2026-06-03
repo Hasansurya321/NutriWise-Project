@@ -60,7 +60,7 @@ export function CameraSection({
                 ref={webcamRef}
                 screenshotFormat="image/jpeg"
                 videoConstraints={{ facingMode: "environment" }}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover aspect-square"
               />
             )}
 
@@ -112,7 +112,7 @@ export function CameraSection({
                 <div className="flex flex-wrap justify-center gap-3 w-full">
                   <Button
                     onClick={handleScan}
-                    variant="primary"
+                    variant="default"
                     disabled={!file || showBusy || status === 'success'}
                     className="w-full sm:w-auto flex-1"
                   >

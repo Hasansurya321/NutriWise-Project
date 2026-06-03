@@ -102,7 +102,7 @@ export const profileAPI = {
   updateProfile: (data) => axiosInstance.put('/profiles', data),
 
   // get akg references
-  getAKGReferences: (age,gender, pregnancyTrimester, breastfeedingStage) => axiosInstance.get(`/profiles/default-akg?age=${age}&gender=${gender}&pregnancyTrimester=${pregnancyTrimester}&breastfeedingStage=${breastfeedingStage}`),
+  getAKGReferences: (age, gender, pregnancyTrimester, breastfeedingStage) => axiosInstance.get(`/profiles/default-akg?age=${age}&gender=${gender}&pregnancyTrimester=${pregnancyTrimester}&breastfeedingStage=${breastfeedingStage}`),
 };
 
 export const predictAPI = {
@@ -137,6 +137,19 @@ export const mealAPI = {
 
 export const nutritionAPI = {
   getNutritionDaily: () => axiosInstance.get('/nutrition/daily-summary'),
+  getNutritionWeekly: () => axiosInstance.get('/nutrition/weekly-summary'),
+};
+
+export const userAPI = {
+  // Update fullname only (PUT /users/fullname)
+  updateFullname: (userId, fullname) =>
+    axiosInstance.put('/users/fullname', { fullname }),
+
+  // Update avatar photo (PUT /users/avatar, multipart/form-data)
+  updateAvatar: (formData) =>
+    axiosInstance.put('/users/avatar', formData, {
+      headers: { 'Content-Type': undefined },
+    }),
 };
 
 export default axiosInstance;
