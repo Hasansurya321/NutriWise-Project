@@ -56,16 +56,16 @@ function MealCard({ meal, onEdit, onDelete, onView }) {
           <p className="mt-1 text-[0.9375rem] font-semibold text-textPrimary truncate">{meal.foodName}</p>
           <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
             {meal.portion && Number(meal.portion) !== 1 && (
-              <p className="text-[0.75rem] text-textMuted">{meal.portion} porsi</p>
+              <p className="text-[0.75rem] text-textMuted">{meal.portion}</p>
             )}
-            {(n.servingDescription || n.servingSizeG) ? (
+            {(meal.nutrition.servingDescription || meal.nutrition.servingSizeG) ? (
               <>
-                {meal.portion && Number(meal.portion) !== 1 && (
-                  <span className="text-textMuted text-[0.75rem]">•</span>
+                {meal.portion && Number(meal.portion) > 1 && (
+                  <span className="text-textMuted text-[0.75rem]">x</span>
                 )}
                 <p className="text-[0.75rem] text-textSecondary">
-                  {n.servingDescription || '-'}
-                  {n.servingSizeG ? ` (${n.servingSizeG}g)` : ''}
+                  {meal.nutrition.servingDescription || '-'}
+                  {(meal.nutrition.servingSizeG) ? ` (${meal.nutrition.servingSizeG}g)` : ''}
                 </p>
               </>
             ) : (

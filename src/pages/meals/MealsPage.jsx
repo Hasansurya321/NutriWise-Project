@@ -96,7 +96,7 @@ export default function MealsPage() {
             )}
           </div>
 
-          <div id="meals-day-panel" className="xl:relative flex flex-col rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden min-h-[420px] xl:min-h-0">
+          <div id="meals-day-panel" className="xl:relative flex flex-col rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden min-h-[600x] xl:min-h-0">
             <div className="xl:absolute xl:inset-0 w-full h-full flex flex-col">
               <MealsDayPanel
                 date={selectedDate}

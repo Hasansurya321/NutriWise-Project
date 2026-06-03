@@ -39,7 +39,7 @@ function NutrientRow({ icon: Icon, label, value, unit, color }) {
 export function MealDetailsModal({ meal, open, onClose }) {
   if (!meal) return null;
 
-  const n = meal.totalNutrition || meal.nutrition || {};
+  const n = meal.nutrition || meal.totalNutrition || {};
   const label = meal.mealType ? (MEAL_TYPE_LABELS[meal.mealType] || meal.mealType) : 'Scan AI';
   const badgeClass = meal.mealType ? (MEAL_TYPE_STYLES[meal.mealType] || MEAL_TYPE_STYLES.SNACK) : 'bg-blue-500/10 text-blue-600 border border-blue-500/25';
   const time = new Date(meal.createdAt).toLocaleString('id-ID', {
