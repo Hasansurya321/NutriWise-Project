@@ -105,6 +105,7 @@ export default function MealsCalendar({ events, onDateClick, selectedDate }) {
         headerToolbar={{ left: 'title', center: '', right: '' }}
         dayMaxEvents={1}
         fixedWeekCount={false}
+        height={"auto"}
         dayCellClassNames={handleDayCellClassNames}
       />
     </div>

@@ -15,6 +15,28 @@ export default function MealRecommendations({ data, isLoading }) {
   if (!data) return null;
 
   const { dataAnalysis, fruitRecommendations } = data.meals || data;
+
+  if (dataAnalysis?.remainingUserQuota <= 0) {
+    return (
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        className="bg-success/5 rounded-3xl border border-success/20 p-6 sm:p-8 lg:p-10 shadow-sm flex flex-col items-center justify-center text-center gap-4 mt-6"
+      >
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/20 text-success">
+          <Target size={32} />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-success mb-2">Target Kalori Terpenuhi!</h2>
+          <p className="text-sm text-textSecondary max-w-md mx-auto">
+            Selamat! Asupan kalori kamu sudah memenuhi batas harian. Tetap jaga pola makan, jangan kurang dan juga jangan berlebihan, serta pastikan kebutuhan makronutrisi lainnya juga seimbang ya!
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   if (!fruitRecommendations || fruitRecommendations.length === 0) return null;
 
   return (
