@@ -34,6 +34,7 @@ export default function HistoryPage() {
   const [editMeal, setEditMeal] = useState(null);
   const [deleteMealTarget, setDeleteMealTarget] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addFromPredict, setAddFromPredict] = useState(null);
 
   const mealHistory = useMealHistory();
   const predictHistory = usePredictHistory();
@@ -60,6 +61,7 @@ export default function HistoryPage() {
 
   const handleCRUDSuccess = () => {
     mealHistory.reload();
+    handleCategoryChange('meal');
   };
 
   const renderEmptyState = () => (
@@ -137,9 +139,7 @@ export default function HistoryPage() {
           <button
             onClick={() => {
               // Open Add Meal Modal with prefilled predict data
-              setAddModalOpen(true);
-              // Wait, we can't easily prefill AddModalOpen right now without a state.
-              // I will leave it as opening the Add Modal for now, or just indicate action.
+              setAddFromPredict(log);
             }}
             className="w-full flex items-center justify-center gap-1.5 rounded-2xl bg-primary/10 text-primary px-4 py-2.5 text-sm font-semibold transition-all hover:bg-primary hover:text-white"
           >
@@ -255,6 +255,13 @@ export default function HistoryPage() {
       <MealFormModal
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}
+        onSuccess={handleCRUDSuccess}
+      />
+
+      <MealFormModal
+        open={Boolean(addFromPredict)}
+        initialData={addFromPredict}
+        onClose={() => setAddFromPredict(null)}
         onSuccess={handleCRUDSuccess}
       />
 

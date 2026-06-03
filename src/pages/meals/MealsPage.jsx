@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '../../utils/animation';
 import MealsCalendar from '../../components/meals/MealsCalendar';
 import MealsDayPanel from '../../components/meals/MealsDayPanel';
 import { MealFormModal } from '../../components/meals/MealFormModal';
@@ -40,7 +42,13 @@ export default function MealsPage() {
   return (
     <div className="flex flex-col gap-8">
       {/* Page header */}
-      <header className="flex items-start justify-between gap-4">
+      <motion.header 
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        transition={{ duration: 0.4 }}
+        className="flex items-start justify-between gap-4"
+      >
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-textPrimary">Jurnal Makan</h1>
           <p className="mt-1.5 text-sm text-textSecondary">
@@ -53,7 +61,7 @@ export default function MealsPage() {
         >
           <Plus size={16} /> Tambah Meal
         </button>
-      </header>
+      </motion.header>
 
       {/* Error */}
       {error && (
@@ -62,7 +70,13 @@ export default function MealsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 items-start xl:grid-cols-[1fr_380px]">
+      <motion.div 
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="grid grid-cols-1 gap-6 items-start xl:grid-cols-[1fr_380px]"
+      >
         {/* Calendar column */}
         <div className="rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden">
           {isLoading ? (
@@ -80,7 +94,7 @@ export default function MealsPage() {
         </div>
 
         {/* Detail panel column */}
-        <div className="rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden min-h-[420px] flex flex-col">
+        <div className="rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden min-h-[420px] flex flex-col xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)]">
           <MealsDayPanel
             date={selectedDate}
             meals={selectedMeals}
@@ -90,7 +104,7 @@ export default function MealsPage() {
             onDelete={(meal) => setDeleteMealTarget(meal)}
           />
         </div>
-      </div>
+      </motion.div>
 
       {/* CRUD Modals */}
       <MealFormModal

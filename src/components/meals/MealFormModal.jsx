@@ -42,7 +42,7 @@ function NumInput({ id, value, onChange, placeholder }) {
       id={id}
       type="number"
       min="0"
-      step="0.1"
+      step="any"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
@@ -61,7 +61,7 @@ const DEFAULT_FORM = {
   fat: '',
 };
 
-export function MealFormModal({ open, onClose, onSuccess, editMeal = null }) {
+export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initialData = null }) {
   const isEdit = Boolean(editMeal);
   const [tab, setTab] = useState('manual');
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -76,24 +76,41 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null }) {
   useEffect(() => {
     if (open && editMeal) {
       const n = editMeal.nutrition || {};
+      const tn = editMeal.totalNutrition || n;
       setForm({
         foodName: editMeal.foodName || '',
         mealType: editMeal.mealType || 'BREAKFAST',
         portion: String(editMeal.portion ?? 1),
-        calorie: String(n.calorie ?? ''),
-        protein: String(n.protein ?? ''),
-        carbohydrate: String(n.carbohydrate ?? ''),
-        fat: String(n.fat ?? ''),
+        calorie: String(Math.round(tn.calorie ?? n.calorie ?? 0)),
+        protein: String(Number(tn.protein ?? n.protein ?? 0).toFixed(2)),
+        carbohydrate: String(Number(tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
+        fat: String(Number(tn.fat ?? n.fat ?? 0).toFixed(2)),
       });
       setTab('manual');
-    } else if (open && !editMeal) {
+    } else if (open && initialData) {
+      const n = initialData.nutrition || {};
+      const tn = initialData.totalNutrition || n;
+      setForm({
+        foodName: initialData.foodName?.replace(/_/g, ' ') || '',
+        mealType: 'BREAKFAST', // default
+        portion: String(initialData.portion ?? 1),
+        calorie: String(Math.round(tn.calorie ?? n.calorie ?? 0)),
+        protein: String(Number(tn.protein ?? n.protein ?? 0).toFixed(2)),
+        carbohydrate: String(Number(tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
+        fat: String(Number(tn.fat ?? n.fat ?? 0).toFixed(2)),
+      });
+      setTab('manual');
+      setImageFile(null);
+      setPredictionUsed(false);
+      predict.handleReset();
+    } else if (open && !editMeal && !initialData) {
       setForm(DEFAULT_FORM);
       setImageFile(null);
       setSubmitError('');
       setPredictionUsed(false);
       predict.handleReset();
     }
-  }, [open, editMeal]);
+  }, [open, editMeal, initialData]);
 
   // When prediction result arrives → auto-fill manual form
   useEffect(() => {
@@ -145,7 +162,12 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null }) {
       fd.append('carbohydrate', form.carbohydrate || '0');
       fd.append('fat', form.fat || '0');
 
-      // Attach image if present
+      // Attach predictLogId if we are prefilling from a predict log
+      if (!isEdit && initialData?.id) {
+        fd.append('predictLogId', initialData.id);
+      }
+
+      // Attach image if present (manual upload or camera override)
       const fileToUpload = imageFile || predict.file;
       if (fileToUpload) {
         fd.append('image', fileToUpload);
@@ -314,7 +336,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null }) {
                     <div className="relative">
                       <Flame size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" />
                       <input
-                        type="number" min="0" step="0.1"
+                        type="number" min="0" step="any"
                         value={form.calorie}
                         onChange={(e) => setField('calorie')(e.target.value)}
                         placeholder="0"
@@ -326,7 +348,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null }) {
                     <div className="relative">
                       <Beef size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500" />
                       <input
-                        type="number" min="0" step="0.1"
+                        type="number" min="0" step="any"
                         value={form.protein}
                         onChange={(e) => setField('protein')(e.target.value)}
                         placeholder="0"
@@ -338,7 +360,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null }) {
                     <div className="relative">
                       <Wheat size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" />
                       <input
-                        type="number" min="0" step="0.1"
+                        type="number" min="0" step="any"
                         value={form.carbohydrate}
                         onChange={(e) => setField('carbohydrate')(e.target.value)}
                         placeholder="0"
@@ -350,7 +372,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null }) {
                     <div className="relative">
                       <Droplets size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500" />
                       <input
-                        type="number" min="0" step="0.1"
+                        type="number" min="0" step="any"
                         value={form.fat}
                         onChange={(e) => setField('fat')(e.target.value)}
                         placeholder="0"

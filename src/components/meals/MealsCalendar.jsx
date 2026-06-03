@@ -74,7 +74,7 @@ export default function MealsCalendar({ events, onDateClick, selectedDate }) {
         headerToolbar={{ left: 'title', center: '', right: '' }}
         dayMaxEvents={1}
         fixedWeekCount={false}
-        height="auto"
+        aspectRatio={1.15}
         dayCellClassNames={(arg) => {
           // Use local date parts to avoid UTC timezone shift
           const d = arg.date;
