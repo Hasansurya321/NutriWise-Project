@@ -1,19 +1,15 @@
 import { useState } from 'react';
 import { Activity, Flame, Beef, Wheat, Droplets, CheckCircle2, AlertCircle } from 'lucide-react';
-import { cn } from '../../utils/cn';
 import { mealAPI } from '../../services/api';
 
-export default function PredictionResult({ predictionResult }) {
+export default function PredictionResult({ predictionResult, onAdd }) {
   const [mealState, setMealState] = useState('idle'); // idle | submitting | confirmed | error
 
   if (!predictionResult) return null;
 
-  // Handle nested or direct data structures gracefully
-  // Backend response.js wraps data in { status, message, data: { predictLogId, predict } }
-  // Axios interceptor extracts response.data, so we get { status, message, data: { ... } }
   const responseData = predictionResult.data || predictionResult;
-  const predictLogId = responseData.predictLogId;
   const data = responseData.predict || responseData;
+  const predictLogId = responseData.predictLogId || data?.id || data?.predictLogId;
 
   const { foodName, confidence, totalNutrition, nutrition, portion } = data || {};
 
@@ -66,11 +62,12 @@ export default function PredictionResult({ predictionResult }) {
   const renderConfirmButton = () => {
     if (mealState === 'idle') {
       return (
-        <>
-          {/* <button onClick={handleConfirmMeal} className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors duration-200">
-          Ini Yang Saya Makan
-        </button> */}
-        </>
+        <button
+          onClick={() => onAdd && onAdd(data)}
+          className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+        >
+          Tambahkan ke Jurnal Makan
+        </button>
       );
     }
 
@@ -233,7 +230,6 @@ export default function PredictionResult({ predictionResult }) {
           </div>
         </div>
 
-        {/* Confirm Button - always rendered */}
         <div className="flex justify-center mt-8">{renderConfirmButton()}</div>
       </div>
     </div>

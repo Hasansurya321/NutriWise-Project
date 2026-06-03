@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UploadSection } from '../../components/predict/UploadSection';
 import { CameraSection } from '../../components/predict/CameraSection';
@@ -9,10 +10,13 @@ import { Camera, UploadCloud } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { fadeUp } from '../../utils/animation.js';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { MealFormModal } from '../../components/meals/MealFormModal';
 
 export default function PredictPage() {
   useDocumentTitle('Scan AI');
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('upload');
+  const [addFromPredict, setAddFromPredict] = useState(null);
 
   const predictHook = useImagePredict();
   const { predictionResult } = predictHook;
@@ -68,8 +72,21 @@ export default function PredictPage() {
       </motion.div>
 
       {predictionResult && (
-        <PredictionResult predictionResult={predictionResult} />
+        <PredictionResult 
+          predictionResult={predictionResult} 
+          onAdd={(data) => setAddFromPredict(data)} 
+        />
       )}
+
+      <MealFormModal
+        open={Boolean(addFromPredict)}
+        initialData={addFromPredict}
+        onClose={() => setAddFromPredict(null)}
+        onSuccess={() => {
+          setAddFromPredict(null);
+          navigate('/meals');
+        }}
+      />
     </motion.div>
   );
 }
