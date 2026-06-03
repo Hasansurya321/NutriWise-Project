@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { predictAPI } from '../services/api';
+import { useDebounce } from './useDebounce';
 
 export function usePredictHistory() {
   const [predictLogs, setPredictLogs] = useState([]);
@@ -9,6 +10,7 @@ export function usePredictHistory() {
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
 
   const loadPredictLogs = useCallback(async () => {
     try {
@@ -32,7 +34,7 @@ export function usePredictHistory() {
 
   useEffect(() => {
     setPage(1);
-  }, [activeFilter, search]);
+  }, [activeFilter, debouncedSearch]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -64,8 +66,8 @@ export function usePredictHistory() {
     }
 
     // 2. Apply search filter
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
       result = result.filter((m) => m.foodName?.toLowerCase().includes(q));
     }
 
@@ -75,7 +77,7 @@ export function usePredictHistory() {
     setTotalPages(computedTotalPages);
 
     return result.slice((page - 1) * 15, page * 15);
-  }, [predictLogs, search, activeFilter, page]);
+  }, [predictLogs, debouncedSearch, activeFilter, page]);
 
   return {
     search,
