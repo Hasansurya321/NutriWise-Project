@@ -19,11 +19,7 @@ const MEAL_TYPES = [
   { value: 'SNACK', label: 'Camilan' },
 ];
 
-const TABS = [
-  { id: 'manual', label: 'Manual', icon: Pencil },
-  { id: 'upload', label: 'Upload Foto', icon: Upload },
-  { id: 'camera', label: 'Kamera', icon: Camera },
-];
+
 
 function Field({ label, children, required }) {
   return (
@@ -65,7 +61,7 @@ const DEFAULT_FORM = {
 
 export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initialData = null }) {
   const isEdit = Boolean(editMeal);
-  const [tab, setTab] = useState('manual');
+  const [tab, setTab] = useState('upload');
   const [form, setForm] = useState(DEFAULT_FORM);
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,18 +70,24 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
   const predict = useImagePredict();
 
+  const availableTabs = [
+    { id: 'upload', label: 'Upload Foto', icon: Upload },
+    { id: 'camera', label: 'Kamera', icon: Camera },
+    ...((predictionUsed || initialData) ? [{ id: 'manual', label: 'Preview Data', icon: Pencil }] : []),
+  ];
+
+  // EFFECT 1: Sinkronisasi data awal saat modal dibuka/ganti props
   useEffect(() => {
     if (open && editMeal) {
       const n = editMeal.nutrition || {};
-      const tn = editMeal.totalNutrition || n;
       setForm({
         foodName: editMeal.foodName || '',
         mealType: editMeal.mealType || 'BREAKFAST',
         portion: String(editMeal.portion ?? 1),
-        calorie: String(Math.round(tn.calorie ?? n.calorie ?? 0)),
-        protein: String(Number(tn.protein ?? n.protein ?? 0).toFixed(2)),
-        carbohydrate: String(Number(tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
-        fat: String(Number(tn.fat ?? n.fat ?? 0).toFixed(2)),
+        calorie: String(Math.round(n.calorie ?? 0)),
+        protein: String(Number(n.protein ?? 0).toFixed(2)),
+        carbohydrate: String(Number(n.carbohydrate ?? 0).toFixed(2)),
+        fat: String(Number(n.fat ?? 0).toFixed(2)),
         servingSizeG: String(n.servingSizeG ?? ''),
         servingDescription: n.servingDescription || '',
       });
@@ -93,15 +95,14 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
       setImageFile(editMeal.imageUrl || null);
     } else if (open && initialData) {
       const n = initialData.nutrition || {};
-      const tn = initialData.totalNutrition || n;
       setForm({
         foodName: initialData.foodName?.replace(/_/g, ' ') || '',
-        mealType: 'BREAKFAST', // default
+        mealType: 'BREAKFAST',
         portion: String(initialData.portion ?? 1),
-        calorie: String(Math.round(tn.calorie ?? n.calorie ?? 0)),
-        protein: String(Number(tn.protein ?? n.protein ?? 0).toFixed(2)),
-        carbohydrate: String(Number(tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
-        fat: String(Number(tn.fat ?? n.fat ?? 0).toFixed(2)),
+        calorie: String(Math.round(n.calorie ?? 0)),
+        protein: String(Number(n.protein ?? 0).toFixed(2)),
+        carbohydrate: String(Number(n.carbohydrate ?? 0).toFixed(2)),
+        fat: String(Number(n.fat ?? 0).toFixed(2)),
         servingSizeG: String(n.servingSizeG ?? ''),
         servingDescription: n.servingDescription || '',
       });
@@ -115,30 +116,34 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
       setSubmitError('');
       setPredictionUsed(false);
       predict.handleReset();
+      setTab('upload');
     }
   }, [open, editMeal, initialData]);
 
+  // EFFECT 2: Auto-fill form ketika hasil prediksi AI berhasil didapatkan
   useEffect(() => {
+    // Jika tidak ada hasil baru, atau data prediksi sudah pernah dimasukkan, hentikan!
     if (!predict.predictionResult || predictionUsed) return;
+
     const d = predict.predictionResult?.predict || predict.predictionResult;
     if (!d?.foodName) return;
 
     const n = d.nutrition || {};
-    const tn = d.totalNutrition || n;
 
     setForm((prev) => ({
       ...prev,
       foodName: d.foodName?.replace(/_/g, ' ') || prev.foodName,
       portion: String(d.portion ?? 1),
-      calorie: String(Math.round(tn.calorie ?? n.calorie ?? 0)),
-      protein: String((tn.protein ?? n.protein ?? 0).toFixed(2)),
-      carbohydrate: String((tn.carbohydrate ?? n.carbohydrate ?? 0).toFixed(2)),
-      fat: String((tn.fat ?? n.fat ?? 0).toFixed(2)),
+      calorie: String(Math.round(n.calorie ?? 0)),
+      protein: String((n.protein ?? 0).toFixed(2)),
+      carbohydrate: String((n.carbohydrate ?? 0).toFixed(2)),
+      fat: String((n.fat ?? 0).toFixed(2)),
       servingSizeG: String(n.servingSizeG ?? ''),
       servingDescription: n.servingDescription || '',
     }));
+
     setImageFile(d.imageUrl || predict.file);
-    setPredictionUsed(true);
+    setPredictionUsed(true); // Tandai bahwa form sudah auto-fill via AI
     setTab('manual');
 
   }, [predict.predictionResult, predictionUsed]);
@@ -237,9 +242,10 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
         {!isEdit && (
           <div className="flex gap-2 px-6 pt-4">
-            {TABS.map(({ id, label, icon: Icon }) => (
+            {availableTabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
+                type="button"
                 onClick={() => setTab(id)}
                 className={cn(
                   'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150',
@@ -262,10 +268,15 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
               {predict.predictionResult && (
                 <div className="mt-4">
                   <PredictionResult predictionResult={predict.predictionResult} />
+                  {/* Perbaikan tombol pemicu infinite loop di bawah ini */}
                   {!predictionUsed && predict.predictionResult?.predict?.foodName && (
                     <Button
+                      type="button"
                       className="w-full mt-4"
-                      onClick={() => setPredictionUsed(false) || setTab('manual')}
+                      onClick={() => {
+                        setPredictionUsed(true); // Set true agar banner info hijau tetap menyala di tab manual
+                        setTab('manual');      // Pindah ke tab form manual
+                      }}
                     >
                       <CheckCircle2 size={16} />
                       Gunakan Hasil Ini
@@ -305,7 +316,10 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                   />
                   <button
                     type="button"
-                    onClick={() => setImageFile(null)}
+                    onClick={() => {
+                      setImageFile(null);
+                      predict.handleReset(); // Reset hook agar sinkron saat gambar dihapus
+                    }}
                     className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 transition-colors"
                   >
                     <X size={16} />

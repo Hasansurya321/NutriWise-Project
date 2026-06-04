@@ -25,7 +25,6 @@ export default function LoginForm({ onSwitchToRegister }) {
     
     try {
       const result = await login(email, password);
-      console.log(result)
     
       if (!result.success) {
         setError(result.message ||'Email atau password salah.');

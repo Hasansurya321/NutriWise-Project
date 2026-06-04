@@ -15,8 +15,9 @@ const MEAL_TYPE_STYLES = {
 };
 
 function fmt(n) {
-  if (typeof n !== 'number') return '–';
-  return n % 1 === 0 ? n.toString() : n.toFixed(1);
+  const val = Number(n);
+  if (isNaN(val) || n === null || n === undefined) return '–';
+  return val % 1 === 0 ? val.toString() : val.toFixed(1);
 }
 
 function NutrientBadge({ icon: Icon, label, value, unit, colorClass }) {
@@ -32,7 +33,8 @@ function NutrientBadge({ icon: Icon, label, value, unit, colorClass }) {
 }
 
 function MealCard({ meal, onEdit, onDelete, onView }) {
-  const n = meal.totalNutrition || meal.nutrition || {};
+  const nutrients = meal.totalNutrition || meal.nutrition || meal;
+  const info = meal.nutrition || meal;
   const badgeClass = MEAL_TYPE_STYLES[meal.mealType] || MEAL_TYPE_STYLES.SNACK;
   const label = MEAL_TYPE_LABELS[meal.mealType] || meal.mealType;
   const time = new Date(meal.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -58,14 +60,14 @@ function MealCard({ meal, onEdit, onDelete, onView }) {
             {meal.portion && Number(meal.portion) !== 1 && (
               <p className="text-[0.75rem] text-textMuted">{meal.portion}</p>
             )}
-            {(meal.nutrition.servingDescription || meal.nutrition.servingSizeG) ? (
+            {(info.servingDescription || info.servingSizeG) ? (
               <>
                 {meal.portion && Number(meal.portion) > 1 && (
                   <span className="text-textMuted text-[0.75rem]">x</span>
                 )}
                 <p className="text-[0.75rem] text-textSecondary">
-                  {meal.nutrition.servingDescription || '-'}
-                  {(meal.nutrition.servingSizeG) ? ` (${meal.nutrition.servingSizeG}g)` : ''}
+                  {info.servingDescription || '-'}
+                  {(info.servingSizeG) ? ` (${info.servingSizeG}g)` : ''}
                 </p>
               </>
             ) : (
@@ -78,10 +80,10 @@ function MealCard({ meal, onEdit, onDelete, onView }) {
       </div>
 
       <div className="grid grid-cols-4 gap-1.5">
-        <NutrientBadge icon={Flame} label="Kalori" value={n.calorie} unit=" kcal" colorClass="text-amber-500" />
-        <NutrientBadge icon={Beef} label="Protein" value={n.protein} unit="g" colorClass="text-emerald-500" />
-        <NutrientBadge icon={Wheat} label="Karbo" value={n.carbohydrate} unit="g" colorClass="text-indigo-500" />
-        <NutrientBadge icon={Droplets} label="Lemak" value={n.fat} unit="g" colorClass="text-rose-500" />
+        <NutrientBadge icon={Flame} label="Kalori" value={nutrients.calorie} unit=" kcal" colorClass="text-amber-500" />
+        <NutrientBadge icon={Beef} label="Protein" value={nutrients.protein} unit="g" colorClass="text-emerald-500" />
+        <NutrientBadge icon={Wheat} label="Karbo" value={nutrients.carbohydrate} unit="g" colorClass="text-indigo-500" />
+        <NutrientBadge icon={Droplets} label="Lemak" value={nutrients.fat} unit="g" colorClass="text-rose-500" />
       </div>
 
       <div className="flex gap-2">
@@ -109,10 +111,10 @@ function MealCard({ meal, onEdit, onDelete, onView }) {
 }
 
 export default function MealsDayPanel({ date, meals, onClose, onEdit, onDelete, onView }) {
-  const totalCalorie = meals.reduce((s, m) => s + (m.totalNutrition?.calorie || m.nutrition?.calorie || 0), 0);
-  const totalProtein = meals.reduce((s, m) => s + (m.totalNutrition?.protein || m.nutrition?.protein || 0), 0);
-  const totalCarbs = meals.reduce((s, m) => s + (m.totalNutrition?.carbohydrate || m.nutrition?.carbohydrate || 0), 0);
-  const totalFat = meals.reduce((s, m) => s + (m.totalNutrition?.fat || m.nutrition?.fat || 0), 0);
+  const totalCalorie = meals.reduce((s, m) => s + Number(m.totalNutrition?.calorie || m.nutrition?.calorie || m.calorie || 0), 0);
+  const totalProtein = meals.reduce((s, m) => s + Number(m.totalNutrition?.protein || m.nutrition?.protein || m.protein || 0), 0);
+  const totalCarbs = meals.reduce((s, m) => s + Number(m.totalNutrition?.carbohydrate || m.nutrition?.carbohydrate || m.carbohydrate || 0), 0);
+  const totalFat = meals.reduce((s, m) => s + Number(m.totalNutrition?.fat || m.nutrition?.fat || m.fat || 0), 0);
 
   const formattedDate = date
     ? new Date(date + 'T00:00:00').toLocaleDateString('id-ID', {

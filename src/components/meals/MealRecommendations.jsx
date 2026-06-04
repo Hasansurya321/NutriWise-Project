@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Flame, Beef, Wheat, Target, Sparkles, Droplet } from 'lucide-react';
+import { Flame, Beef, Wheat, Target, Sparkles, Droplet, EggFried } from 'lucide-react';
 import { fadeUp } from '../../utils/animation';
 
 export default function MealRecommendations({ data, isLoading }) {
@@ -85,19 +85,52 @@ export default function MealRecommendations({ data, isLoading }) {
           {fruitRecommendations.map((fruit, idx) => (
             <div key={idx} className="border border-borderPrimary bg-background rounded-2xl p-4 flex flex-col gap-3 hover:border-primary/30 transition-all shadow-sm">
               <h4 className="font-bold text-textPrimary capitalize text-base">{fruit.name}</h4>
-              <div className="grid grid-cols-2 gap-2 mt-auto">
-                <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 px-2 py-1.5 rounded-lg text-xs font-semibold">
-                  <Flame size={12} /> {fruit.calories} kcal
+
+              <div className="grid grid-cols-12 gap-2 mt-auto">
+
+                <div className="col-span-12 flex items-center justify-between bg-amber-500/10 text-amber-600 px-3 py-2 rounded-lg text-xs font-bold shadow-sm">
+                  <span className="flex items-center gap-1.5">
+                    <Flame size={14} /> Kalori
+                  </span>
+                  <span>{fruit.calories} kcal</span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-indigo-500/10 text-indigo-600 px-2 py-1.5 rounded-lg text-xs font-semibold">
-                  <Wheat size={12} /> {fruit.carbohydrate}g
+
+                <div className="col-span-6 flex items-center justify-between gap-1.5 bg-indigo-500/10 text-indigo-600 px-2 py-1.5 rounded-lg text-xs font-semibold">
+                  <span className='flex items-center gap-1.5'>
+                    <Wheat size={12} /> Karbohidrat
+                  </span>
+                  <span>
+                    {fruit.carbohydrate}g
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 px-2 py-1.5 rounded-lg text-xs font-semibold">
-                  <Beef size={12} /> {fruit.protein}g
+
+                <div className="col-span-6 flex items-center justify-between gap-1.5 bg-emerald-500/10 text-emerald-600 px-2 py-1.5 rounded-lg text-xs font-semibold">
+                  <span className='flex items-center gap-1.5'>
+                    <Beef size={12} /> Protein
+                  </span>
+                  <span>
+                    {fruit.protein}g
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-blue-500/10 text-blue-600 px-2 py-1.5 rounded-lg text-xs font-semibold">
-                  <Droplet size={12} /> {fruit.water}% air
+
+                <div className="col-span-6 flex items-center justify-between gap-1.5 bg-rose-500/10 text-rose-600 px-2 py-1.5 rounded-lg text-xs font-semibold">
+                  <span className='flex items-center gap-1.5'>
+                    <EggFried size={12} /> Lemak
+                  </span>
+                  <span>
+                    {fruit.fat}g
+                  </span>
                 </div>
+
+                <div className="col-span-6 flex items-center justify-between gap-1.5 bg-blue-500/10 text-blue-600 px-2 py-1.5 rounded-lg text-xs font-semibold">
+                  <span className='flex items-center gap-1.5'>
+                    <Droplet size={12} /> Air
+                  </span>
+                  <span>
+                    {fruit.water}%
+                  </span>
+                </div>
+
               </div>
             </div>
           ))}

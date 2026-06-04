@@ -7,6 +7,9 @@ export default function PredictionResult({ predictionResult, onAdd }) {
 
   if (!predictionResult) return null;
 
+  // Handle nested or direct data structures gracefully
+  // Backend response.js wraps data in { status, message, data: { predictLogId, predict } }
+  // Axios interceptor extracts response.data, so we get { status, message, data: { ... } }
   const responseData = predictionResult.data || predictionResult;
   const data = responseData.predict || responseData;
   const predictLogId = responseData.predictLogId || data?.id || data?.predictLogId;
@@ -142,7 +145,7 @@ export default function PredictionResult({ predictionResult, onAdd }) {
             </div>
             <p className="text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">Protein</p>
             <p className="text-xl font-bold text-textPrimary">
-              {typeof protein === 'number' ? protein.toFixed(1) : protein}
+              {Number(protein || 0).toFixed(1)}
               <span className="text-sm text-textMuted ml-1">g</span>
             </p>
           </div>
@@ -153,7 +156,7 @@ export default function PredictionResult({ predictionResult, onAdd }) {
             </div>
             <p className="text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">Karbohidrat</p>
             <p className="text-xl font-bold text-textPrimary">
-              {typeof carbs === 'number' ? carbs.toFixed(1) : carbs}
+              {Number(carbs || 0).toFixed(1)}
               <span className="text-sm text-textMuted ml-1">g</span>
             </p>
           </div>
@@ -164,7 +167,7 @@ export default function PredictionResult({ predictionResult, onAdd }) {
             </div>
             <p className="text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">Lemak</p>
             <p className="text-xl font-bold text-textPrimary">
-              {typeof fat === 'number' ? fat.toFixed(1) : fat}
+              {Number(fat || 0).toFixed(1)}
               <span className="text-sm text-textMuted ml-1">g</span>
             </p>
           </div>
@@ -193,36 +196,36 @@ export default function PredictionResult({ predictionResult, onAdd }) {
               <tbody className="divide-y divide-borderPrimary text-textPrimary">
                 <tr className="hover:bg-surface2/50 transition-colors">
                   <td className="px-6 py-4 font-medium">Kalori</td>
-                  <td className="px-6 py-4 text-right">{baseNutrition.calorie?.toFixed(1) || 0} kcal</td>
-                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{calories?.toFixed(1) || 0} kcal</td>}
+                  <td className="px-6 py-4 text-right">{Number(baseNutrition.calorie || 0).toFixed(1)} kcal</td>
+                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{Number(calories || 0).toFixed(1)} kcal</td>}
                 </tr>
                 <tr className="hover:bg-surface2/50 transition-colors">
                   <td className="px-6 py-4 font-medium">Protein</td>
-                  <td className="px-6 py-4 text-right">{baseNutrition.protein?.toFixed(1) || 0} g</td>
-                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{protein?.toFixed(1) || 0} g</td>}
+                  <td className="px-6 py-4 text-right">{Number(baseNutrition.protein || 0).toFixed(1)} g</td>
+                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{Number(protein || 0).toFixed(1)} g</td>}
                 </tr>
                 <tr className="hover:bg-surface2/50 transition-colors">
                   <td className="px-6 py-4 font-medium">Karbohidrat</td>
-                  <td className="px-6 py-4 text-right">{baseNutrition.carbohydrate?.toFixed(1) || baseNutrition.carbs?.toFixed(1) || 0} g</td>
-                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{carbs?.toFixed(1) || 0} g</td>}
+                  <td className="px-6 py-4 text-right">{Number(baseNutrition.carbohydrate || baseNutrition.carbs || 0).toFixed(1)} g</td>
+                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{Number(carbs || 0).toFixed(1)} g</td>}
                 </tr>
                 <tr className="hover:bg-surface2/50 transition-colors">
                   <td className="px-6 py-4 font-medium">Lemak</td>
-                  <td className="px-6 py-4 text-right">{baseNutrition.fat?.toFixed(1) || baseNutrition.fats?.toFixed(1) || 0} g</td>
-                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{fat?.toFixed(1) || 0} g</td>}
+                  <td className="px-6 py-4 text-right">{Number(baseNutrition.fat || baseNutrition.fats || 0).toFixed(1)} g</td>
+                  {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5">{Number(fat || 0).toFixed(1)} g</td>}
                 </tr>
                 {baseNutrition.fiber !== null && baseNutrition.fiber !== undefined && (
                   <tr className="hover:bg-surface2/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-textSecondary">Serat</td>
-                    <td className="px-6 py-4 text-right text-textSecondary">{baseNutrition.fiber?.toFixed(1)} g</td>
-                    {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5 text-primary/80">{displayNutrition.fiber?.toFixed(1)} g</td>}
+                    <td className="px-6 py-4 text-right text-textSecondary">{Number(baseNutrition.fiber).toFixed(1)} g</td>
+                    {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5 text-primary/80">{Number(displayNutrition.fiber || 0).toFixed(1)} g</td>}
                   </tr>
                 )}
                 {baseNutrition.water !== null && baseNutrition.water !== undefined && (
                   <tr className="hover:bg-surface2/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-textSecondary">Air</td>
-                    <td className="px-6 py-4 text-right text-textSecondary">{baseNutrition.water?.toFixed(1)} g</td>
-                    {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5 text-primary/80">{displayNutrition.water?.toFixed(1)} g</td>}
+                    <td className="px-6 py-4 text-right text-textSecondary">{Number(baseNutrition.water).toFixed(1)} g</td>
+                    {portion && portion !== 1 && <td className="px-6 py-4 text-right font-bold bg-primary/5 text-primary/80">{Number(displayNutrition.water || 0).toFixed(1)} g</td>}
                   </tr>
                 )}
               </tbody>

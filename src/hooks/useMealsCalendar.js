@@ -44,7 +44,7 @@ export function useMealsCalendar() {
   const calendarEvents = useMemo(() => {
     return Object.entries(mealsByDate).map(([date, dateMeals]) => {
       const totalCalorie = dateMeals.reduce((sum, m) => {
-        return sum + (m.totalNutrition?.calorie || m.nutrition?.calorie || 0);
+        return sum + Number(m.totalNutrition?.calorie || m.nutrition?.calorie || 0);
       }, 0);
       return {
         id: date,
