@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Camera, Upload, Pencil, Loader2, CheckCircle2, X,
-  Flame, Beef, Wheat, Droplets,
-} from 'lucide-react';
+import { Camera, Upload, Pencil, Loader2, CheckCircle2, X, Flame, Beef, Wheat, Droplets } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { cn } from '../../utils/cn';
@@ -19,13 +16,12 @@ const MEAL_TYPES = [
   { value: 'SNACK', label: 'Camilan' },
 ];
 
-
-
 function Field({ label, children, required }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-xs font-semibold uppercase tracking-wide text-textSecondary">
-        {label}{required && <span className="text-danger ml-0.5">*</span>}
+        {label}
+        {required && <span className="text-danger ml-0.5">*</span>}
       </label>
       {children}
     </div>
@@ -70,11 +66,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
   const predict = useImagePredict();
 
-  const availableTabs = [
-    { id: 'upload', label: 'Upload Foto', icon: Upload },
-    { id: 'camera', label: 'Kamera', icon: Camera },
-    ...((predictionUsed || initialData) ? [{ id: 'manual', label: 'Preview Data', icon: Pencil }] : []),
-  ];
+  const availableTabs = [{ id: 'upload', label: 'Upload Foto', icon: Upload }, { id: 'camera', label: 'Kamera', icon: Camera }, ...(predictionUsed || initialData ? [{ id: 'manual', label: 'Preview Data', icon: Pencil }] : [])];
 
   // EFFECT 1: Sinkronisasi data awal saat modal dibuka/ganti props
   useEffect(() => {
@@ -145,7 +137,6 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
     setImageFile(d.imageUrl || predict.file);
     setPredictionUsed(true); // Tandai bahwa form sudah auto-fill via AI
     setTab('manual');
-
   }, [predict.predictionResult, predictionUsed]);
 
   function setField(key) {
@@ -225,17 +216,10 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-borderPrimary sticky top-0 bg-card z-10">
           <div>
-            <p className="text-[0.7rem] font-semibold uppercase tracking-widest text-primary">
-              {isEdit ? 'Edit' : 'Tambah'} Makanan
-            </p>
-            <h2 className="text-xl font-bold text-textPrimary mt-0.5">
-              {isEdit ? editMeal?.foodName : 'Catat Konsumsi Baru'}
-            </h2>
+            <p className="text-[0.7rem] font-semibold uppercase tracking-widest text-primary">{isEdit ? 'Edit' : 'Tambah'} Makanan</p>
+            <h2 className="text-xl font-bold text-textPrimary mt-0.5">{isEdit ? editMeal?.foodName : 'Catat Konsumsi Baru'}</h2>
           </div>
-          <button
-            onClick={handleClose}
-            className="flex items-center justify-center w-9 h-9 rounded-xl border border-borderPrimary text-textSecondary hover:bg-background hover:text-textPrimary transition-all"
-          >
+          <button onClick={handleClose} className="flex items-center justify-center w-9 h-9 rounded-xl border border-borderPrimary text-textSecondary hover:bg-background hover:text-textPrimary transition-all">
             <X size={18} />
           </button>
         </div>
@@ -249,9 +233,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                 onClick={() => setTab(id)}
                 className={cn(
                   'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150',
-                  tab === id
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-background border border-borderPrimary text-textSecondary hover:text-textPrimary'
+                  tab === id ? 'bg-primary text-white shadow-sm' : 'bg-background border border-borderPrimary text-textSecondary hover:text-textPrimary',
                 )}
               >
                 <Icon size={14} />
@@ -275,7 +257,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                       className="w-full mt-4"
                       onClick={() => {
                         setPredictionUsed(true); // Set true agar banner info hijau tetap menyala di tab manual
-                        setTab('manual');      // Pindah ke tab form manual
+                        setTab('manual'); // Pindah ke tab form manual
                       }}
                     >
                       <CheckCircle2 size={16} />
@@ -309,11 +291,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
               {(imageFile || predict.previewUrl) && (
                 <div className="relative w-full h-40 rounded-2xl overflow-hidden border border-borderPrimary group">
-                  <img
-                    src={predict.previewUrl || (imageFile instanceof File ? URL.createObjectURL(imageFile) : imageFile)}
-                    alt="preview"
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                  />
+                  <img src={predict.previewUrl || (imageFile instanceof File ? URL.createObjectURL(imageFile) : imageFile)} alt="preview" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                   <button
                     type="button"
                     onClick={() => {
@@ -360,7 +338,9 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                     className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     {MEAL_TYPES.map(({ value, label }) => (
-                      <option key={value} value={value}>{label}</option>
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
                     ))}
                   </select>
                 </Field>
@@ -385,19 +365,23 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
               </div>
 
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-textSecondary mb-3">
-                  Kandungan Nutrisi (per porsi)
-                </p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-textSecondary mb-3">Kandungan Nutrisi (per porsi)</p>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Kalori (kcal)" required>
                     <div className="relative">
                       <Flame size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" />
                       <input
-                        type="number" min="0" step="any"
+                        type="number"
+                        min="0"
+                        step="any"
                         value={form.calorie}
                         onChange={(e) => setField('calorie')(e.target.value)}
+                        readOnly={isEdit}
                         placeholder="0"
-                        className="w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        className={cn(
+                          'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
+                          isEdit && 'opacity-70 cursor-not-allowed bg-background',
+                        )}
                       />
                     </div>
                   </Field>
@@ -405,11 +389,17 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                     <div className="relative">
                       <Beef size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500" />
                       <input
-                        type="number" min="0" step="any"
+                        type="number"
+                        min="0"
+                        step="any"
                         value={form.protein}
                         onChange={(e) => setField('protein')(e.target.value)}
+                        readOnly={isEdit}
                         placeholder="0"
-                        className="w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        className={cn(
+                          'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
+                          isEdit && 'opacity-70 cursor-not-allowed bg-background',
+                        )}
                       />
                     </div>
                   </Field>
@@ -417,11 +407,17 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                     <div className="relative">
                       <Wheat size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" />
                       <input
-                        type="number" min="0" step="any"
+                        type="number"
+                        min="0"
+                        step="any"
                         value={form.carbohydrate}
                         onChange={(e) => setField('carbohydrate')(e.target.value)}
+                        readOnly={isEdit}
                         placeholder="0"
-                        className="w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        className={cn(
+                          'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
+                          isEdit && 'opacity-70 cursor-not-allowed bg-background',
+                        )}
                       />
                     </div>
                   </Field>
@@ -429,30 +425,38 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                     <div className="relative">
                       <Droplets size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500" />
                       <input
-                        type="number" min="0" step="any"
+                        type="number"
+                        min="0"
+                        step="any"
                         value={form.fat}
                         onChange={(e) => setField('fat')(e.target.value)}
+                        readOnly={isEdit}
                         placeholder="0"
-                        className="w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        className={cn(
+                          'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
+                          isEdit && 'opacity-70 cursor-not-allowed bg-background',
+                        )}
                       />
                     </div>
                   </Field>
                 </div>
               </div>
 
-              {submitError && (
-                <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-xl px-4 py-2.5">
-                  {submitError}
-                </p>
-              )}
+              {submitError && <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-xl px-4 py-2.5">{submitError}</p>}
 
               <Button type="submit" className="w-full mt-1" disabled={isSubmitting}>
                 {isSubmitting ? (
-                  <><Loader2 size={16} className="animate-spin" /> Menyimpan…</>
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Menyimpan…
+                  </>
                 ) : isEdit ? (
-                  <><CheckCircle2 size={16} /> Simpan Perubahan</>
+                  <>
+                    <CheckCircle2 size={16} /> Simpan Perubahan
+                  </>
                 ) : (
-                  <><CheckCircle2 size={16} /> Tambah Meal</>
+                  <>
+                    <CheckCircle2 size={16} /> Tambah Meal
+                  </>
                 )}
               </Button>
             </form>

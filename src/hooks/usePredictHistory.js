@@ -12,6 +12,12 @@ export function usePredictHistory() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
 
+  const deletePredict = async (predictId) => {
+    await predictAPI.deletePredictLog(predictId);
+    // Optimistic remove from local state
+    setPredictLogs((prev) => prev.filter((p) => p.id !== predictId));
+  };
+
   const loadPredictLogs = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -53,15 +59,15 @@ export function usePredictHistory() {
       const now = new Date();
       if (activeFilter === 'today') {
         const todayStr = now.toLocaleDateString('en-CA');
-        result = result.filter(m => new Date(m.createdAt).toLocaleDateString('en-CA') === todayStr);
+        result = result.filter((m) => new Date(m.createdAt).toLocaleDateString('en-CA') === todayStr);
       } else if (activeFilter === 'week') {
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(now.getDate() - 7);
-        result = result.filter(m => new Date(m.createdAt) >= oneWeekAgo);
+        result = result.filter((m) => new Date(m.createdAt) >= oneWeekAgo);
       } else if (activeFilter === 'month') {
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(now.getMonth() - 1);
-        result = result.filter(m => new Date(m.createdAt) >= oneMonthAgo);
+        result = result.filter((m) => new Date(m.createdAt) >= oneMonthAgo);
       }
     }
 
@@ -90,5 +96,6 @@ export function usePredictHistory() {
     error,
     activeFilter,
     setActiveFilter: handleFilterChange,
+    deletePredict,
   };
 }

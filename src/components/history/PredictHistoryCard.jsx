@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { Clock3, Beef, Wheat, Droplets, Plus, Eye } from 'lucide-react';
+import { Clock3, Beef, Wheat, Droplets, Plus, Eye, Trash2 } from 'lucide-react';
 import { formatNutrition as fmt } from '../../utils/format';
 
-export default function PredictHistoryCard({ log, onView, onAdd }) {
+export default function PredictHistoryCard({ log, onView, onAdd, onDelete }) {
   const n = log.nutrition || {};
   const tn = log.totalNutrition || n;
 
@@ -29,9 +29,7 @@ export default function PredictHistoryCard({ log, onView, onAdd }) {
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-block rounded-full border border-blue-500/25 bg-blue-500/10 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-blue-600">
-              Scan AI
-            </span>
+            <span className="inline-block rounded-full border border-blue-500/25 bg-blue-500/10 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-blue-600">Scan AI</span>
             <span className="flex items-center gap-1 text-xs text-textMuted">
               <Clock3 size={11} />
               {new Date(log.createdAt).toLocaleTimeString('id-ID', {
@@ -40,9 +38,7 @@ export default function PredictHistoryCard({ log, onView, onAdd }) {
               })}
             </span>
           </div>
-          <h3 className="mt-1.5 truncate text-base font-semibold capitalize leading-snug text-textPrimary">
-            {log.foodName?.replace(/_/g, ' ')}
-          </h3>
+          <h3 className="mt-1.5 truncate text-base font-semibold capitalize leading-snug text-textPrimary">{log.foodName?.replace(/_/g, ' ')}</h3>
           {(n.servingDescription || n.servingSizeG) && (
             <p className="mt-0.5 text-[0.65rem] text-textSecondary">
               {n.servingDescription || '-'}
@@ -52,9 +48,7 @@ export default function PredictHistoryCard({ log, onView, onAdd }) {
         </div>
 
         <div className="shrink-0 text-right">
-          <p className="text-2xl font-bold leading-tight text-primary">
-            {Math.round(tn.calorie || n.calorie || 0)}
-          </p>
+          <p className="text-2xl font-bold leading-tight text-primary">{Math.round(tn.calorie || n.calorie || 0)}</p>
           <p className="text-xs text-textMuted">kcal</p>
         </div>
       </div>
@@ -68,9 +62,7 @@ export default function PredictHistoryCard({ log, onView, onAdd }) {
           <div key={label} className="flex items-center gap-2 rounded-xl bg-background/60 px-3 py-2">
             <Icon size={13} className={`shrink-0 ${color}`} />
             <div>
-              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-textMuted">
-                {label}
-              </p>
+              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-textMuted">{label}</p>
               <p className="text-sm font-bold leading-tight text-textPrimary">
                 {fmt(value)}
                 <span className="text-xs font-normal text-textMuted">{unit}</span>
@@ -92,6 +84,12 @@ export default function PredictHistoryCard({ log, onView, onAdd }) {
           className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl border border-primary/20 bg-primary/10 px-3 py-2.5 text-[0.8rem] font-medium text-primary transition-all hover:border-primary hover:bg-primary hover:text-white"
         >
           <Plus size={14} /> Tambah
+        </button>
+        <button
+          onClick={() => onDelete?.(log)}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl border border-borderPrimary bg-background/40 px-3 py-2.5 text-[0.8rem] font-medium text-textSecondary transition-all hover:border-danger/30 hover:bg-danger/5 hover:text-danger"
+        >
+          <Trash2 size={14} /> Hapus
         </button>
       </div>
     </motion.div>

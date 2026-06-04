@@ -37,6 +37,7 @@ export default function HistoryPage() {
   const [editMeal, setEditMeal] = useState(null);
   const [deleteMealTarget, setDeleteMealTarget] = useState(null);
   const [addFromPredict, setAddFromPredict] = useState(null);
+  const [deletePredictTarget, setDeletePredictTarget] = useState(null);
 
   const mealHistory = useMealHistory();
   const predictHistory = usePredictHistory();
@@ -61,6 +62,12 @@ export default function HistoryPage() {
     setDeleteMealTarget(null);
   };
 
+  const handlePredictDeleteConfirm = async () => {
+    if (!deletePredictTarget) return;
+    await predictHistory.deletePredict(deletePredictTarget.id);
+    setDeletePredictTarget(null);
+  };
+
   const handleCRUDSuccess = () => {
     mealHistory.reload();
     handleCategoryChange('meal');
@@ -68,14 +75,8 @@ export default function HistoryPage() {
 
   const renderEmptyState = () => (
     <div className="roundeed-3xl border border-borderPrimary bg-card p-10 text-center">
-      <p className="text-base font-medium text-textPrimary">
-        {activeCategory === 'meal' ? 'Belum ada riwayat makanan.' : 'Belum ada riwayat prediksi.'}
-      </p>
-      <p className="mt-2 text-sm text-textSecondary">
-        {activeCategory === 'meal'
-          ? 'Makanan yang kamu catat akan muncul di sini.'
-          : 'Hasil analisis makanan akan muncul di sini.'}
-      </p>
+      <p className="text-base font-medium text-textPrimary">{activeCategory === 'meal' ? 'Belum ada riwayat makanan.' : 'Belum ada riwayat prediksi.'}</p>
+      <p className="mt-2 text-sm text-textSecondary">{activeCategory === 'meal' ? 'Makanan yang kamu catat akan muncul di sini.' : 'Hasil analisis makanan akan muncul di sini.'}</p>
     </div>
   );
 
@@ -99,57 +100,40 @@ export default function HistoryPage() {
 
       const groupedLogsMap = logs.reduce((acc, log) => {
         const d = new Date(log.createdAt);
-        d.setHours(0,0,0,0);
+        d.setHours(0, 0, 0, 0);
         let dateLabel = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-        const today = new Date(); today.setHours(0,0,0,0);
-        const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
-        if(d.getTime() === today.getTime()) dateLabel = 'Hari Ini';
-        else if(d.getTime() === yesterday.getTime()) dateLabel = 'Kemarin';
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (d.getTime() === today.getTime()) dateLabel = 'Hari Ini';
+        else if (d.getTime() === yesterday.getTime()) dateLabel = 'Kemarin';
 
         if (!acc[dateLabel]) acc[dateLabel] = { date: dateLabel, rawDate: d, logs: [] };
         acc[dateLabel].logs.push(log);
         return acc;
       }, {});
 
-      const groupedLogs = Object.values(groupedLogsMap).sort((a,b) => b.rawDate - a.rawDate);
+      const groupedLogs = Object.values(groupedLogsMap).sort((a, b) => b.rawDate - a.rawDate);
 
       return (
         <>
           <AnimatePresence mode="popLayout" className="space-y-4">
-            {groupedLogs.map(group => (
-              <motion.div
-                key={group.date}
-                layout
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-4 mb-8"
-              >
+            {groupedLogs.map((group) => (
+              <motion.div key={group.date} layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="space-y-4 mb-8">
                 <div className="flex items-center gap-2.5">
                   <CalendarDays size={18} className="text-primary shrink-0" />
                   <h2 className="text-xl font-semibold tracking-tight text-textPrimary">{group.date}</h2>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {group.logs.map(log => (
-                    <PredictHistoryCard
-                      key={log.id}
-                      log={log}
-                      onView={setSelectedMeal}
-                      onAdd={setAddFromPredict}
-                    />
+                  {group.logs.map((log) => (
+                    <PredictHistoryCard key={log.id} log={log} onView={setSelectedMeal} onAdd={setAddFromPredict} onDelete={setDeletePredictTarget} />
                   ))}
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
-          {!activeData.isLoading && !activeData.error && (
-            <Pagination
-              currentPage={activeData.page}
-              totalPages={activeData.totalPages}
-              onPageChange={activeData.handlePageChange}
-            />
-          )}
+          {!activeData.isLoading && !activeData.error && <Pagination currentPage={activeData.page} totalPages={activeData.totalPages} onPageChange={activeData.handlePageChange} />}
         </>
       );
     }
@@ -161,76 +145,37 @@ export default function HistoryPage() {
       <>
         <AnimatePresence mode="popLayout">
           {groups.map((group) => (
-            <motion.div
-              key={group.date}
-              layout
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.2 }}
-            >
-              <HistoryDateGroup
-                group={group}
-                onEdit={(meal) => setEditMeal(meal)}
-                onDelete={(meal) => setDeleteMealTarget(meal)}
-                onViewDetails={(meal) => setSelectedMeal(meal)}
-              />
+            <motion.div key={group.date} layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
+              <HistoryDateGroup group={group} onEdit={(meal) => setEditMeal(meal)} onDelete={(meal) => setDeleteMealTarget(meal)} onViewDetails={(meal) => setSelectedMeal(meal)} />
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {!activeData.isLoading && !activeData.error && (
-          <Pagination
-            currentPage={activeData.page}
-            totalPages={activeData.totalPages}
-            onPageChange={activeData.handlePageChange}
-          />
-        )}
+        {!activeData.isLoading && !activeData.error && <Pagination currentPage={activeData.page} totalPages={activeData.totalPages} onPageChange={activeData.handlePageChange} />}
       </>
     );
   };
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        title="Riwayat"
-        description="Riwayat pemindaian makanan dan asupan nutrisimu."
-      />
+      <PageHeader title="Riwayat" description="Riwayat pemindaian makanan dan asupan nutrisimu." />
 
       <div className="space-y-4">
         <HistorySearch value={activeData?.search} onChange={(e) => activeData?.setSearch?.(e.target.value)} />
-        <HistoryFilters
-          activeCategory={activeCategory}
-          onCategoryChange={handleCategoryChange}
-          activeFilter={activeFilterLabel}
-          onFilterChange={handleFilterChange}
-        />
+        <HistoryFilters activeCategory={activeCategory} onCategoryChange={handleCategoryChange} activeFilter={activeFilterLabel} onFilterChange={handleFilterChange} />
       </div>
 
       <div className="space-y-8">{renderContent()}</div>
 
       <MealDetailsModal meal={selectedMeal} open={Boolean(selectedMeal)} onClose={() => setSelectedMeal(null)} />
 
-      <MealFormModal
-        open={Boolean(addFromPredict)}
-        initialData={addFromPredict}
-        onClose={() => setAddFromPredict(null)}
-        onSuccess={handleCRUDSuccess}
-      />
+      <MealFormModal open={Boolean(addFromPredict)} initialData={addFromPredict} onClose={() => setAddFromPredict(null)} onSuccess={handleCRUDSuccess} />
 
-      <MealFormModal
-        open={Boolean(editMeal)}
-        editMeal={editMeal}
-        onClose={() => setEditMeal(null)}
-        onSuccess={handleCRUDSuccess}
-      />
+      <MealFormModal open={Boolean(editMeal)} editMeal={editMeal} onClose={() => setEditMeal(null)} onSuccess={handleCRUDSuccess} />
 
-      <DeleteConfirmDialog
-        open={Boolean(deleteMealTarget)}
-        mealName={deleteMealTarget?.foodName}
-        onClose={() => setDeleteMealTarget(null)}
-        onConfirm={handleDeleteConfirm}
-      />
+      <DeleteConfirmDialog open={Boolean(deleteMealTarget)} mealName={deleteMealTarget?.foodName} onClose={() => setDeleteMealTarget(null)} onConfirm={handleDeleteConfirm} />
+
+      <DeleteConfirmDialog open={Boolean(deletePredictTarget)} mealName={deletePredictTarget?.foodName} onClose={() => setDeletePredictTarget(null)} onConfirm={handlePredictDeleteConfirm} />
     </div>
   );
 }

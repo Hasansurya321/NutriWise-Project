@@ -22,7 +22,7 @@ export const profileAPI = {
   // Get Profile
   getProfile: () => axiosInstance.get('/profiles'),
 
-  // Create Profile 
+  // Create Profile
   createProfile: (data) => axiosInstance.post('/profiles', data),
 
   // Update Profile
@@ -43,6 +43,9 @@ export const predictAPI = {
 
   // Get Predict Logs with filter & pagination
   getPredictLogs: (page = 1, limit = 15, filter = 'all') => axiosInstance.get(`/predict?page=${page}&limit=${limit}&filter=${filter}`),
+
+  // Delete Predict Log
+  deletePredictLog: (id) => axiosInstance.delete(`/predict/${id}`),
 };
 
 export const mealAPI = {
@@ -72,8 +75,7 @@ export const nutritionAPI = {
 
 export const userAPI = {
   // Update fullname only (PUT /users/fullname)
-  updateFullname: (userId, fullname) =>
-    axiosInstance.put('/users/fullname', { fullname }),
+  updateFullname: (userId, fullname) => axiosInstance.put('/users/fullname', { fullname }),
 
   // Update avatar photo (PUT /users/avatar, multipart/form-data)
   updateAvatar: (formData) =>
