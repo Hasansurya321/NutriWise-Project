@@ -14,10 +14,10 @@ export default function PredictionResult({ predictionResult, onAdd }) {
   const data = responseData.predict || responseData;
   const predictLogId = responseData.predictLogId || data?.id || data?.predictLogId;
 
-  const { foodName, confidence, totalNutrition, nutrition, portion } = data || {};
+  const { foodName, confidence, confidenceScore, confidentScore, totalNutrition, nutrition, portion } = data || {};
 
   const finalFoodName = foodName;
-  const finalConfidence = confidence || 0;
+  const finalConfidence = confidence || confidenceScore || confidentScore || 0;
 
   if (!data || !finalFoodName) {
     return (

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Clock3, Flame, Beef, Wheat, Droplets, Pencil, Trash2, Eye } from 'lucide-react';
+import { formatNutrition as fmt } from '../../utils/format';
 
 const MEAL_TYPE_LABELS = {
   BREAKFAST: 'Sarapan',
@@ -15,10 +16,7 @@ const MEAL_TYPE_STYLES = {
   SNACK: 'bg-rose-500/10 text-rose-600 border border-rose-500/25',
 };
 
-function fmt(n) {
-  if (typeof n !== 'number' || isNaN(n)) return '–';
-  return n % 1 === 0 ? n.toString() : n.toFixed(1);
-}
+
 
 export default function MealHistoryCard({ meal, onEdit, onDelete, onView }) {
   const n = meal.totalNutrition || meal.nutrition || {};

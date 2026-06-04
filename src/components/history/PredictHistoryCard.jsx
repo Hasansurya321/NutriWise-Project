@@ -1,10 +1,6 @@
 import { motion } from 'framer-motion';
 import { Clock3, Beef, Wheat, Droplets, Plus, Eye } from 'lucide-react';
-
-function fmt(n) {
-  if (typeof n !== 'number' || isNaN(n)) return '–';
-  return n % 1 === 0 ? n.toString() : n.toFixed(1);
-}
+import { formatNutrition as fmt } from '../../utils/format';
 
 export default function PredictHistoryCard({ log, onView, onAdd }) {
   const n = log.nutrition || {};

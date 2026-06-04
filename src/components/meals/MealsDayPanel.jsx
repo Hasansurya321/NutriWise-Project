@@ -1,4 +1,5 @@
 import { X, Flame, Beef, Wheat, Droplets, Pencil, Trash2, Eye } from 'lucide-react';
+import { formatNutrition as fmt } from '../../utils/format';
 
 const MEAL_TYPE_LABELS = {
   BREAKFAST: 'Sarapan',
@@ -13,12 +14,6 @@ const MEAL_TYPE_STYLES = {
   DINNER: 'bg-indigo-500/10 text-indigo-600 border border-indigo-500/30',
   SNACK: 'bg-rose-500/10 text-rose-600 border border-rose-500/30',
 };
-
-function fmt(n) {
-  const val = Number(n);
-  if (isNaN(val) || n === null || n === undefined) return '–';
-  return val % 1 === 0 ? val.toString() : val.toFixed(1);
-}
 
 function NutrientBadge({ icon: Icon, label, value, unit, colorClass }) {
   return (

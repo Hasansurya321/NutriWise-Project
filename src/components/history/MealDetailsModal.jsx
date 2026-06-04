@@ -1,5 +1,6 @@
 import { Flame, Beef, Wheat, Droplets, Clock3 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
+import { formatNutrition as fmt } from '../../utils/format';
 
 const MEAL_TYPE_LABELS = {
   BREAKFAST: 'Sarapan',
@@ -14,11 +15,6 @@ const MEAL_TYPE_STYLES = {
   DINNER: 'bg-indigo-500/10 text-indigo-600 border border-indigo-500/25',
   SNACK: 'bg-rose-500/10 text-rose-600 border border-rose-500/25',
 };
-
-function fmt(n) {
-  if (typeof n !== 'number' || isNaN(n)) return '–';
-  return n % 1 === 0 ? n.toString() : n.toFixed(1);
-}
 
 function NutrientRow({ icon: Icon, label, value, unit, color }) {
   return (

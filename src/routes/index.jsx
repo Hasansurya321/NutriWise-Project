@@ -12,13 +12,14 @@ import PredictPage from '../pages/predict/PredictPage';
 import OnboardingPage from '../pages/onboarding/OnboardingPage';
 import MealsPage from '../pages/meals/MealsPage';
 import NotFoundPage from '../pages/NotFoundPage';
+import ErrorPage from '../pages/ErrorPage';
 
 export const router = createBrowserRouter([
   {
     path: '/auth',
     element: <AuthPage />,
   },
-  
+
   {
     path: '/onboarding',
     element: (
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
         <DashboardLayout />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
@@ -42,7 +44,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: <DashboardPage />, 
+        element: <DashboardPage />,
       },
       {
         path: 'history',
@@ -66,9 +68,9 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  
+
   {
     path: '*',
-    element: <NotFoundPage/>,
+    element: <NotFoundPage />,
   },
 ]);
