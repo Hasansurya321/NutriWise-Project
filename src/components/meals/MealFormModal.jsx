@@ -220,7 +220,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent className="w-[94%] sm:w-[680px] md:w-[720px] lg:w-[780px] max-w-none max-h-[90vh] overflow-y-auto rounded-3xl border border-borderPrimary bg-card p-0">
+      <DialogContent className="w-[94%] sm:w-[680px] md:w-[720px] lg:w-[780px] max-w-none max-h-[90vh] overflow-y-auto no-scrollbar rounded-3xl border border-borderPrimary bg-card p-0">
         <DialogTitle className="sr-only">{isEdit ? 'Edit Meal' : 'Tambah Meal'}</DialogTitle>
 
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-borderPrimary sticky top-0 bg-card z-10">
