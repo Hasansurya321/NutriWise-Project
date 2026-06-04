@@ -16,7 +16,15 @@ import { PageHeader } from '../../components/layout/PageHeader';
 
 export default function MealsPage() {
   useDocumentTitle('Jurnal Makan');
-  const [selectedDate, setSelectedDate] = useState(null);
+  const getTodayDate = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const { calendarEvents, mealsByDate, isLoading, error, reload } = useMealsCalendar();
 
   // CRUD state
