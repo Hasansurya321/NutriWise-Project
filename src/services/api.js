@@ -56,10 +56,10 @@ export const mealAPI = {
   createMealFromPredict: (data) => axiosInstance.post('/meals/from-predict', data),
 
   // Create Meal (manual)
-  createMeal: (data) => axiosInstance.post('/meals', data),
+  createMeal: (data) => axiosInstance.post('/meals', data, { headers: { 'Content-Type': undefined } }),
 
   // Update Meal
-  updateMeal: (mealId, data) => axiosInstance.put(`/meals/${mealId}`, data),
+  updateMeal: (mealId, data) => axiosInstance.put(`/meals/${mealId}`, data, { headers: { 'Content-Type': undefined } }),
 
   // Delete Meal
   deleteMeal: (mealId) => axiosInstance.delete(`/meals/${mealId}`),
