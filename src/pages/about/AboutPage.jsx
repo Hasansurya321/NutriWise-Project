@@ -26,14 +26,14 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full w-full flex-col">
       <PageHeader
         title="Tentang Aplikasi"
         description="Mengenal lebih dekat NutriCitra"
       />
 
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
-        <div className="mx-auto max-w-4xl space-y-12">
+        <div className="mx-auto space-y-12">
 
           {/* Hero Section */}
           <section className="text-center space-y-6">

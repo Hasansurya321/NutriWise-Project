@@ -1,6 +1,14 @@
-# 🥗 NutriCitra
+# 🥗 NutriCitra Frontend Documentation
 
-Selamat datang di repositori frontend **NutriCitra**, aplikasi pencatat nutrisi cerdas berbasis AI yang membantu Anda menjaga pola makan sehat! Aplikasi ini menggunakan antarmuka modern yang responsif dan dirancang dengan pengalaman pengguna (UX) yang premium.
+Nutri Citra adalah platform berbasis web yang dirancang untuk membantu
+pengguna mengidentifikasi makanan dengan mengupload atau memfoto makanan
+yang kemudian akan diprediksi oleh model ai untuk dihitung berapa nutrisi,
+kalorinya, menghitung, dan memantau kandungan nutrisi serta kalori dari makanan
+secara cerdas dan praktis dan juga terdapat sistem rekomendasi buah untuk
+menyeimbangkan kalori harian pengguna.
+
+Link Website : https://nutri-citra-project-6eik.vercel.app
+
 
 ---
 
@@ -31,7 +39,7 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi di komputer lokal Anda:
 
 1. **Clone repository ini**
    ```bash
-   git clone <url-repository>
+   git clone https://github.com/Hasansurya321/NutriCitra-Project
    cd NutriCitra-Project
    ```
 
@@ -61,10 +69,11 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi di komputer lokal Anda:
 ## ✨ Fitur Utama
 
 - **Autentikasi:** Login dan Registrasi pengguna yang terhubung dengan JWT Token.
+- **Onboarding UI**: Halaman onboarding untuk pengguna baru yang akan diisi saat pertama kali login.
 - **Dashboard Nutrisi:** Ringkasan kalori, makronutrisi harian, dan rekomendasi hidangan.
 - **AI Food Scanner (Predict):** Pengguna dapat mengambil foto atau mengunggah gambar makanan, dan AI akan otomatis mengenali makanan serta memperkirakan jumlah nutrisi (kalori, protein, lemak, karbohidrat).
-- **Meal Journal:** Pencatatan konsumsi makanan harian secara otomatis dari AI Scanner maupun manual.
-- **History & Insights:** Memantau riwayat makan sebelumnya dan analisis statistik nutrisi pengguna.
+- **Jurnal Makan:** Pencatatan konsumsi makanan harian secara otomatis dari AI Scanner maupun manual dan terdapat rekomendasi buah-buahan untuk menyeimbangkan nutrisi harian.
+- **Riwayat:** Memantau riwayat makan sebelumnya.
 
 ---
 
@@ -73,11 +82,13 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi di komputer lokal Anda:
 ```
 src/
 ├── components/     # Komponen UI reusable (auth, history, meals, predict, ui)
-├── context/        # React Context API (Auth, MockMode)
-├── hooks/          # Custom React Hooks
+├── context/        # React Context API (Auth, ThemeContext)
+├── hooks/          # Custom React Hooks (useDocumentTitle, dll)
 ├── layouts/        # Layout halaman (misalnya DashboardLayout)
 ├── pages/          # Komponen Halaman utama sesuai rute (Auth, Dashboard, dll)
 ├── routes/         # Konfigurasi routing (React Router)
-├── services/       # Integrasi API endpoint menggunakan Axios
-└── utils/          # Fungsi utilitas pembantu (format data, dll)
+├── services/       # Integrasi API endpoint menggunakan Axios Instance
+├── utils/          # Fungsi utilitas pembantu (format data, dll)
+└── lib/            # Library yang digunakan seperti Axios
+
 ```
