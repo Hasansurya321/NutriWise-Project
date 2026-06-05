@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
@@ -16,6 +16,7 @@ import { AiPanel } from '../../components/dashboard/AiPanel';
 import { AuthRequiredPanel } from '../../components/dashboard/AuthRequiredPanel';
 import { UploadSection } from '../../components/predict/UploadSection';
 import PredictionResult from '../../components/predict/PredictionResult';
+import { MealFormModal } from '../../components/meals/MealFormModal';
 
 import { predictAPI, nutritionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -36,7 +37,9 @@ const weeklyTrendSummary = {
 
 export default function DashboardPage() {
   useDocumentTitle('Dashboard');
+  const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const [addFromPredict, setAddFromPredict] = useState(null);
   const [statsCards, setStatsCards] = useState([
     {
       title: 'Kalori',
@@ -276,7 +279,7 @@ export default function DashboardPage() {
           <div className="xl:col-span-2">
             <div className="grid grid-cols-1 h-full">
               <UploadSection {...predictHook} />
-              {predictionResult && <PredictionResult predictionResult={predictionResult} />}
+              {predictionResult && <PredictionResult predictionResult={predictionResult} onAdd={(data) => setAddFromPredict(data)} />}
             </div>
           </div>
         ) : (
@@ -291,6 +294,16 @@ export default function DashboardPage() {
       </motion.section>
 
       {/* GRAPH CHART SECTION */}
+
+      <MealFormModal
+        open={Boolean(addFromPredict)}
+        initialData={addFromPredict}
+        onClose={() => setAddFromPredict(null)}
+        onSuccess={() => {
+          setAddFromPredict(null);
+          navigate('/meals');
+        }}
+      />
     </motion.div>
   );
 }

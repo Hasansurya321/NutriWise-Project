@@ -72,9 +72,9 @@ export default function PredictPage() {
       </motion.div>
 
       {predictionResult && (
-        <PredictionResult 
-          predictionResult={predictionResult} 
-          onAdd={(data) => setAddFromPredict(data)} 
+        <PredictionResult
+          predictionResult={predictionResult}
+          onAdd={(data) => setAddFromPredict(data)}
         />
       )}
 
