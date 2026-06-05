@@ -80,18 +80,18 @@ export default function MealsPage() {
         </div>
       )}
 
-      <div className='flex items-stretch'>
+      <div className='flex items-stretch w-full'>
         <motion.div
           variants={fadeUp}
           initial="hidden"
           animate="show"
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="grid grid-cols-1 gap-6 items-stretch xl:grid-cols-[1fr_380px]"
+          className="w-full grid grid-cols-1 gap-6 items-stretch xl:grid-cols-[1fr_380px]"
         >
           {/* Calendar column */}
           <div className="flex flex-col rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center gap-4 py-16 text-textSecondary text-sm">
+              <div className="flex flex-col items-center justify-center gap-4 py-16 text-textSecondary text-sm min-h-[500px]">
                 <div className="w-9 h-9 rounded-full border-[3px] border-borderPrimary border-t-primary animate-spin" />
                 <p>Memuat data makanan…</p>
               </div>
@@ -104,7 +104,7 @@ export default function MealsPage() {
             )}
           </div>
 
-          <div id="meals-day-panel" className="xl:relative flex flex-col rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden min-h-[600x] xl:min-h-0">
+          <div id="meals-day-panel" className="xl:relative flex flex-col rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden min-h-[600px] xl:min-h-0">
             <div className="xl:absolute xl:inset-0 w-full h-full flex flex-col">
               <MealsDayPanel
                 date={selectedDate}
