@@ -22,6 +22,7 @@ export default function MealHistoryCard({ meal, onEdit, onDelete, onView }) {
   const n = meal.totalNutrition || meal.nutrition || {};
   const label = MEAL_TYPE_LABELS[meal.mealType] || meal.mealType;
   const badgeClass = MEAL_TYPE_STYLES[meal.mealType] || MEAL_TYPE_STYLES.SNACK;
+  const confidence = meal.confidenceScore || meal.confidence || 0;
   const time = new Date(meal.createdAt).toLocaleTimeString('id-ID', {
     hour: '2-digit',
     minute: '2-digit',
@@ -49,6 +50,16 @@ export default function MealHistoryCard({ meal, onEdit, onDelete, onView }) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
+            {meal.predictLogId && (
+              <>
+                <span className="inline-block rounded-full border border-blue-500/25 bg-blue-500/10 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-blue-600">Scan AI</span>
+                {confidence > 0 && (
+                  <span className="inline-block rounded-full border border-success/20 bg-success/10 px-2 py-0.5 text-[0.65rem] font-bold text-success">
+                    {Math.round(confidence * 100)}% Cocok
+                  </span>
+                )}
+              </>
+            )}
             <span className={`inline-block px-2.5 py-0.5 rounded-full text-[0.65rem] font-semibold uppercase tracking-wide ${badgeClass}`}>
               {label}
             </span>

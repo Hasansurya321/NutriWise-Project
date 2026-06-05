@@ -5,6 +5,7 @@ import { formatNutrition as fmt } from '../../utils/format';
 export default function PredictHistoryCard({ log, onView, onAdd, onDelete }) {
   const n = log.nutrition || {};
   const tn = log.totalNutrition || n;
+  const confidence = log.confidenceScore || log.confidence || 0;
 
   return (
     <motion.div
@@ -30,6 +31,11 @@ export default function PredictHistoryCard({ log, onView, onAdd, onDelete }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-block rounded-full border border-blue-500/25 bg-blue-500/10 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-blue-600">Scan AI</span>
+            {confidence > 0 && (
+              <span className="inline-block rounded-full border border-success/20 bg-success/10 px-2 py-0.5 text-[0.65rem] font-bold text-success">
+                {Math.round(confidence * 100)}% Cocok
+              </span>
+            )}
             <span className="flex items-center gap-1 text-xs text-textMuted">
               <Clock3 size={11} />
               {new Date(log.createdAt).toLocaleTimeString('id-ID', {

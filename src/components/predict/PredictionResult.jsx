@@ -1,27 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Activity, Flame, Beef, Wheat, Droplets, CheckCircle2, AlertCircle } from 'lucide-react';
 import { mealAPI } from '../../services/api';
 
 export default function PredictionResult({ predictionResult, onAdd }) {
   const [mealState, setMealState] = useState('idle'); // idle | submitting | confirmed | error
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (predictionResult && containerRef.current) {
+      setTimeout(() => {
+        containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [predictionResult]);
 
   if (!predictionResult) return null;
 
-  // Handle nested or direct data structures gracefully
-  // Backend response.js wraps data in { status, message, data: { predictLogId, predict } }
-  // Axios interceptor extracts response.data, so we get { status, message, data: { ... } }
   const responseData = predictionResult.data || predictionResult;
   const data = responseData.predict || responseData;
   const predictLogId = responseData.predictLogId || data?.id || data?.predictLogId;
 
-  const { foodName, confidence, confidenceScore, confidentScore, totalNutrition, nutrition, portion } = data || {};
+  const { foodName, confidence, confidenceScore, totalNutrition, nutrition, portion } = data || {};
 
   const finalFoodName = foodName;
-  const finalConfidence = confidence || confidenceScore || confidentScore || 0;
+  const finalConfidence = confidence || confidenceScore || 0;
 
   if (!data || !finalFoodName) {
     return (
-      <div className="mx-auto w-full mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div ref={containerRef} className="mx-auto w-full mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="p-8 rounded-3xl bg-card border border-borderPrimary shadow-lg text-center relative overflow-hidden flex flex-col items-center">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-danger/80 to-danger"></div>
 
@@ -102,7 +108,7 @@ export default function PredictionResult({ predictionResult, onAdd }) {
   };
 
   return (
-    <div className="mx-auto w-full mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div ref={containerRef} className="mx-auto w-full mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="p-6 sm:p-8 rounded-3xl bg-card border border-borderPrimary shadow-lg relative overflow-hidden">
         {/* Top Accent Line */}
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-info to-primary/50"></div>

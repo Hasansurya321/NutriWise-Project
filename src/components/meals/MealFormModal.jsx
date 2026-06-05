@@ -28,7 +28,7 @@ function Field({ label, children, required }) {
   );
 }
 
-function NumInput({ id, value, onChange, placeholder }) {
+function NumInput({ id, value, onChange, placeholder, readOnly }) {
   return (
     <input
       id={id}
@@ -38,7 +38,11 @@ function NumInput({ id, value, onChange, placeholder }) {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+      readOnly={readOnly}
+      className={cn(
+        "w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40",
+        readOnly && "opacity-70 cursor-not-allowed bg-background"
+      )}
     />
   );
 }
@@ -63,6 +67,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [predictionUsed, setPredictionUsed] = useState(false);
+  const [predictedConfidence, setPredictedConfidence] = useState(0);
 
   const predict = useImagePredict();
 
@@ -100,7 +105,8 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
       });
       setTab('manual');
       setImageFile(initialData.imageUrl || null);
-      setPredictionUsed(false);
+      setPredictionUsed(true);
+      setPredictedConfidence(initialData.confidenceScore || initialData.confidence || 0);
       predict.handleReset();
     } else if (open && !editMeal && !initialData) {
       setForm(DEFAULT_FORM);
@@ -117,7 +123,8 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
     // Jika tidak ada hasil baru, atau data prediksi sudah pernah dimasukkan, hentikan!
     if (!predict.predictionResult || predictionUsed) return;
 
-    const d = predict.predictionResult?.predict || predict.predictionResult;
+    const responseData = predict.predictionResult?.data || predict.predictionResult;
+    const d = responseData?.predict || responseData;
     if (!d?.foodName) return;
 
     const n = d.nutrition || {};
@@ -135,6 +142,8 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
     }));
 
     setImageFile(d.imageUrl || predict.file);
+    const conf = d?.confidenceScore || d?.confidence || 0;
+    setPredictedConfidence(conf);
     setPredictionUsed(true); // Tandai bahwa form sudah auto-fill via AI
     setTab('manual');
   }, [predict.predictionResult, predictionUsed]);
@@ -169,13 +178,24 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
       if (form.servingSizeG) fd.append('servingSizeG', form.servingSizeG);
       if (form.servingDescription) fd.append('servingDescription', form.servingDescription);
 
-      if (!isEdit && initialData?.id) {
+      if (isEdit && editMeal) {
+        const conf = editMeal.confidenceScore;
+        if (conf) fd.append('confidenceScore', conf);
+        if (editMeal.predictLogId) fd.append('predictLogId', editMeal.predictLogId);
+      } else if (!isEdit && initialData?.id) {
         fd.append('predictLogId', initialData.id);
+        const conf = initialData.confidenceScore;
+        if (conf) fd.append('confidenceScore', conf);
       } else if (!isEdit && predict.predictionResult) {
-        const d = predict.predictionResult?.predict || predict.predictionResult;
+        const responseData = predict.predictionResult?.data || predict.predictionResult;
+        const d = responseData?.predict || responseData;
         if (d?.id) {
           fd.append('predictLogId', d.id);
+        } else if (responseData?.predictLogId) {
+          fd.append('predictLogId', responseData.predictLogId);
         }
+        const conf = d?.confidenceScore || d?.confidence || 0;
+        if (conf) fd.append('confidenceScore', conf);
       }
 
       if (imageFile instanceof File) {
@@ -283,9 +303,17 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
           {(tab === 'manual' || isEdit) && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               {predictionUsed && (
-                <div className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm text-primary">
-                  <CheckCircle2 size={16} className="shrink-0" />
-                  Form diisi otomatis dari hasil scan AI. Koreksi jika perlu.
+                <div className="flex flex-col gap-2 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm text-primary">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={16} className="shrink-0" />
+                    <span className="font-medium">Form diisi otomatis dari hasil scan AI. Data nutrisi dikunci.</span>
+                  </div>
+                  {predictedConfidence > 0 && (
+                    <div className="text-xs opacity-90 pl-6 flex items-center gap-1.5">
+                      <span className="inline-block w-1 h-1 rounded-full bg-primary/70" />
+                      Tingkat kecocokan AI: <strong>{Math.round(predictedConfidence * 100)}%</strong>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -356,11 +384,15 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                     value={form.servingDescription}
                     onChange={(e) => setField('servingDescription')(e.target.value)}
                     placeholder="contoh: 1 piring / 1 mangkuk"
-                    className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    readOnly={isEdit || predictionUsed}
+                    className={cn(
+                      "w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40",
+                      (isEdit || predictionUsed) && "opacity-70 cursor-not-allowed bg-background"
+                    )}
                   />
                 </Field>
                 <Field label="Berat (g) (Opsional)">
-                  <NumInput id="servingSizeG" value={form.servingSizeG} onChange={setField('servingSizeG')} placeholder="200" />
+                  <NumInput id="servingSizeG" value={form.servingSizeG} onChange={setField('servingSizeG')} placeholder="200" readOnly={isEdit || predictionUsed} />
                 </Field>
               </div>
 
@@ -376,11 +408,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                         step="any"
                         value={form.calorie}
                         onChange={(e) => setField('calorie')(e.target.value)}
-                        readOnly={isEdit}
+                        readOnly={isEdit || predictionUsed}
                         placeholder="0"
                         className={cn(
                           'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
-                          isEdit && 'opacity-70 cursor-not-allowed bg-background',
+                          (isEdit || predictionUsed) && 'opacity-70 cursor-not-allowed bg-background',
                         )}
                       />
                     </div>
@@ -394,11 +426,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                         step="any"
                         value={form.protein}
                         onChange={(e) => setField('protein')(e.target.value)}
-                        readOnly={isEdit}
+                        readOnly={isEdit || predictionUsed}
                         placeholder="0"
                         className={cn(
                           'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
-                          isEdit && 'opacity-70 cursor-not-allowed bg-background',
+                          (isEdit || predictionUsed) && 'opacity-70 cursor-not-allowed bg-background',
                         )}
                       />
                     </div>
@@ -412,11 +444,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                         step="any"
                         value={form.carbohydrate}
                         onChange={(e) => setField('carbohydrate')(e.target.value)}
-                        readOnly={isEdit}
+                        readOnly={isEdit || predictionUsed}
                         placeholder="0"
                         className={cn(
                           'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
-                          isEdit && 'opacity-70 cursor-not-allowed bg-background',
+                          (isEdit || predictionUsed) && 'opacity-70 cursor-not-allowed bg-background',
                         )}
                       />
                     </div>
@@ -430,11 +462,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                         step="any"
                         value={form.fat}
                         onChange={(e) => setField('fat')(e.target.value)}
-                        readOnly={isEdit}
+                        readOnly={isEdit || predictionUsed}
                         placeholder="0"
                         className={cn(
                           'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
-                          isEdit && 'opacity-70 cursor-not-allowed bg-background',
+                          (isEdit || predictionUsed) && 'opacity-70 cursor-not-allowed bg-background',
                         )}
                       />
                     </div>

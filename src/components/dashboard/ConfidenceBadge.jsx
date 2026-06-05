@@ -24,5 +24,5 @@ function resolveVariant(confidence) {
 export function ConfidenceBadge({ confidence = 0, className }) {
   const variant = resolveVariant(confidence);
 
-  return <span className={cn('inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium', variants[variant].wrapper, className)}>{confidence}% confidence</span>;
+  return <span className={cn('inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium', variants[variant].wrapper, className)}>{confidence * 100}% confidence</span>;
 }

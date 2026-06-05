@@ -24,7 +24,7 @@ export default function AuthOverlayPanel({ mode, setMode }) {
           transition-[opacity,transform]
           duration-[900ms]
           ease-[cubic-bezier(0.22,1,0.36,1)]
-          ${isLogin ? 'translate-x-0 opacity-100' : '-translate-x-16 opacity-0'}
+          ${isLogin ? 'translate-x-0 opacity-100' : '-translate-x-16 opacity-0 pointer-events-none'}
         `}
       >
         <h2
@@ -51,7 +51,7 @@ export default function AuthOverlayPanel({ mode, setMode }) {
           type="button"
           variant="outline"
           onClick={() => setMode('register')}
-          className="pointer-events-auto rounded-full px-10 mt-10 border-white text-white hover:bg-white hover:text-primary"
+          className={`rounded-full px-10 mt-10 border-white text-white hover:bg-white hover:text-primary ${isLogin ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           Daftar
         </Button>
@@ -68,7 +68,7 @@ export default function AuthOverlayPanel({ mode, setMode }) {
           transition-[opacity,transform]
           duration-[900ms]
           ease-[cubic-bezier(0.22,1,0.36,1)]
-          ${isLogin ? 'translate-x-16 opacity-0' : 'translate-x-0 opacity-100'}
+          ${isLogin ? 'translate-x-16 opacity-0 pointer-events-none' : 'translate-x-0 opacity-100'}
         `}
       >
         <h2
@@ -95,7 +95,7 @@ export default function AuthOverlayPanel({ mode, setMode }) {
           type="button"
           onClick={() => setMode('login')}
           variant="outline"
-          className="pointer-events-auto rounded-full px-10 mt-10 border-white text-white hover:bg-white hover:text-primary">
+          className={`rounded-full px-10 mt-10 border-white text-white hover:bg-white hover:text-primary ${!isLogin ? 'pointer-events-auto' : 'pointer-events-none'}`}>
           Masuk
         </Button>
       </div>

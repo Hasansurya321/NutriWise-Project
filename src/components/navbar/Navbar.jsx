@@ -1,20 +1,45 @@
+import { useState, useEffect } from 'react';
 import { Menu, ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 import { NavbarActions } from './NavbarActions';
 import { Button } from '../ui/button';
 
 export function Navbar({ isAuthenticated = false, onMenuClick, collapsed, onToggleCollapsed }) {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+
+          if (currentScrollY > lastScrollY && currentScrollY > 80) {
+            setIsVisible(false);
+          } else {
+            setIsVisible(true);
+          }
+
+          lastScrollY = currentScrollY > 0 ? currentScrollY : 0;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <header
-      className="
-        isolate
-        sticky top-0 z-40
-        border-b border-borderPrimary
-        bg-background/95
-        duration-200
-        backdrop-blur-lg
-        h-20
-        "
+      className={cn(
+        "isolate sticky top-0 z-40 border-b border-borderPrimary bg-background/95 backdrop-blur-lg h-20 transition-transform duration-300",
+        !isVisible && "-translate-y-full"
+      )}
     >
       <div
         className="

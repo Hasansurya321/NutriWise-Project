@@ -91,7 +91,7 @@ export default function MealsPage() {
           {/* Calendar column */}
           <div className="flex flex-col rounded-3xl border border-borderPrimary bg-card shadow-[0_4px_24px_rgba(15,23,42,0.06)] overflow-hidden">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center gap-4 py-16 text-textSecondary text-sm min-h-[500px]">
+              <div className="flex flex-col items-center justify-center gap-4 py-16 text-textSecondary text-sm min-h-[500px] w-full">
                 <div className="w-9 h-9 rounded-full border-[3px] border-borderPrimary border-t-primary animate-spin" />
                 <p>Memuat data makanan…</p>
               </div>
