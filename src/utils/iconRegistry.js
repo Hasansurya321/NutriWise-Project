@@ -21,7 +21,8 @@ import {
   Wheat,
   Scan,
   UtensilsCrossed,
-  User
+  User,
+  Info
 } from 'lucide-react';
 
 export const iconMap = {
@@ -48,6 +49,7 @@ export const iconMap = {
   Scan,
   UtensilsCrossed,
   User,
+  Info
 };
 
 export function getIconByName(iconName, fallbackName = null) {

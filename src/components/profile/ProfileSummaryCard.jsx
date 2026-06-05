@@ -40,12 +40,6 @@ export default function ProfileSummaryCard({ profile, userId, onAvatarSuccess })
           <span className="text-sm text-textMuted">Total pindaian</span>
           <span className="text-sm font-medium text-textPrimary">{profile.totalScans}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-textMuted">Skor kesehatan</span>
-          <span className="rounded-full bg-primary/15 px-3 py-1 text-sm font-medium text-primary">
-            {profile.healthScore}/100
-          </span>
-        </div>
       </div>
     </div>
   );

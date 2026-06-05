@@ -67,7 +67,6 @@ export function StatsCard({
       >
         <article className="flex h-full flex-col gap-5 p-5 sm:p-6">
 
-          {/* Bagian Atas: Judul dan Icon */}
           <header className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <p className="text-sm font-medium text-textSecondary">{title}</p>
@@ -86,13 +85,12 @@ export function StatsCard({
             </div>
           </header>
 
-          {/* Bagian Tengah: Angka Konsumsi vs Target Nutrisi */}
           <div className="space-y-1">
             <div className="flex flex-wrap items-end gap-2">
               <span
                 className="
                   text-3xl font-bold tracking-tight
-                  text-textPrimary sm:text-4xl
+                  text-textPrimary sm:text-2xl
                 "
               >
                 {value}
@@ -108,7 +106,6 @@ export function StatsCard({
             {meta ? <p className="text-xs text-textSecondary">{meta}</p> : null}
           </div>
 
-          {/* Bagian Bawah: Progress Bar (FIXED: Lebih kontras & konsisten) */}
           <div className="mt-auto space-y-2">
             <div
               className="

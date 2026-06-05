@@ -11,6 +11,7 @@ import InsightsPage from '../pages/insights/InsightsPage';
 import PredictPage from '../pages/predict/PredictPage';
 import OnboardingPage from '../pages/onboarding/OnboardingPage';
 import MealsPage from '../pages/meals/MealsPage';
+import AboutPage from '../pages/about/AboutPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ErrorPage from '../pages/ErrorPage';
 
@@ -65,6 +66,10 @@ export const router = createBrowserRouter([
       {
         path: 'meals',
         element: <MealsPage />,
+      },
+      {
+        path: 'about',
+        element: <AboutPage />,
       },
     ],
   },

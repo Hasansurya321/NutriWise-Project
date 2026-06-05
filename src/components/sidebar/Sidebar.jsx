@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 
-import { navigation } from '../../data/navigation';
+import { sidebarNavigation } from '../../data/navigation';
 import { cn } from '../../utils/cn';
 import { Button } from '../ui/button';
 import { SidebarHeader } from './SidebarHeader';
@@ -66,7 +66,7 @@ export function Sidebar({ mobileOpen, onClose, collapsed, onToggleCollapsed }) {
 
         <nav className="flex-1 overflow-y-auto px-4 py-6">
           <div className="flex flex-col gap-2">
-            {navigation.map((item) => (
+            {sidebarNavigation.map((item) => (
               <SidebarNavItem key={item.label || item.href} item={item} onClick={onClose} collapsed={collapsed} />
             ))}
           </div>
