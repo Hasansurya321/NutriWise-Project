@@ -69,7 +69,7 @@ export default function MealsPage() {
           onClick={() => setAddModalOpen(true)}
           className="flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all duration-150 shrink-0"
         >
-          <Plus size={16} /> Tambah Meal
+          <Plus size={16} /> Tambah Makanan
         </button>
       </PageHeader>
 

@@ -298,7 +298,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
           </button>
         </div>
 
-        {!isEdit && (
+        {!isEdit && !initialData && (
           <div className="flex gap-2 px-6 pt-4">
             {availableTabs.map(({ id, label, icon: Icon }) => (
               <button
@@ -581,7 +581,7 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 size={16} /> Tambah Meal
+                    <CheckCircle2 size={16} /> Tambah Makanan
                   </>
                 )}
               </Button>

@@ -196,7 +196,7 @@ export default function OnboardingPage() {
   const handleSave = async () => {
     setError('');
     setIsLoading(true);
-    
+
     const onboardingPayload = {
       age: Number(form.age),
       gender: form.gender,
@@ -218,7 +218,7 @@ export default function OnboardingPage() {
 
         // 🟢 Hapus baris localStorage lama. Cukup panggil global state context:
         setUser(responseData.data.user);
-        
+
         setTimeout(() => {
           navigate('/dashboard', { replace: true });
         }, 1000);
@@ -337,7 +337,7 @@ export default function OnboardingPage() {
             {form.femaleCondition === 'breastfeeding' && (
               <div>
                 <label className="mb-2 block text-sm font-medium text-textPrimary">Tahap Menyusui</label>
-                <Select options={breastfeedingOptions} placeholder="Pilih durasi bayi" value={form.breastfeedingStage} onChange={(val) => updateField('breastfeedingStage', val)} />
+                <Select options={breastfeedingOptions} placeholder="Pilih Usia bayi" value={form.breastfeedingStage} onChange={(val) => updateField('breastfeedingStage', val)} />
               </div>
             )}
 

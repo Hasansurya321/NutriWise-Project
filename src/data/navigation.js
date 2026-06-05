@@ -48,6 +48,11 @@ export const mobileNavigation = [
     iconName: 'UtensilsCrossed',
   },
   {
+    label: 'Riwayat',
+    href: '/history',
+    iconName: 'History',
+  },
+  {
     label: 'Profil',
     href: '/profile',
     iconName: 'User',
