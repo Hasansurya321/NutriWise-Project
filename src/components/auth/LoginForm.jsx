@@ -112,11 +112,11 @@ export default function LoginForm({ onSwitchToRegister }) {
 
           </Button>
         </div>
-        <div className="mt-3 flex justify-end">
+        {/* <div className="mt-3 flex justify-end">
           <Button variant='ghost' type="button">
             Lupa password?
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* SUBMIT */}
