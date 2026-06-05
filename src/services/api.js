@@ -84,4 +84,9 @@ export const userAPI = {
     }),
 };
 
+export const foodAPI = {
+  searchFoods: (query) => axiosInstance.get(`/foods/search?q=${query}`),
+  getFoodNutrition: (name) => axiosInstance.get(`/foods/${name}`),
+};
+
 export default axiosInstance;

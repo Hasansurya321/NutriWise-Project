@@ -3,7 +3,7 @@ import { Camera, Upload, Pencil, Loader2, CheckCircle2, X, Flame, Beef, Wheat, D
 import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { cn } from '../../utils/cn';
-import { mealAPI } from '../../services/api';
+import { mealAPI, foodAPI } from '../../services/api';
 import { useImagePredict } from '../../hooks/useImagePredict';
 import { UploadSection } from '../predict/UploadSection';
 import { CameraSection } from '../predict/CameraSection';
@@ -68,10 +68,17 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
   const [submitError, setSubmitError] = useState('');
   const [predictionUsed, setPredictionUsed] = useState(false);
   const [predictedConfidence, setPredictedConfidence] = useState(0);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const predict = useImagePredict();
 
-  const availableTabs = [{ id: 'upload', label: 'Upload Foto', icon: Upload }, { id: 'camera', label: 'Kamera', icon: Camera }, ...(predictionUsed || initialData ? [{ id: 'manual', label: 'Preview Data', icon: Pencil }] : [])];
+  const availableTabs = [
+    { id: 'upload', label: 'Upload Foto', icon: Upload },
+    { id: 'camera', label: 'Kamera', icon: Camera },
+    { id: 'manual', label: predictionUsed || initialData || isEdit ? 'Preview Data' : 'Input Manual', icon: Pencil }
+  ];
 
   // EFFECT 1: Sinkronisasi data awal saat modal dibuka/ganti props
   useEffect(() => {
@@ -120,7 +127,6 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
 
   // EFFECT 2: Auto-fill form ketika hasil prediksi AI berhasil didapatkan
   useEffect(() => {
-    // Jika tidak ada hasil baru, atau data prediksi sudah pernah dimasukkan, hentikan!
     if (!predict.predictionResult || predictionUsed) return;
 
     const responseData = predict.predictionResult?.data || predict.predictionResult;
@@ -147,6 +153,54 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
     setPredictionUsed(true); // Tandai bahwa form sudah auto-fill via AI
     setTab('manual');
   }, [predict.predictionResult, predictionUsed]);
+
+  // EFFECT 3: Pencarian nama makanan
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      const query = form.foodName.trim();
+      if (!predictionUsed && query.length >= 2) {
+        setIsSearching(true);
+        setShowDropdown(true); // Tampilkan dropdown langsung saat mulai mencari
+        try {
+          const res = await foodAPI.searchFoods(query);
+          const foods = res.data?.foods || [];
+          setSearchResults(foods);
+        } catch (error) {
+          setSearchResults([]);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+        setShowDropdown(false);
+      }
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [form.foodName, isEdit, predictionUsed]);
+
+  const handleSelectFood = async (foodName) => {
+    setShowDropdown(false);
+    setField('foodName')(foodName.replace(/_/g, ' '));
+
+    try {
+      const res = await foodAPI.getFoodNutrition(foodName);
+      const food = res.data?.food;
+      if (food) {
+        setForm((prev) => ({
+          ...prev,
+          calorie: String(Math.round(food.calorie ?? 0)),
+          protein: String(Number(food.protein ?? 0).toFixed(2)),
+          carbohydrate: String(Number(food.carbohydrate ?? 0).toFixed(2)),
+          fat: String(Number(food.fat ?? 0).toFixed(2)),
+          servingSizeG: String(food.servingSizeG ?? ''),
+          servingDescription: food.servingDescription || '',
+        }));
+      }
+    } catch (error) {
+      console.error("Gagal mengambil detail nutrisi:", error);
+    }
+  };
 
   function setField(key) {
     return (val) => setForm((p) => ({ ...p, [key]: val }));
@@ -270,7 +324,6 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
               {predict.predictionResult && (
                 <div className="mt-4">
                   <PredictionResult predictionResult={predict.predictionResult} />
-                  {/* Perbaikan tombol pemicu infinite loop di bawah ini */}
                   {!predictionUsed && predict.predictionResult?.predict?.foodName && (
                     <Button
                       type="button"
@@ -349,13 +402,54 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
               )}
 
               <Field label="Nama Makanan" required>
-                <input
-                  type="text"
-                  value={form.foodName}
-                  onChange={(e) => setField('foodName')(e.target.value)}
-                  placeholder="contoh: Nasi Goreng Ayam"
-                  className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={form.foodName}
+                    onChange={(e) => {
+                      setField('foodName')(e.target.value);
+                      if (e.target.value.length < 2) setShowDropdown(false);
+                    }}
+                    onFocus={() => {
+                      if (!predictionUsed && searchResults.length > 0) setShowDropdown(true);
+                    }}
+                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                    placeholder="contoh: Nasi Goreng Ayam"
+                    className="w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    readOnly={predictionUsed}
+                  />
+                  {isSearching && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <Loader2 size={16} className="animate-spin text-primary" />
+                    </div>
+                  )}
+                  {showDropdown && form.foodName.trim().length >= 2 && (
+                    <ul className="absolute z-50 w-full mt-1 bg-card border border-borderPrimary rounded-xl shadow-lg max-h-48 overflow-y-auto overflow-x-hidden">
+                      {isSearching ? (
+                        <li className="px-4 py-3 text-sm text-textMuted flex items-center justify-center gap-2">
+                          <Loader2 size={14} className="animate-spin" /> Sedang mencari...
+                        </li>
+                      ) : searchResults.length > 0 ? (
+                        searchResults.map((food, idx) => (
+                          <li
+                            key={food.id || idx}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectFood(food.foodName);
+                            }}
+                            className="px-4 py-2.5 text-sm text-textPrimary hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors border-b border-borderPrimary/50 last:border-0 capitalize"
+                          >
+                            {food.foodName?.replace(/_/g, ' ')}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="px-4 py-3 text-sm text-textMuted text-center">
+                          Makanan tidak ditemukan
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </div>
               </Field>
 
               <div className="grid grid-cols-2 gap-4">
@@ -384,15 +478,15 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                     value={form.servingDescription}
                     onChange={(e) => setField('servingDescription')(e.target.value)}
                     placeholder="contoh: 1 piring / 1 mangkuk"
-                    readOnly={isEdit || predictionUsed}
+                    readOnly={predictionUsed}
                     className={cn(
                       "w-full rounded-xl border border-borderPrimary bg-input px-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40",
-                      (isEdit || predictionUsed) && "opacity-70 cursor-not-allowed bg-background"
+                      predictionUsed && "opacity-70 cursor-not-allowed bg-background"
                     )}
                   />
                 </Field>
                 <Field label="Berat (g) (Opsional)">
-                  <NumInput id="servingSizeG" value={form.servingSizeG} onChange={setField('servingSizeG')} placeholder="200" readOnly={isEdit || predictionUsed} />
+                  <NumInput id="servingSizeG" value={form.servingSizeG} onChange={setField('servingSizeG')} placeholder="200" readOnly={predictionUsed} />
                 </Field>
               </div>
 
@@ -408,11 +502,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                         step="any"
                         value={form.calorie}
                         onChange={(e) => setField('calorie')(e.target.value)}
-                        readOnly={isEdit || predictionUsed}
+                        readOnly={predictionUsed}
                         placeholder="0"
                         className={cn(
                           'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
-                          (isEdit || predictionUsed) && 'opacity-70 cursor-not-allowed bg-background',
+                          predictionUsed && 'opacity-70 cursor-not-allowed bg-background',
                         )}
                       />
                     </div>
@@ -426,11 +520,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                         step="any"
                         value={form.protein}
                         onChange={(e) => setField('protein')(e.target.value)}
-                        readOnly={isEdit || predictionUsed}
+                        readOnly={predictionUsed}
                         placeholder="0"
                         className={cn(
                           'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
-                          (isEdit || predictionUsed) && 'opacity-70 cursor-not-allowed bg-background',
+                          predictionUsed && 'opacity-70 cursor-not-allowed bg-background',
                         )}
                       />
                     </div>
@@ -444,11 +538,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                         step="any"
                         value={form.carbohydrate}
                         onChange={(e) => setField('carbohydrate')(e.target.value)}
-                        readOnly={isEdit || predictionUsed}
+                        readOnly={predictionUsed}
                         placeholder="0"
                         className={cn(
                           'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
-                          (isEdit || predictionUsed) && 'opacity-70 cursor-not-allowed bg-background',
+                          predictionUsed && 'opacity-70 cursor-not-allowed bg-background',
                         )}
                       />
                     </div>
@@ -462,11 +556,11 @@ export function MealFormModal({ open, onClose, onSuccess, editMeal = null, initi
                         step="any"
                         value={form.fat}
                         onChange={(e) => setField('fat')(e.target.value)}
-                        readOnly={isEdit || predictionUsed}
+                        readOnly={predictionUsed}
                         placeholder="0"
                         className={cn(
                           'w-full rounded-xl border border-borderPrimary bg-input pl-8 pr-3 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-primary/40',
-                          (isEdit || predictionUsed) && 'opacity-70 cursor-not-allowed bg-background',
+                          predictionUsed && 'opacity-70 cursor-not-allowed bg-background',
                         )}
                       />
                     </div>
